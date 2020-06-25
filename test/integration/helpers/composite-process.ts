@@ -1,18 +1,20 @@
 import { Readable } from 'stream'
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
 import { once } from 'events'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
 import { onceOutputLineIs } from '../../..'
 
-const LOG_OUTPUT_LINES = false
+const LOG_OUTPUT_LINES = true
 
 export class CompositeProcess {
   readonly ready: Promise<void>
   readonly ended: Promise<void>
-  private output: string[] = []
+  private script: string
   private proc: ChildProcessWithoutNullStreams
+  private output: string[] = []
   constructor(script: string) {
+    this.script = script
     this.proc = spawn('node', ['-e', script])
     const outputStream = mergeStream([
       this.proc.stdout.setEncoding('utf8').pipe(splitStream()),
@@ -31,7 +33,9 @@ export class CompositeProcess {
   async start(): Promise<CompositeProcess> {
     await Promise.race([
       this.ready,
-      this.ended.then(() => Promise.reject(new CompositeProcessCrashError())),
+      this.ended.then(() =>
+        Promise.reject(new CompositeProcessCrashError(this.script, this.output))
+      ),
     ])
     return this
   }
@@ -45,5 +49,18 @@ export class CompositeProcess {
 }
 
 export class CompositeProcessCrashError extends Error {
-  message = 'CompositeProcessCrashError'
+  constructor(script: string, output: string[]) {
+    const indent = (lines: string[]) => lines.map(line => `  ${line}`)
+    super(
+      [
+        'Composite process crashed:',
+        '',
+        '--- Script ---',
+        ...indent(script.split(/\r?\n/)),
+        '--- Output ---',
+        ...indent(output),
+        '--------------\n',
+      ].join('\n')
+    )
+  }
 }

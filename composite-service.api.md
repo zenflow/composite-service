@@ -28,7 +28,7 @@ export interface CompositeServiceConfig {
 }
 
 // @public (undocumented)
-export function configureHttpProxyService(config: HttpProxyServiceConfig): ComposedServiceConfig;
+export function configureHttpGatewayService(config: HttpGatewayServiceConfig): ComposedServiceConfig;
 
 // @public (undocumented)
 export type HttpProxyConfig = Options & {
@@ -36,7 +36,7 @@ export type HttpProxyConfig = Options & {
 };
 
 // @public (undocumented)
-export type HttpProxyServiceConfig = Omit<ComposedServiceConfig, 'command' | 'env' | 'ready'> & {
+export type HttpGatewayServiceConfig = Omit<ComposedServiceConfig, 'command' | 'env' | 'ready'> & {
     host?: string;
     port: number | string;
     proxies: HttpProxyConfig[];

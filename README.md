@@ -71,7 +71,7 @@ If you want to expose some composed http services through a single http service 
 which proxies requests to the appropriate composed service depending on the URL,
 you can use the included HTTP proxy service instead of writing (and re-writing) your own.
 
-The HTTP proxy service can be configured with the `configureHttpProxyService` function which
+The HTTP proxy service can be configured with the `configureHttpGatewayService` function which
 takes the following parameters and returns a service configuration object:
 TODO
 - `dependencies`: Used as `dependencies` in service configuration object (defaults to `[]`)
@@ -91,7 +91,7 @@ and all other requests to the `web` service:
 const {
   startCompositeService,
   oncePortUsed,
-  configureHttpProxyService,
+  configureHttpGatewayService,
 } = require('composite-service')
 
 const [apiPort, webPort] = [8000, 8001]
@@ -113,7 +113,7 @@ startCompositeService({
       },
       ready: () => oncePortUsed(webPort),
     },
-    proxy: configureHttpProxyService({
+    proxy: configureHttpGatewayService({
       dependencies: ['api', 'web'],
       port: process.env.PORT,
       proxies: [

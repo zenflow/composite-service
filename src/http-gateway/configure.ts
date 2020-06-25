@@ -6,7 +6,7 @@ import {
 import { ComposedServiceConfig } from '../core'
 import { onceOutputLineIncludes } from '../ready-helpers'
 
-export type HttpProxyServiceConfig = Omit<
+export type HttpGatewayServiceConfig = Omit<
   ComposedServiceConfig,
   'command' | 'env' | 'ready'
 > & {
@@ -19,13 +19,13 @@ export type HttpProxyConfig = HttpProxyMiddlewareOptions & {
   context: HttpProxyMiddlewareContext
 }
 
-export function configureHttpProxyService(
-  config: HttpProxyServiceConfig
+export function configureHttpGatewayService(
+  config: HttpGatewayServiceConfig
 ): ComposedServiceConfig {
   // TODO: validate config
   const { host, port, proxies, ...rest } = config
   return {
-    command: ['node', `${__dirname}/http-proxy-server.js`],
+    command: ['node', `${__dirname}/http-gateway-server.js`],
     env: {
       HOST: host || '0.0.0.0',
       PORT: String(port),

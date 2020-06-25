@@ -10,13 +10,13 @@
   "files": [
     "dist/index.js",
     "dist/index.js.map",
-    "dist/http-proxy-server.js",
-    "dist/http-proxy-server.js.map",
+    "dist/http-gateway-server.js",
+    "dist/http-gateway-server.js.map",
     "dist/**/*.d.ts",
     "src"
   ],
   "scripts": {
-    "_build": "tsdx --target node --format cjs --entry src/index.ts --entry src/http-proxy/server.ts",
+    "_build": "tsdx --target node --format cjs --entry src/index.ts --entry src/http-gateway/server.ts",
     "build": "yarn _build build",
     "build-watch": "yarn _build watch",
     "_test": "tsdx test --runInBand",

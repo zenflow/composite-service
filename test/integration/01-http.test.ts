@@ -3,7 +3,7 @@ import { fetchText } from './helpers/fetchText'
 
 const getScript = () => {
   return `
-    const { onceOutputLineIs, oncePortUsed, configureHttpProxyService, startCompositeService } = require('.');
+    const { onceOutputLineIs, oncePortUsed, configureHttpGatewayService, startCompositeService } = require('.');
     const command = 'node test/integration/fixtures/http-service.js';
     const config = {
       services: {
@@ -17,7 +17,7 @@ const getScript = () => {
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
           ready: ctx => oncePortUsed(8001),
         },
-        proxy: configureHttpProxyService({
+        gateway: configureHttpGatewayService({
           dependencies: ['api', 'web'],
           port: 3000,
           proxies: [
@@ -44,15 +44,15 @@ describe('basic', () => {
         "Starting composite service...",
         "Starting service 'api'...",
         "Starting service 'web'...",
-        "web   | Started 🚀",
+        "web     | Started 🚀",
         "Started service 'web'",
-        "api   | Started 🚀",
+        "api     | Started 🚀",
         "Started service 'api'",
-        "Starting service 'proxy'...",
-        "proxy | [HPM] Proxy created: /api  -> http://localhost:8000",
-        "proxy | [HPM] Proxy created: /  -> http://localhost:8001",
-        "proxy | Listening @ http://0.0.0.0:3000",
-        "Started service 'proxy'",
+        "Starting service 'gateway'...",
+        "gateway | [HPM] Proxy created: /api  -> http://localhost:8000",
+        "gateway | [HPM] Proxy created: /  -> http://localhost:8001",
+        "gateway | Listening @ http://0.0.0.0:3000",
+        "Started service 'gateway'",
         "Started composite service",
       ]
     `)
@@ -70,17 +70,17 @@ describe('basic', () => {
         Array [
           "Received shutdown signal 'SIGINT'",
           "Stopping composite service...",
-          "Stopping service 'proxy'...",
-          "proxy | ",
-          "proxy | ",
-          "Stopped service 'proxy'",
+          "Stopping service 'gateway'...",
+          "gateway | ",
+          "gateway | ",
+          "Stopped service 'gateway'",
           "Stopping service 'api'...",
           "Stopping service 'web'...",
-          "web   | ",
-          "web   | ",
+          "web     | ",
+          "web     | ",
           "Stopped service 'web'",
-          "api   | ",
-          "api   | ",
+          "api     | ",
+          "api     | ",
           "Stopped service 'api'",
           "Stopped composite service",
           "",
