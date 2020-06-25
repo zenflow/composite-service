@@ -3,7 +3,7 @@ import { fetchText } from './helpers/fetchText'
 
 const getScript = () => {
   return `
-    const { onceOutputLineIs, oncePortUsed, configureHttpGatewayService, startCompositeService } = require('.');
+    const { onceOutputLineIs, oncePortUsed, configureHttpGateway, startCompositeService } = require('.');
     const command = 'node test/integration/fixtures/http-service.js';
     const config = {
       services: {
@@ -17,12 +17,12 @@ const getScript = () => {
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
           ready: ctx => oncePortUsed(8001),
         },
-        gateway: configureHttpGatewayService({
+        gateway: configureHttpGateway({
           dependencies: ['api', 'web'],
-          port: 3000,
+          port: 8080,
           proxies: [
-            { context: '/api', target: 'http://localhost:8000' },
-            { context: '/', target: 'http://localhost:8001' },
+            ['/api', { target: 'http://localhost:8000' }],
+            ['/', { target: 'http://localhost:8001' }],
           ],
         }),
       },
@@ -51,15 +51,15 @@ describe('basic', () => {
         "Starting service 'gateway'...",
         "gateway | [HPM] Proxy created: /api  -> http://localhost:8000",
         "gateway | [HPM] Proxy created: /  -> http://localhost:8001",
-        "gateway | Listening @ http://0.0.0.0:3000",
+        "gateway | Listening @ http://0.0.0.0:8080",
         "Started service 'gateway'",
         "Started composite service",
       ]
     `)
-    expect(await fetchText('http://localhost:3000/api')).toBe('api')
-    expect(await fetchText('http://localhost:3000/api/foo')).toBe('api')
-    expect(await fetchText('http://localhost:3000/')).toBe('web')
-    expect(await fetchText('http://localhost:3000/foo')).toBe('web')
+    expect(await fetchText('http://localhost:8080/api')).toBe('api')
+    expect(await fetchText('http://localhost:8080/api/foo')).toBe('api')
+    expect(await fetchText('http://localhost:8080/')).toBe('web')
+    expect(await fetchText('http://localhost:8080/foo')).toBe('web')
     expect(proc.flushOutput()).toStrictEqual([])
     await proc.end()
     if (process.platform === 'win32') {

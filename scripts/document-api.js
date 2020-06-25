@@ -39,32 +39,18 @@ async function main() {
 async function processMdFile(file) {
   let lines = (await readFile(file, 'utf8')).split(/\r?\n/)
 
-  let title = ''
-  for (let index = 0; index < lines.length; index++) {
-    const match = lines[index].match(/## (.*)/)
-    if (match) {
-      title = match[1]
-      lines.splice(index, 1)
-      break
+  // Unescape escaped markdown links
+  const escapedMarkdownLinkPattern = /\\\[([^[\]]+)\\]\(([^()]+)\)/
+  lines = lines.map(line => {
+    let result = line
+    while (escapedMarkdownLinkPattern.test(result)) {
+      result = result.replace(
+        escapedMarkdownLinkPattern,
+        (_, link, title) => `[${link}](${title})`
+      )
     }
-  }
-
-  let sidebarLabel
-  const [exportName, exportType] = title.split(' ')
-  const exportNameParts = exportName.split('.')
-  if (exportNameParts.length === 1) {
-    sidebarLabel = title
-  } else {
-    sidebarLabel = `${exportNameParts.slice(1).join('.')} ${exportType}`
-  }
-
-  const homeRegexp = /\[Home\]\(.\/index\.md\) &gt; (.*)/
-  const homeLineIndex = lines.findIndex(line => homeRegexp.test(line))
-  if (parse(file).name === pkg.name) {
-    lines.splice(homeLineIndex, 1)
-  } else {
-    lines[homeLineIndex] = lines[homeLineIndex].match(homeRegexp)[1]
-  }
+    return result
+  })
 
   // See issue #4. api-documenter expects \| to escape table
   // column delimiters, but docusaurus uses a markdown processor
@@ -74,14 +60,101 @@ async function processMdFile(file) {
     line.startsWith('|') ? line.replace(/\\\|/g, '&#124;') : line
   )
 
-  lines = [
+  // Convert some section headings to actual headings
+  for (const section of ['Signature', 'Returns']) {
+    lines = lines.map(line =>
+      line === `<b>${section}:</b>` ? `## ${section}` : line
+    )
+  }
+
+  // Extract `title` and delimit "Summary" section
+  const titleLinePattern = /## (.*)/
+  const titleLineIndex = lines.findIndex(line => titleLinePattern.test(line))
+  const title = lines[titleLineIndex].match(titleLinePattern)[1]
+  lines[titleLineIndex] = `## Summary`
+
+  // --- `lines` defined, now extract remaining data from it
+
+  const breadcrumbsPattern = /\[Home\]\(.\/index\.md\) &gt; (.*)/
+  const breadcrumbsIndex = lines.findIndex(line =>
+    breadcrumbsPattern.test(line)
+  )
+  const breadcrumbs = lines[breadcrumbsIndex].match(breadcrumbsPattern)[1]
+
+  const {
+    Functions = [],
+    Interfaces = [],
+    Summary = [],
+    Signature = [],
+    Remarks = [],
+    Properties = [],
+    Parameters = [],
+    Returns = [],
+    Example = [],
+    ...rest
+  } = parseSections(lines)
+  if (Object.keys(rest).length) {
+    throw new Error(`Unhandled sections: ${Object.keys(rest).join(', ')}`)
+  }
+
+  const [exportName, exportType] = title.split(' ')
+
+  let sidebarLabel
+  const exportNameParts = exportName.split('.')
+  if (exportType === 'interface') {
+    sidebarLabel = 'interface'
+  } else if (exportNameParts.length === 1) {
+    sidebarLabel = title
+  } else {
+    sidebarLabel = `${exportNameParts.slice(1).join('.')} ${exportType}`
+  }
+
+  let output = [
     '---',
     `title: ${title}`,
-    'custom_edit_url:',
     `sidebar_label: ${sidebarLabel}`,
+    'hide_title: true',
+    'custom_edit_url:',
     '---',
-    ...lines,
+    '',
+    parse(file).name !== pkg.name ? breadcrumbs : '',
+    '',
+    `# ${title}`,
+    '',
+    ...Functions, // for package doc
+    ...Interfaces, // for package doc
+    ...Summary,
+    ...(exportType === 'property' ? Signature : []),
+    ...Remarks,
+    ...Properties,
+    ...Parameters,
+    ...Returns,
+    ...Example,
   ]
 
-  await writeFile(file, lines.join('\n'))
+  // Prefix all heading lines with another '#'
+  output = output.map(line => (line[0] === '#' ? `#${line}` : line))
+
+  await writeFile(file, output.join('\n'))
+}
+
+function parseSections(lines) {
+  const result = {}
+  let currentSection
+  for (const line of lines) {
+    const match = line.match(/## (.*)/)
+    if (match) {
+      currentSection = match[1]
+      result[currentSection] = []
+    }
+    if (currentSection) {
+      result[currentSection].push(line)
+    }
+  }
+  for (const key of Object.keys(result)) {
+    if (result[key].filter(Boolean).length === 1) {
+      delete result[key]
+    }
+  }
+  return result
 }

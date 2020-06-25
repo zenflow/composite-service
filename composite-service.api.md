@@ -27,43 +27,15 @@ export interface CompositeServiceConfig {
     };
 }
 
-// @public (undocumented)
-export function configureHttpGatewayService(config: HttpGatewayServiceConfig): ComposedServiceConfig;
+// @public
+export function configureHttpGateway(config: HttpGatewayConfig): ComposedServiceConfig;
 
-// @public (undocumented)
-export type HttpProxyConfig = Options & {
-    context: Filter;
-};
-
-// @public (undocumented)
-export type HttpGatewayServiceConfig = Omit<ComposedServiceConfig, 'command' | 'env' | 'ready'> & {
+// @public
+export interface HttpGatewayConfig {
+    dependencies?: ComposedServiceConfig['dependencies'];
     host?: string;
     port: number | string;
-    proxies: HttpProxyConfig[];
-};
-
-// @public (undocumented)
-export interface NormalizedComposedServiceConfig {
-    // (undocumented)
-    command: string[];
-    // (undocumented)
-    dependencies: string[];
-    // (undocumented)
-    env: {
-        [key: string]: string;
-    };
-    // (undocumented)
-    ready: (ctx: ReadyConfigContext) => Promise<any>;
-}
-
-// @public (undocumented)
-export interface NormalizedCompositeServiceConfig {
-    // (undocumented)
-    printConfig: boolean;
-    // (undocumented)
-    services: {
-        [id: string]: NormalizedComposedServiceConfig;
-    };
+    proxies: [Filter, Options][];
 }
 
 // @public (undocumented)

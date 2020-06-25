@@ -62,9 +62,8 @@ module.exports = {
             getApiNode('onceTimeout'),
           ],
           'HTTP Gateway': [
-            getApiNode('configureHttpGatewayService'),
-            getApiNode('HttpGatewayServiceConfig'),
-            getApiNode('HttpProxyConfig'),
+            getApiNode('configureHttpGateway'),
+            getApiNode('HttpGatewayConfig'),
           ],
         },
       ],

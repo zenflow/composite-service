@@ -2,11 +2,11 @@
 title: 'What?'
 ---
 
-`composite-service` is a nodejs library
-to help you run multiple services as if they were a single service,
-running under a single process.
+`composite-service` is a Node.js library
+to help you run multiple services as if they were a *single* service,
+running under a *single* process.
 
-`coposite-service` lets you implement a "composite service"
+`composite-service` lets you implement a "composite service"
 in a declarative and fairly intuitive script like this:
 
 ```js
