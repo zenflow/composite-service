@@ -2,55 +2,7 @@
 
 Helps you run multiple services as one
 
-### Basic usage
-
-At the heart of this library is the `startCompositeService` function (TODO)
-
-Suppose, for example, you have an API service and another website service which makes calls to the API.
-
-The script to run them together, as if they were a single program, might look like this:
-
-```js
-const { startCompositeService } = require('composite-service')
-
-const apiPort = 8000
-
-startCompositeService({
-  services: {
-    api: {
-      command: 'node api/server.js',
-      env: {
-        PORT: apiPort,
-      },
-    },
-    web: {
-      command: 'node web/server.js',
-      env: {
-        PORT: process.env.PORT,
-        API_ENDPOINT: `http://localhost:${apiPort}`,
-      },
-    },
-  },
-})
-```
-
-The above script will:
-1. Start each composed service by spawning a process with the given `command` and `env` (environment variables)
-2. Merge the stdout & stderr of every composed service and pipe it to stdout, each line prepended with the service name
-3. Restart composed services when they "crash" (i.e. exit without being told to exit)
-4. Shut down each composed service when it is itself told to shut down (with ctrl+c, SIGINT, or SIGTERM)
-
-The example above only demonstrates composing nodejs http servers,
-but a composed service can be any program that fits this description:
-1. Runs in the terminal (i.e. in the foreground, not daemonized and in the background)
-2. Should run until receiving a shutdown (`SIGINT` or `SIGTERM`) signal. Should not exit by itself, as that would be considered a crash.
-
-The composite service shares the above characteristics.
-It is a terminal program and shouldn't exit until receiving a shutdown signal.
-*However*, if any fatal error occurs, the composite service will shut down any running services and exit with exit code `1`.
-TODO: Reference "Fatal errors" section here
-
-Fatal errors:
+### Fatal errors
     - Invalid configuration
     - Error spawning process (e.g. EPERM, etc.)
     - Error in `ready` function
@@ -172,28 +124,6 @@ startCompositeService({
   },
 })
 ```
-
-## Motivation
-
-Sometimes we want to use some open-source (or just reusable) service in our app or service.
-If, instead of thinking of that reusable service as an external dependency,
-we rather think of it as a *component* of our overall service,
-then we might want to include it *in* our overall service,
-rather than running it separately, and deploying it separately, as its own independent service.
-
-Advantages of running as a single service:
-
-1. simplified deployments & devops; works smoothly with any PaaS provider; never a need to update production services in a certain order
-2. allows us to effectively use PaaS features like [Heroku's Review Apps](https://devcenter.heroku.com/articles/github-integration-review-apps)
-3. with some PaaS providers (e.g. Heroku, render) saves the cost of hosting additional "apps" or "services"
-4. fewer steps (i.e. one step) to start the entire system (locally or in CI) for integration testing (manual or automated), and sometimes even for local development
-
-Another possible use case is grouping a set of microservices into one, to gain the same advantages listed above, as well as most of the advantages of microservices:
-- Services can be developed independently, in different repositories, by different teams, in different languages
-- One service crashing doesn't interrupt the others, since they still, on a lower level run as independent programs
-
-You are not locked in to this approach.
-Your composed services can be easily *de*composed at any time, and deployed separately.
 
 ## Related Projects
 

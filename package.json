@@ -27,6 +27,10 @@
     "extract-api": "api-extractor run --local",
     "check-api": "api-extractor run",
     "document-api": "node scripts/document-api.js",
+    "_website": "yarn document-api && cd website && yarn && yarn",
+    "start-website": "yarn _website start",
+    "build-website": "yarn _website build",
+    "deploy-website": "yarn _website deploy",
     "prepublishOnly": "yarn lint && yarn build && yarn test && yarn check-api"
   },
   "dependencies": {
