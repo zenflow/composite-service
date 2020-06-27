@@ -29,7 +29,7 @@ let started = false
  * ```js
  * const {
  *   startCompositeService,
- *   oncePortUsed,
+ *   onceTcpPortUsed,
  * } = require('composite-service')
  *
  * const { PORT } = process.env
@@ -39,7 +39,7 @@ let started = false
  *   services: {
  *     db: {
  *       command: 'postgres -D ./pgsql/data',
- *       ready: () => oncePortUsed(5432),
+ *       ready: () => onceTcpPortUsed(5432),
  *     }
  *     worker: {
  *       dependencies: ['db'],

@@ -55,11 +55,11 @@ module.exports = {
             getApiNode('ReadyConfigContext'),
           ],
           'Ready Helpers': [
-            getApiNode('onceOutputLine'),
-            getApiNode('onceOutputLineIs'),
-            getApiNode('onceOutputLineIncludes'),
-            getApiNode('oncePortUsed'),
+            getApiNode('onceTcpPortUsed'),
             getApiNode('onceTimeout'),
+            getApiNode('onceOutputLineIncludes'),
+            getApiNode('onceOutputLineIs'),
+            getApiNode('onceOutputLine'),
           ],
           'HTTP Gateway': [
             getApiNode('configureHttpGateway'),

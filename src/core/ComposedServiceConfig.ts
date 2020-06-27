@@ -52,9 +52,9 @@ export interface ComposedServiceConfig {
    * @remarks
    *
    * The function takes a {@link ReadyConfigContext} as its only argument
-   * and returns a `Promise` that resolves when the service has started up and is ready to do its job.
+   * and should return a `Promise` that resolves when the service has started up and is ready to do its job.
    *
-   * This library includes [a collection of "ready helpers" for defining this property](./composite-service.onceoutputline.md).
+   * This library includes [a collection of "ready helpers" for defining this property](./composite-service.oncetcpportused.md).
    */
   ready?: (ctx: ReadyConfigContext) => Promise<any>
 }

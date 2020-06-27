@@ -1,4 +1,4 @@
-import { PassThrough } from 'stream'
+import stream from 'stream'
 
 /**
  * Context object given as argument to each
@@ -7,5 +7,8 @@ import { PassThrough } from 'stream'
  * @public
  */
 export interface ReadyConfigContext {
-  output: PassThrough
+  /**
+   * Interleaved lines from stdout & stderr of service
+   */
+  output: stream.Readable
 }

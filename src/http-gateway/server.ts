@@ -1,17 +1,20 @@
 import { once } from 'events'
-import connect, { HandleFunction } from 'connect'
-import { createProxyMiddleware, Options, Filter } from 'http-proxy-middleware'
+import express from 'express'
+import { createProxyMiddleware } from 'http-proxy-middleware'
+import { HttpGatewayConfig } from './HttpGatewayConfig'
 
-const app = connect()
+const app = express()
 
 // eslint-disable-next-line no-eval
-const proxies: [Filter, Options][] = eval(process.env.PROXIES as string)
+const proxies: HttpGatewayConfig['proxies'] = eval(
+  process.env.PROXIES as string
+)
 for (const [filter, options] of proxies) {
   const middleware = createProxyMiddleware(filter, options)
-  app.use(middleware as HandleFunction)
+  app.use(middleware)
 }
 
-const host = process.env.HOST
+const host = process.env.HOST as string
 const port = parseInt(process.env.PORT as string, 10)
 const server = app.listen(port, host)
 once(server, 'listening').then(() => {

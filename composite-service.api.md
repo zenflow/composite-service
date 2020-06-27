@@ -6,8 +6,7 @@
 
 import { Filter } from 'http-proxy-middleware';
 import { Options } from 'http-proxy-middleware';
-import { PassThrough } from 'stream';
-import { Readable } from 'stream';
+import stream from 'stream';
 
 // @public
 export interface ComposedServiceConfig {
@@ -38,25 +37,24 @@ export interface HttpGatewayConfig {
     proxies: [Filter, Options][];
 }
 
-// @public (undocumented)
-export function onceOutputLine(output: Readable, test: (line: string) => boolean): Promise<void>;
+// @public
+export function onceOutputLine(output: stream.Readable, test: (line: string) => boolean): Promise<void>;
 
-// @public (undocumented)
-export function onceOutputLineIncludes(output: Readable, value: string): Promise<void>;
+// @public
+export function onceOutputLineIncludes(output: stream.Readable, value: string): Promise<void>;
 
-// @public (undocumented)
-export function onceOutputLineIs(output: Readable, value: string): Promise<void>;
+// @public
+export function onceOutputLineIs(output: stream.Readable, value: string): Promise<void>;
 
-// @public (undocumented)
-export function oncePortUsed(port: number | string, host?: string): Promise<void>;
+// @public
+export function onceTcpPortUsed(port: number | string, host?: string): Promise<void>;
 
-// @public (undocumented)
+// @public
 export function onceTimeout(milliseconds: number): Promise<void>;
 
 // @public
 export interface ReadyConfigContext {
-    // (undocumented)
-    output: PassThrough;
+    output: stream.Readable;
 }
 
 // @public

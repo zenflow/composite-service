@@ -3,7 +3,7 @@ import { fetchText } from './helpers/fetchText'
 
 const getScript = () => {
   return `
-    const { onceOutputLineIs, oncePortUsed, configureHttpGateway, startCompositeService } = require('.');
+    const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
     const command = 'node test/integration/fixtures/http-service.js';
     const config = {
       services: {
@@ -15,7 +15,7 @@ const getScript = () => {
         web: {
           command,
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
-          ready: ctx => oncePortUsed(8001),
+          ready: ctx => onceTcpPortUsed(8001),
         },
         gateway: configureHttpGateway({
           dependencies: ['api', 'web'],

@@ -23,7 +23,7 @@ The `ReadyConfigContext` object has the following properties:
 - `output`: [readable stream](https://nodejs.org/api/stream.html#stream_class_stream_readable) of lines (as strings) from stdout & stderr
 
 This package includes several helper functions for the `ready` config:
-- `oncePortUsed(port: number | string, host = 'localhost'): Promise<void>`
+- `onceTcpPortUsed(port: number | string, host = 'localhost'): Promise<void>`
 - `onceOutputLineIs(output: stream.Readable, value: string): Promise<void>`
 - `onceOutputLineIncludes(output: stream.Readable, value: string): Promise<void>`
 - `onceOutputLine(output: Readable, test: (line: string) => boolean): Promise<void>`
@@ -84,7 +84,7 @@ and all other requests to the `web` service:
 ```js
 const {
   startCompositeService,
-  oncePortUsed,
+  onceTcpPortUsed,
   configureHttpGateway,
 } = require('composite-service')
 
@@ -97,7 +97,7 @@ startCompositeService({
       env: {
         PORT: apiPort,
       },
-      ready: () => oncePortUsed(apiPort),
+      ready: () => onceTcpPortUsed(apiPort),
     },
     web: {
       command: 'node web/server.js',
@@ -105,7 +105,7 @@ startCompositeService({
         PORT: webPort,
         API_ENDPOINT: `http://localhost:${apiPort}`,
       },
-      ready: () => oncePortUsed(webPort),
+      ready: () => onceTcpPortUsed(webPort),
     },
     proxy: configureHttpGateway({
       dependencies: ['api', 'web'],
@@ -181,6 +181,7 @@ TODO: quick comparison of this package to each of projects
 
 ## Feature ideas
 
+- use AsyncIterable for stream processing
 - service configs `beforeStarting`, `afterStarted`, `beforeStopping`, `afterStopped`: event handler or "hook" functions
 - service config `readyTimeout`: milliseconds to wait for service to be "ready" before giving up and erroring
 - service config `forceKillTimeout`: milliseconds to wait before sending SIGKILL
