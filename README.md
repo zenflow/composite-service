@@ -2,12 +2,6 @@
 
 Helps you run multiple services as one
 
-### Fatal errors
-    - Invalid configuration
-    - Error spawning process (e.g. EPERM, etc.)
-    - Error in `ready` function
-    - Service crashed before ready (Note that "service crashed after ready" is not fatal, and will be handled by restarting the service.)
-
 ### Graceful startup (TODO: and shutdown)
 
 Building on the previous example,
@@ -71,7 +65,7 @@ If you want to expose some composed http services through a single http service 
 which proxies requests to the appropriate composed service depending on the URL,
 you can use the included HTTP proxy service instead of writing (and re-writing) your own.
 
-The HTTP proxy service can be configured with the `configureHttpGatewayService` function which
+The HTTP proxy service can be configured with the `configureHttpGateway` function which
 takes the following parameters and returns a service configuration object:
 TODO
 - `dependencies`: Used as `dependencies` in service configuration object (defaults to `[]`)
@@ -91,7 +85,7 @@ and all other requests to the `web` service:
 const {
   startCompositeService,
   oncePortUsed,
-  configureHttpGatewayService,
+  configureHttpGateway,
 } = require('composite-service')
 
 const [apiPort, webPort] = [8000, 8001]
@@ -113,7 +107,7 @@ startCompositeService({
       },
       ready: () => oncePortUsed(webPort),
     },
-    proxy: configureHttpGatewayService({
+    proxy: configureHttpGateway({
       dependencies: ['api', 'web'],
       port: process.env.PORT,
       proxies: [
@@ -142,7 +136,6 @@ TODO: quick comparison of this package to each of projects
 - count restarts
 - consider port safety
 - proxy needs NODE_ENV=production?
-- rename "http proxy service" to "http gateway service"
 
 - inline TODOs
 - check for excess config fields
@@ -151,9 +144,32 @@ TODO: quick comparison of this package to each of projects
     - use ctrl+c to shutdown composite service (for Windows compat)
 - Nodejs issue: no ChildProcess 'started' event
 
-- finish documentation /w "Configuration" section, using tsdoc website if necessary
-- publish v3
+---
+- test in multiple environments in circleci
+- docs:
+    - remaining sections from README
+        - related projects
+        - roadmap
+        - feature ideas
+        - changelog
+    - contributing
+- README
+    - badges
+    - links
+- publish v0.1.0 via GitHub packages https://github.com/zenflow/composite-service/packages
+- set up GitHub Sponsors https://github.com/sponsors/zenflow/waitlist
+- website:
+  - google analytics
+  - give landing-page love
+    - https://faastjs.org/
+    - https://repeater.js.org/
+    - https://gqless.dev/
+    - https://uniforms.tools/
+  - search function https://docsearch.algolia.com/
 
+---
+
+- use 'debug' package
 - service config `restartDelay`, default: 1000
 - service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
 - `verbosity` config
@@ -174,16 +190,5 @@ TODO: quick comparison of this package to each of projects
 
 ## Changelog
 
-- `v3.0.0`
-    - Support composing non-http services (i.e. no http proxy)
-    - `dependencies`, `ready`, `restartDelay`, & `stopWith` service configs
-    - `verbosity` config
-    - Require explicit propagation of environment variables to composed services
-    - Revised names & interfaces
-- `v2.0.0`
-    - Run server procs w/o shell & kill server procs normally (w/o tree-kill) (32723c73467522551bc57da8575f57f59d04d11d)
-    - Ensure importing module is free of side-effects (efeab195b234cac153b601dd1e0835cbd53bcf2d)
-- `v1.1.0`
-    - Shutdown gracefully in non-windows environments (bce5500c99c6eec2acd7262ae70a4e6cb52b9d1c)
-- `v1.0.0`
-    - Initial commit
+- `v0.1.0`
+    - Initial release

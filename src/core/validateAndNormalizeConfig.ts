@@ -1,11 +1,21 @@
 import { assert } from './assert'
-import {
-  ComposedServiceConfig,
-  CompositeServiceConfig,
-  NormalizedCompositeServiceConfig,
-} from './config-types'
+import { CompositeServiceConfig } from './CompositeServiceConfig'
+import { ComposedServiceConfig } from './ComposedServiceConfig'
+import { ReadyConfigContext } from './ReadyConfigContext'
 
-export function normalizeCompositeServiceConfig(
+export interface NormalizedCompositeServiceConfig {
+  printConfig: boolean
+  services: { [id: string]: NormalizedComposedServiceConfig }
+}
+
+export interface NormalizedComposedServiceConfig {
+  dependencies: string[]
+  command: string[]
+  env: { [key: string]: string }
+  ready: (ctx: ReadyConfigContext) => Promise<any>
+}
+
+export function validateAndNormalizeConfig(
   config: CompositeServiceConfig
 ): NormalizedCompositeServiceConfig {
   // Let's do a lot of validation, since most scripts to implement composite server will NOT use TypeScript
@@ -54,7 +64,7 @@ export function normalizeCompositeServiceConfig(
             return [key, String(value)]
           })
       )
-      const ready = config.ready
+      const ready = config.ready || (() => Promise.resolve())
       __assert(typeof ready === 'function', `\`ready\` is not a function`)
       return [id, { dependencies, command, env, ready }]
     })

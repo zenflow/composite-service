@@ -23,18 +23,21 @@ import { HttpGatewayConfig } from './HttpGatewayConfig'
  * ```js
  * const {
  *   startCompositeService,
+ *   oncePortUsed,
  *   configureHttpGateway,
  * } = require('composite-service')
  *
  * startCompositeService({
  *   services: {
  *     api: {
- *       command: 'node api.js',
+ *       command: 'node api/server.js',
  *       env: { PORT: 8000 },
+ *       ready: () => oncePortUsed(8000),
  *     },
  *     web: {
- *       command: 'node web.js',
+ *       command: 'node web/server.js',
  *       env: { PORT: 8001 },
+ *       ready: () => oncePortUsed(8001),
  *     },
  *     gateway: configureHttpGateway({
  *       dependencies: ['api', 'web'],

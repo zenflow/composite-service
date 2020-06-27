@@ -9,21 +9,21 @@ import { Options } from 'http-proxy-middleware';
 import { PassThrough } from 'stream';
 import { Readable } from 'stream';
 
-// @public (undocumented)
+// @public
 export interface ComposedServiceConfig {
     command: string | string[];
     dependencies?: string[];
     env?: {
         [key: string]: string | number | undefined;
     };
-    ready: (ctx: ReadyConfigContext) => Promise<any>;
+    ready?: (ctx: ReadyConfigContext) => Promise<any>;
 }
 
-// @public (undocumented)
+// @public
 export interface CompositeServiceConfig {
     printConfig?: boolean;
     services: {
-        [id: string]: ComposedServiceConfig | null | undefined;
+        [id: string]: ComposedServiceConfig | false | null | undefined | 0 | '';
     };
 }
 
@@ -53,13 +53,13 @@ export function oncePortUsed(port: number | string, host?: string): Promise<void
 // @public (undocumented)
 export function onceTimeout(milliseconds: number): Promise<void>;
 
-// @public (undocumented)
+// @public
 export interface ReadyConfigContext {
     // (undocumented)
     output: PassThrough;
 }
 
-// @public (undocumented)
+// @public
 export function startCompositeService(config: CompositeServiceConfig): void;
 
 

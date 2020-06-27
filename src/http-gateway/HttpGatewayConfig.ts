@@ -15,7 +15,8 @@ export interface HttpGatewayConfig {
    */
   dependencies?: ComposedServiceConfig['dependencies']
   /**
-   * Host to listen on. Defaults to `'0.0.0.0'`.
+   * Host to listen on.
+   * Defaults to `'0.0.0.0'`.
    */
   host?: string
   /**
@@ -40,8 +41,8 @@ export interface HttpGatewayConfig {
    * ```js
    * {
    *   proxies: [
-   *     ['/foo', { target: 'http://localhost:3000' }],
-   *     ['/foo/bar', { target: 'http://localhost:3001' }]
+   *     ['/foo', { target: 'http://localhost:8000' }],
+   *     ['/foo/bar', { target: 'http://localhost:8001' }]
    *   ],
    * }
    * ```
@@ -55,8 +56,9 @@ export interface HttpGatewayConfig {
    * ```js
    * {
    *   proxies: {
-   *     [['/service-a', '/service-b'], { target: 'http://localhost:3000' }],
-   *     ['/', { target: 'http://localhost:3001' }],
+   *     [['/service-a', '/service-b'], { target: 'http://localhost:8000' }],
+   *     ['/websocket-service', { target: 'http://localhost:8001', ws: true }],
+   *     ['/', { target: 'http://localhost:8002' }],
    *   },
    * }
    * ```

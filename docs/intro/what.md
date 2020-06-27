@@ -16,13 +16,13 @@ const { PORT, DATABASE_URL } = process.env
 
 startCompositeService({
   services: {
-    http: {
-      command: 'node http-server.js',
-      env: { PORT, DATABASE_URL },
-    },
     worker: {
       command: 'node worker.js',
       env: { DATABASE_URL },
+    },
+    http: {
+      command: 'node http-server.js',
+      env: { PORT, DATABASE_URL },
     },
   },
 })
@@ -36,14 +36,14 @@ startCompositeService({
 4. Shut down each composed service when it is itself told to shut down (with `ctrl+c`, `SIGINT`, or `SIGTERM`)
 
 **A composed service can be any program that fits this description:**
-1. Runs in the terminal
+1. Runs in the foreground of the terminal
 2. Doesn't require any input to stdin
 3. Should run until receiving a shutdown signal. Should not exit by itself, as that would be considered a crash.
 
 The composite service shares each of the above characteristics,
-*however*, if any fatal error occurs,
-the composite service will shut down any running services and exit with exit code `1`.
-See [Errors section](../guides/errors.md) for all possible errors.
+*however*, if any [fatal error](../guides/errors.md) occurs,
+the composite service will shut down any running services and exit.
+
 
 ## Features
 

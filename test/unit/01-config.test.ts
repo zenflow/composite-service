@@ -1,10 +1,10 @@
-import { normalizeCompositeServiceConfig } from '../../src/core/normalizeCompositeServiceConfig'
+import { validateAndNormalizeConfig } from '../../src/core/validateAndNormalizeConfig'
 
 describe('normalizeCompositeServiceConfig', () => {
   it('throws if cyclic dependency is defined', () => {
     const dummyService = { command: '', ready: async () => {} }
     expect(() =>
-      normalizeCompositeServiceConfig({
+      validateAndNormalizeConfig({
         services: {
           a: { ...dummyService, dependencies: ['b'] },
           b: { ...dummyService, dependencies: ['c'] },
