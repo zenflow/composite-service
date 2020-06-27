@@ -1,8 +1,10 @@
 import {
-  Filter as ProxyContext,
-  Options as ProxyOptions,
+  Filter as HttpProxyContext,
+  Options as HttpProxyOptions,
 } from 'http-proxy-middleware'
 import { ComposedServiceConfig } from '../core'
+
+export { HttpProxyContext, HttpProxyOptions }
 
 /**
  * Configuration for a HTTP gateway service
@@ -30,8 +32,8 @@ export interface HttpGatewayConfig {
    *
    * Each element of this array is a tuple that represents an
    * [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware) instance
-   * and consists of [ProxyContext](https://github.com/chimurai/http-proxy-middleware#context-matching)
-   * and [ProxyOptions](https://github.com/chimurai/http-proxy-middleware#options).
+   * and consists of [HttpProxyContext](https://github.com/chimurai/http-proxy-middleware#context-matching)
+   * and [HttpProxyOptions](https://github.com/chimurai/http-proxy-middleware#options).
    *
    * Each incoming HTTP request will be handled by the first proxy that matches that request's context.
    * Therefore, the following example is an example of what *not* to do;
@@ -64,5 +66,5 @@ export interface HttpGatewayConfig {
    * ```
    *
    */
-  proxies: [ProxyContext, ProxyOptions][]
+  proxies: [HttpProxyContext, HttpProxyOptions][]
 }

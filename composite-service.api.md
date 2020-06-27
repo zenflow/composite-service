@@ -4,8 +4,8 @@
 
 ```ts
 
-import { Filter } from 'http-proxy-middleware';
-import { Options } from 'http-proxy-middleware';
+import { Filter as HttpProxyContext } from 'http-proxy-middleware';
+import { Options as HttpProxyOptions } from 'http-proxy-middleware';
 import stream from 'stream';
 
 // @public
@@ -34,8 +34,12 @@ export interface HttpGatewayConfig {
     dependencies?: ComposedServiceConfig['dependencies'];
     host?: string;
     port: number | string;
-    proxies: [Filter, Options][];
+    proxies: [HttpProxyContext, HttpProxyOptions][];
 }
+
+export { HttpProxyContext }
+
+export { HttpProxyOptions }
 
 // @public
 export function onceOutputLine(output: stream.Readable, test: (line: string) => boolean): Promise<void>;

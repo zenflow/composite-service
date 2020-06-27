@@ -1,2 +1,6 @@
-export { HttpGatewayConfig } from './HttpGatewayConfig'
+export {
+  HttpProxyContext,
+  HttpProxyOptions,
+  HttpGatewayConfig,
+} from './HttpGatewayConfig'
 export { configureHttpGateway } from './configureHttpGateway'
