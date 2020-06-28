@@ -6,44 +6,35 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import useBaseUrl from '@docusaurus/useBaseUrl'
 import styles from './styles.module.css'
 
-// TODO: add features
 const features = [
-  /* {
-    title: <>Easy to Use</>,
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
+  {
+    title: <>Simplified DevOps</>,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Ship everything as a single portable program that will work smoothly on
+        any PaaS or self-managed platform.
       </>
     ),
   },
   {
-    title: <>Focus on What Matters</>,
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
+    title: <>Declarative format</>,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Define your composite service at a high-level, in a format that is
+        declarative, flexible, explicit & easy-to-read.
       </>
     ),
   },
   {
-    title: <>Powered by React</>,
-    imageUrl: 'img/undraw_docusaurus_react.svg',
-    description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
-      </>
-    ),
-  }, */
+    title: <>Batteries included</>,
+    description: <>Includes configurable HTTP gateway</>,
+  },
 ]
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl)
   return (
-    <div className={clsx('col col--4', styles.feature)}>
+    <div className="col col--4">
       {imgUrl && (
         <div className="text--center">
           <img className={styles.featureImage} src={imgUrl} alt={title} />
@@ -68,9 +59,18 @@ function Home() {
             <Link
               className={clsx(
                 'button button--outline button--secondary button--lg',
-                styles.getStarted
+                styles.button
               )}
-              to={useBaseUrl('docs/guides/getting-started/')}
+              to={useBaseUrl('docs/intro')}
+            >
+              Introduction
+            </Link>
+            <Link
+              className={clsx(
+                'button button--outline button--secondary button--lg',
+                styles.button
+              )}
+              to={useBaseUrl('docs/guides/getting-started')}
             >
               Get Started
             </Link>

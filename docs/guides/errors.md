@@ -2,12 +2,13 @@
 title: Errors
 ---
 
-A composite server can error and crash in a number of ways:
+A composite server can error and crash in a number of ways
+(all of which can happen only during startup):
 
 1. A composite service was already started in this process
 2. Invalid configuration
-3. Error spawning process (e.g. EPERM, etc.)
-4. Error in `ready` function
+3. Error spawning process (e.g. `EPERM`, etc.)
+4. Error in [`ComposedServiceConfig.ready` function](../api/composite-service.composedserviceconfig.ready.md)
 5. Service crashed before ready (Note that "service crashed after ready" is not fatal,
 and will be handled by restarting the service.)
 

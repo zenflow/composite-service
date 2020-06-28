@@ -6,6 +6,48 @@ const apiDocFiles = fs
   .readdirSync(path.join(__dirname, '../docs/api'))
   .filter(file => file.endsWith('.md'))
 
+module.exports = {
+  docs: [
+    'intro',
+    {
+      Guides: [
+        'guides/getting-started',
+        'guides/graceful-startup-shutdown',
+        'guides/http-gateway',
+        'guides/errors',
+      ],
+      'API Reference': getApiItems(),
+    },
+    'changelog',
+    'roadmap',
+  ],
+}
+
+function getApiItems() {
+  return [
+    'api/composite-service',
+    {
+      Core: [
+        getApiNode('startCompositeService'),
+        getApiNode('CompositeServiceConfig'),
+        getApiNode('ComposedServiceConfig'),
+        getApiNode('ReadyConfigContext'),
+      ],
+      'Ready Helpers': [
+        getApiNode('onceTcpPortUsed'),
+        getApiNode('onceTimeout'),
+        getApiNode('onceOutputLineIncludes'),
+        getApiNode('onceOutputLineIs'),
+        getApiNode('onceOutputLine'),
+      ],
+      'HTTP Gateway': [
+        getApiNode('configureHttpGateway'),
+        getApiNode('HttpGatewayConfig'),
+      ],
+    },
+  ]
+}
+
 function getApiNode(name) {
   const docIds = apiDocFiles
     .filter(file => file.startsWith(`${pkg.name}.${name.toLowerCase()}.`))
@@ -22,51 +64,4 @@ function getApiNode(name) {
     label: name,
     items: [rootDocId, ...docIds.filter(file => file !== rootDocId)],
   }
-}
-
-module.exports = {
-  docs: [
-    {
-      type: 'category',
-      label: 'Introduction',
-      items: ['intro/what', 'intro/why'],
-    },
-    {
-      type: 'category',
-      label: 'Guides',
-      items: [
-        'guides/getting-started',
-        'guides/basic-usage',
-        'guides/graceful-startup-shutdown',
-        'guides/http-gateway',
-        'guides/errors',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'API Reference',
-      items: [
-        'api/composite-service',
-        {
-          Core: [
-            getApiNode('startCompositeService'),
-            getApiNode('CompositeServiceConfig'),
-            getApiNode('ComposedServiceConfig'),
-            getApiNode('ReadyConfigContext'),
-          ],
-          'Ready Helpers': [
-            getApiNode('onceTcpPortUsed'),
-            getApiNode('onceTimeout'),
-            getApiNode('onceOutputLineIncludes'),
-            getApiNode('onceOutputLineIs'),
-            getApiNode('onceOutputLine'),
-          ],
-          'HTTP Gateway': [
-            getApiNode('configureHttpGateway'),
-            getApiNode('HttpGatewayConfig'),
-          ],
-        },
-      ],
-    },
-  ],
 }

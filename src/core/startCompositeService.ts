@@ -12,48 +12,17 @@ let started = false
  * Each service defined in {@link CompositeServiceConfig.services | `config.services`}
  * is started according to its {@link ComposedServiceConfig | configuration}.
  *
- * The stdout & stderr of each service is merged and piped to stdout,
+ * The stdout & stderr of every service is merged and piped to stdout,
  * each line prepended with the service name.
  *
  * Each service is restarted when it crashes.
  *
- * Each service will be told to shut down with `SIGINT`
+ * Each service is told to shut down with `SIGINT`
  * when the composite service is itself told to shut down
  * (with `ctrl+c`, `SIGINT`, or `SIGTERM`),
  * or when a [fatal error](../guides/errors) occurs.
  *
  * @param config - Configuration for the composite service
- *
- * @example
- *
- * ```js
- * const {
- *   startCompositeService,
- *   onceTcpPortUsed,
- * } = require('composite-service')
- *
- * const { PORT } = process.env
- * const DATABASE_URL = 'postgresql://localhost:5432/my_db'
- *
- * startCompositeService({
- *   services: {
- *     db: {
- *       command: 'postgres -D ./pgsql/data',
- *       ready: () => onceTcpPortUsed(5432),
- *     }
- *     worker: {
- *       dependencies: ['db'],
- *       command: 'node worker.js',
- *       env: { DATABASE_URL },
- *     },
- *     http: {
- *       dependencies: ['db'],
- *       command: ['node', 'http-server.js'],
- *       env: { PORT, DATABASE_URL },
- *     },
- *    },
- * })
- * ```
  *
  * @public
  */

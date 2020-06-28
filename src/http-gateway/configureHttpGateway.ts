@@ -18,39 +18,6 @@ import { HttpGatewayConfig } from './HttpGatewayConfig'
  * The service can safely be used as a dependency of other services,
  * since its configuration includes {@link ComposedServiceConfig.ready | ready}.
  *
- * @example
- *
- * ```js
- * const {
- *   startCompositeService,
- *   onceTcpPortUsed,
- *   configureHttpGateway,
- * } = require('composite-service')
- *
- * startCompositeService({
- *   services: {
- *     api: {
- *       command: 'node api/server.js',
- *       env: { PORT: 8000 },
- *       ready: () => onceTcpPortUsed(8000),
- *     },
- *     web: {
- *       command: 'node web/server.js',
- *       env: { PORT: 8001 },
- *       ready: () => onceTcpPortUsed(8001),
- *     },
- *     gateway: configureHttpGateway({
- *       dependencies: ['api', 'web'],
- *       port: process.env.PORT,
- *       proxies: [
- *         ['/api', { target: 'http://localhost:8000' }],
- *         ['/', { target: 'http://localhost:8001' }],
- *       ],
- *     }),
- *   }
- * })
- * ```
- *
  * @public
  */
 export function configureHttpGateway(

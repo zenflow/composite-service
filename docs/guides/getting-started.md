@@ -1,3 +1,78 @@
 ---
-title: 'Getting Started'
+title: Getting Started
 ---
+
+## Requirements
+
+Node.js version >= 10
+
+## Installing
+
+Install [`composite-service`](https://www.npmjs.com/package/composite-service)
+from the npm package registry:
+
+With npm:
+
+```shell script
+npm install composite-service
+```
+
+Or with yarn:
+
+```shell script
+yarn add composite-service
+```
+
+## Basic Usage
+
+Create a Node.js script that calls the
+[startCompositeService function](../api/composite-service.startcompositeservice.md)
+with a [CompositeServiceConfig](../api/composite-service.compositeserviceconfig.md) object,
+which includes a [services property](../api/composite-service.compositeserviceconfig.services.md),
+which is a collection of [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) objects keyed by service ID.
+
+The most basic properties of [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) are:
+- [`command`](../api/composite-service.composedserviceconfig.command.md)
+Command used to run the service
+- [`env`](../api/composite-service.composedserviceconfig.env.md)
+Environment variables to pass to the service
+
+### Example
+
+```js
+const { startCompositeService } = require('composite-service')
+
+const { PORT, DATABASE_URL } = process.env
+
+startCompositeService({
+  services: {
+    worker: {
+      command: 'node worker/main.js',
+      env: { DATABASE_URL },
+    },
+    web: {
+      command: 'node web/main.js',
+      env: { PORT, DATABASE_URL },
+    },
+  },
+})
+```
+
+## Basic Tips
+
+### Explore API Reference
+
+- [startCompositeService function](../api/composite-service.startcompositeservice.md)
+for general specifications
+- [CompositeServiceConfig interface](../api/composite-service.compositeserviceconfig.md)
+& [ComposedServiceConfig interface](../api/composite-service.composedserviceconfig.md)
+for configuration options
+
+### Define each environment variable explicitly
+
+You may notice that environment variables are not propagated to the services by default;
+you are required to define the exact collection of environment variables.
+
+You can easily just include everything from `process.env`,
+but you should consider instead passing each necessary variable *explicitly*,
+in order to maintain a clear picture of which variables are used by which service.

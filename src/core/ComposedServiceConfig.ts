@@ -36,7 +36,7 @@ export interface ComposedServiceConfig {
    * @remarks
    *
    * No additional variables will be defined, except `PATH`, and some others depending on your OS.
-   * For example, in Windows 10, nodejs child processes always have PATH, PATHEXT, WINDIR, etc., while in Linux,
+   * For example, in Windows 10, nodejs child processes always have `PATH`, `PATHEXT`, `WINDIR`, etc., while in Linux,
    * nodejs child processes can actually have *no* environment variables if configured that way.
    *
    * TODO: Can the above inconsistency be improved in nodejs? Or is this just an inherent fact/caveat about cross-platform compatibility?
@@ -54,7 +54,8 @@ export interface ComposedServiceConfig {
    * The function takes a {@link ReadyConfigContext} as its only argument
    * and should return a `Promise` that resolves when the service has started up and is ready to do its job.
    *
-   * This library includes [a collection of "ready helpers" for defining this property](./composite-service.oncetcpportused.md).
+   * This library includes a collection of [Ready Helpers](./composite-service.oncetcpportused.md)
+   * to help you define this property.
    */
   ready?: (ctx: ReadyConfigContext) => Promise<any>
 }

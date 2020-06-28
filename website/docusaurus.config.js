@@ -15,7 +15,7 @@ module.exports = {
       },
       links: [
         {
-          to: 'docs/intro/what',
+          to: 'docs/intro',
           label: 'Intro',
           position: 'right',
         },
@@ -48,15 +48,15 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Intro',
-              to: 'docs/intro/what',
+              label: 'Introduction',
+              to: 'docs/intro',
             },
             {
-              label: 'Guides',
+              label: 'Getting Started',
               to: 'docs/guides/getting-started',
             },
             {
-              label: 'API',
+              label: 'API Reference',
               to: 'docs/api/composite-service',
             },
           ],
@@ -77,6 +77,9 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Matthew Francis Brunetti`,
     },
+    googleAnalytics: {
+      trackingID: 'UA-62288007-1',
+    },
   },
   presets: [
     [
@@ -84,7 +87,7 @@ module.exports = {
       {
         docs: {
           path: '../docs',
-          // homePageId: 'intro/what',
+          // homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
             'https://github.com/zenflow/composite-service/edit/main/website/',
