@@ -1,47 +1,105 @@
 name: CI
-on: [push]
+on: [push, pull_request]
 jobs:
-  build:
+  changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      jsOrTs: ${{ steps.filter.outputs.jsOrTs }}
+      package: ${{ steps.filter.outputs.package }}
+      apiMeta: ${{ steps.filter.outputs.apiMeta }}
+      test: ${{ steps.filter.outputs.test }}
     steps:
-      - name: Begin CI...
-        uses: actions/checkout@v2
-
-      - name: Use Node 12
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2.2.0
+        id: filter
         with:
-          node-version: 12.x
-
-      - name: Use cached node_modules
-        uses: actions/cache@v1
+          filters: |
+            jsOrTs:
+              - '**/*.js'
+              - '**/*.ts'
+            package:
+              - 'api-extractor.json'
+              - 'composite-service.api.md'
+              - 'package.json'
+              - 'tsdx.config.js'
+              - 'tsconfig.json'
+              - 'yarn.lock'
+              - 'src/**/*'
+            test:
+              - 'test/**/*'
+      - run: echo Changes - jsOrTs=${{ steps.filter.outputs.jsOrTs }} package=${{ steps.filter.outputs.package }} test=${{ steps.filter.outputs.test }}
+  lint:
+    needs: [changes]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.jsOrTs == 'true'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - uses: actions/cache@v1
         with:
           path: node_modules
-          key: nodeModules-${{ hashFiles('**/yarn.lock') }}
+          key: nodeModules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             nodeModules-
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-        env:
-          CI: true
-
-      - name: Lint
-        run: yarn lint
-        env:
-          CI: true
-
-      - name: Build
-        run: yarn build
-        env:
-          CI: true
-
-      - name: Test
-        run: yarn test
-        env:
-          CI: true
-
-      - name: Check API
-        run: yarn check-api
-        env:
-          CI: true
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+  build:
+    needs: [changes]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: nodeModules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            nodeModules-
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist/
+  check-api:
+    needs: [changes, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.package == 'true'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: nodeModules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            nodeModules-
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist/
+      - run: yarn check-api
+  test:
+    needs: [changes, build]
+    runs-on: ${{ matrix.os }}
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, windows-2019]
+        node: [10, 12, 14]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: matrix-nodeModules-${{ matrix.os }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            matrix-nodeModules-
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist/
+      - run: yarn install --frozen-lockfile
+      - run: yarn test

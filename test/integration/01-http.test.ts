@@ -10,12 +10,12 @@ const getScript = () => {
         api: {
           command,
           env: { PORT: 8000, RESPONSE_TEXT: 'api', START_DELAY: 500, STOP_DELAY: 500 },
-          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
+          ready: ctx => onceTcpPortUsed(8000),
         },
         web: {
           command,
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
-          ready: ctx => onceTcpPortUsed(8001),
+          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },
         gateway: configureHttpGateway({
           dependencies: ['api', 'web'],
@@ -31,7 +31,7 @@ const getScript = () => {
   `
 }
 
-describe('basic', () => {
+describe('http', () => {
   jest.setTimeout(process.platform === 'win32' ? 15000 : 5000)
   let proc: CompositeProcess | undefined
   afterEach(async () => {
