@@ -971,15 +971,15 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@microsoft/api-documenter@^7.8.16":
-  version "7.8.19"
-  resolved "https://registry.yarnpkg.com/@microsoft/api-documenter/-/api-documenter-7.8.19.tgz#8a0356184c0f4400a211032a5f5c203f2b13ba1c"
-  integrity sha512-pod7Fy/ItMgJFTdq9o4/YPxl5n2wF+oQCjuRgYG6rAhS+tC/EmW/AwnqZxfLi6Fe8ePNBgUHY/ko6Qlnydx05w==
+"@microsoft/api-documenter@^7.8.20":
+  version "7.8.20"
+  resolved "https://registry.yarnpkg.com/@microsoft/api-documenter/-/api-documenter-7.8.20.tgz#cd40170909d818a1c4e15eca40d1b96d55bfedcc"
+  integrity sha512-mnZlPWPRsDYSnpJOBkqTQk/0ia9fAyVW9hYVMzXHG+07/38NnlYOSoaXXYrefhX0cuDit2pjY+yJ7gSxtEpvKA==
   dependencies:
     "@microsoft/api-extractor-model" "7.8.11"
     "@microsoft/tsdoc" "0.12.19"
     "@rushstack/node-core-library" "3.24.4"
-    "@rushstack/ts-command-line" "4.4.5"
+    "@rushstack/ts-command-line" "4.4.6"
     colors "~1.2.1"
     js-yaml "~3.13.1"
     resolve "~1.17.0"
@@ -1077,6 +1077,15 @@
   version "4.4.5"
   resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.4.5.tgz#924a810177a821571297925dfdd04563d28fe2ab"
   integrity sha512-UyqdvegMvtMCAbHbrNKkWNVvcRRtQ9t47GuXlWO9PsSa33FUkIBbYmjyC53bl4mS9Zhr3YaCLN+oi9VlUtQxSg==
+  dependencies:
+    "@types/argparse" "1.0.38"
+    argparse "~1.0.9"
+    colors "~1.2.1"
+
+"@rushstack/ts-command-line@4.4.6":
+  version "4.4.6"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.4.6.tgz#7818f19e444274e68564a756ef62a2b4e0ced0f8"
+  integrity sha512-ue3p2m773Yea/s4Ef2Q3gEyLd9T0NDjXCl+PlodGTrJHgxoiRwbROSWHAdYJL/LceGWa6Biqizu9qxUDEWFweQ==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
