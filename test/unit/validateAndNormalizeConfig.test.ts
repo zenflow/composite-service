@@ -9,9 +9,7 @@ describe('validateAndNormalizeConfig', () => {
           b: { command: '', dependencies: ['A'] },
         },
       })
-    ).toThrow(
-      "composite-service: Invalid Config: Service 'b': Dependency on nonexistent service 'A'"
-    )
+    ).toThrow("config.services.b.dependencies: Contains invalid service id 'A'")
   })
   it('throws if cyclic dependency is found', () => {
     expect(() =>
@@ -22,8 +20,6 @@ describe('validateAndNormalizeConfig', () => {
           c: { command: '', dependencies: ['a'] },
         },
       })
-    ).toThrow(
-      'composite-service: Invalid Config: Found cyclic dependency a -> b -> c -> a'
-    )
+    ).toThrow('config.services: Found cyclic dependency a -> b -> c -> a')
   })
 })

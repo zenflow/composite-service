@@ -1,43 +1,21 @@
 import { CompositeProcess } from './helpers/composite-process'
 import { fetchText } from './helpers/fetchText'
+import { getBoilerScript } from './helpers/getBoilerScript'
 
-const getScript = () => {
-  return `
-    const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
-    const config = {
-      services: {
-        api: {
-          command: 'node test/integration/fixtures/http-service.js',
-          env: { PORT: 8000, RESPONSE_TEXT: 'api', START_DELAY: 500, STOP_DELAY: 500 },
-          ready: ctx => onceTcpPortUsed(8000),
-        },
-        web: {
-          command: ['node', 'test/integration/fixtures/http-service.js'],
-          env: { PORT: 8001, RESPONSE_TEXT: 'web' },
-          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
-        },
-        gateway: configureHttpGateway({
-          dependencies: ['api', 'web'],
-          port: 8080,
-          proxies: [
-            ['/api', { target: 'http://localhost:8000' }],
-            ['/', { target: 'http://localhost:8001' }],
-          ],
-        }),
-      },
-    };
-    startCompositeService(config);
-  `
-}
-
-describe('http', () => {
-  jest.setTimeout(process.platform === 'win32' ? 15000 : 5000)
+describe('working', () => {
+  jest.setTimeout(process.platform === 'win32' ? 30000 : 10000)
   let proc: CompositeProcess | undefined
   afterEach(async () => {
     if (proc) await proc.end()
   })
   it('works', async () => {
-    proc = await new CompositeProcess(getScript()).start()
+    const script = getBoilerScript(`
+      Object.assign(config.services.api.env, {
+        START_DELAY: 500,
+        STOP_DELAY: 500,
+      })
+    `)
+    proc = await new CompositeProcess(script).start()
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
         "Starting composite service...",

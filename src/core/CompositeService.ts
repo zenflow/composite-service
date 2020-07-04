@@ -16,20 +16,18 @@ export class CompositeService {
   private stopping = false
 
   constructor(config: CompositeServiceConfig) {
-    const printConfig = () =>
+    if (config.printConfig) {
       console.log(
         'config =',
         serializeJavascript(config, { space: 2, unsafe: true })
       )
+    }
     try {
       // TODO: return *array* of errors from validateAndNormalizeConfig
       this.config = validateAndNormalizeConfig(config)
     } catch (error) {
-      printConfig()
-      throw error
-    }
-    if (this.config.printConfig) {
-      printConfig()
+      console.error(error)
+      process.exit(1)
     }
 
     for (const signal of ['SIGINT', 'SIGTERM']) {
@@ -67,7 +65,9 @@ export class CompositeService {
       id => this.serviceMap.get(id)!
     )
     await Promise.all(dependencies.map(service => this.startService(service)))
-    if (this.stopping) return
+    if (this.stopping) {
+      await never()
+    }
     await service.start()
   }
 
@@ -78,11 +78,11 @@ export class CompositeService {
       console.log('Stopping composite service...')
       Promise.all(this.services.map(service => this.stopService(service)))
         .then(() => console.log('Stopped composite service'))
-        // Wait one tick for output to flush
+        // Wait one micro tick for output to flush
         .then(() => process.exit(1))
     }
     // simply return a promise that never resolves, since we can't do anything after exiting anyways
-    return new Promise<never>(() => {})
+    return never()
   }
 
   private async stopService(service: ComposedService) {
@@ -101,9 +101,10 @@ function mapStream(mapper: (arg0: string) => string): Duplex {
 }
 
 function rightPad(string: string, length: number): string {
-  let result = string
-  while (result.length < length) {
-    result += ' '
-  }
-  return result
+  // we assume length >= string.length
+  return string + ' '.repeat(length - string.length)
+}
+
+function never(): Promise<never> {
+  return new Promise<never>(() => {})
 }

@@ -1,6 +1,5 @@
 # TODO
 
-- handleCrash service config
 - fix disabled tests
 - count restarts
 
@@ -14,8 +13,8 @@
 - publish v0.1.0
 
 - website:
+  - https://metatags.io
   - publish on unpkg.com for versioned docs?
-  - google analytics
   - give landing-page love
     - https://faastjs.org/
     - https://repeater.js.org/

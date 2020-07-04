@@ -15,7 +15,13 @@ export interface ComposedServiceConfig {
     env?: {
         [key: string]: string | number | undefined;
     };
+    handleCrash?: (ctx: HandleCrashConfigContext) => any;
     ready?: (ctx: ReadyConfigContext) => Promise<any>;
+}
+
+// @public
+export interface ComposedServiceCrash {
+    date: Date;
 }
 
 // @public
@@ -28,6 +34,13 @@ export interface CompositeServiceConfig {
 
 // @public
 export function configureHttpGateway(config: HttpGatewayConfig): ComposedServiceConfig;
+
+// @public
+export interface HandleCrashConfigContext {
+    crash: ComposedServiceCrash;
+    crashes: ComposedServiceCrash[];
+    isServiceReady: boolean;
+}
 
 // @public
 export interface HttpGatewayConfig {

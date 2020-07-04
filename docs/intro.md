@@ -32,8 +32,8 @@ startCompositeService({
 
 **The above script will:**
 
-1. Start each composed service (`worker` & `web`) with its respective `command` and `env` (environment variables)
-2. Merge the stdout & stderr of every service and pipe it to stdout, each line prepended with the service name
+1. Start composed services (`worker` & `web`) with their respective `command` and `env` (environment variables)
+2. Pipe stdout & stderr from composed services to stdout, each line prepended with the service ID
 3. Restart composed services when they crash
 4. Shut down composed services when it is itself told to shut down
 
@@ -46,13 +46,13 @@ A composed service can be any program that fits this description:
 3. Should run until receiving a shutdown signal. Should not exit by itself, as that would be considered a crash.
 
 The composite service shares each of the above characteristics.
-However, if any [fatal error](guides/errors.md) occurs,
-the composite service will shut down any running services and exit.
+However, if any fatal error occurs, the composite service will shut down any running services and crash.
 
 ## Features
 
 1. Supports [Graceful Startup & Shutdown](guides/graceful-startup-shutdown.md)
-2. Includes configurable [HTTP Gateway](guides/http-gateway.md)
+2. Configurable [Crash Handling](guides/crash-handling.md)
+3. Includes configurable [HTTP Gateway](guides/http-gateway.md)
 
 ...and more to come. See [Roadmap](roadmap.md).
 

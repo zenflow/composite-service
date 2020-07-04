@@ -13,8 +13,8 @@ module.exports = {
       Guides: [
         'guides/getting-started',
         'guides/graceful-startup-shutdown',
+        'guides/crash-handling',
         'guides/http-gateway',
-        'guides/errors',
       ],
       'API Reference': getApiItems(),
     },
@@ -32,6 +32,8 @@ function getApiItems() {
         getApiNode('CompositeServiceConfig'),
         getApiNode('ComposedServiceConfig'),
         getApiNode('ReadyConfigContext'),
+        getApiNode('HandleCrashConfigContext'),
+        getApiNode('ComposedServiceCrash'),
       ],
       'Ready Helpers': [
         getApiNode('onceTcpPortUsed'),

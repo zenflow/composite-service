@@ -2,15 +2,19 @@ import { PassThrough } from 'stream'
 import { InternalProcess } from './InternalProcess'
 import { NormalizedComposedServiceConfig } from './validateAndNormalizeConfig'
 import { ReadyConfigContext } from './ReadyConfigContext'
+import { HandleCrashConfigContext } from './HandleCrashConfigContext'
+import { ComposedServiceCrash } from './ComposedServiceCrash'
 
 export class ComposedService {
   readonly id: string
   readonly config: NormalizedComposedServiceConfig
   readonly output = new PassThrough({ objectMode: true })
   private readonly die: (message: string) => Promise<never>
+  private ready: Promise<void> | undefined
   private proc: InternalProcess | undefined
   private startResult: Promise<void> | undefined
   private stopResult: Promise<void> | undefined
+  private crashes: ComposedServiceCrash[] = []
   constructor(
     id: string,
     config: NormalizedComposedServiceConfig,
@@ -18,52 +22,73 @@ export class ComposedService {
   ) {
     this.id = id
     this.config = config
-    this.die = die
+    this.die = message => die(`Error in '${id}': ${message}`)
   }
   start() {
+    if (this.stopResult) throw new Error('Cannot start after stopping')
     if (!this.startResult) {
       console.log(`Starting service '${this.id}'...`)
-      this.startResult = this._start().then(() => {
-        console.log(`Started service '${this.id}'`)
-      })
+      this.defineReady()
+      this.startResult = this.startProcess()
+        .then(() => this.ready)
+        .then(() => {
+          console.log(`Started service '${this.id}'`)
+        })
     }
     return this.startResult
   }
-  private async _start() {
+  private defineReady() {
+    this.ready = promiseTry(() => {
+      const ctx: ReadyConfigContext = { output: this.output }
+      return this.config.ready(ctx)
+    }).catch(error => {
+      return this.die(`Error from ready function: ${maybeErrorText(error)}`)
+    })
+  }
+  private async startProcess() {
     const proc = new InternalProcess(this.config.command, this.config.env)
     this.proc = proc
-    const onProcReady = (): void => {
-      proc.ended.then(() => {
-        if (!this.stopResult) {
-          console.log(`\
-Process for service '${this.id}' exited
-Restarting service '${this.id}'...`)
-          this._start().then(() => {
-            console.log(`Restarted service '${this.id}'`)
-          })
-        }
-      })
-    }
     proc.output.pipe(this.output, { end: false })
-    const startedPromise = proc.started.catch(error =>
-      Promise.reject(`Error spawning process: ${error.message}`)
-    )
-    const readyPromise = promiseTry(() => {
-      const ctx: ReadyConfigContext = { output: proc.output }
-      return this.config.ready(ctx)
-    }).catch(error =>
-      Promise.reject(`Error waiting to be ready: ${maybeErrorText(error)}`)
-    )
-    return Promise.race([
-      Promise.all([startedPromise, readyPromise]),
-      startedPromise
-        .then(() => proc.ended)
-        .then(() => Promise.reject('Process exited without becoming ready')),
-    ])
-      .catch(error => this.die(`Error starting service '${this.id}': ${error}`))
-      .then(() => {
-        onProcReady()
-      })
+    proc.ended.then(async () => {
+      if (!this.stopResult && (await didProcessStart())) {
+        this.handleCrash(proc)
+      }
+      function didProcessStart() {
+        return proc.started.then(
+          () => true,
+          () => false
+        )
+      }
+    })
+    try {
+      await this.proc.started
+    } catch (error) {
+      await this.die(`Error starting process: ${error.stack}`)
+    }
+  }
+  private async handleCrash(proc: InternalProcess) {
+    console.log(`Service '${this.id}' crashed`)
+    void proc
+    const crash: ComposedServiceCrash = {
+      date: new Date(),
+    }
+    this.crashes.push(crash)
+    const isServiceReady = await isResolved(this.ready!)
+    const ctx: HandleCrashConfigContext = {
+      isServiceReady,
+      crash,
+      crashes: this.crashes,
+    }
+    try {
+      await this.config.handleCrash(ctx)
+    } catch (error) {
+      await this.die(
+        `Error from handleCrash function: ${maybeErrorText(error)}`
+      )
+    }
+    console.log(`Restarting service '${this.id}'...`)
+    await this.startProcess()
+    console.log(`Restarted service '${this.id}'`)
   }
   stop() {
     if (!this.stopResult) {
@@ -90,4 +115,14 @@ function promiseTry<T>(fn: () => Promise<T>) {
   } catch (error) {
     return Promise.reject(error)
   }
+}
+
+function isResolved(promise: Promise<any>): Promise<boolean> {
+  return Promise.race([
+    promise.then(
+      () => true,
+      () => false
+    ),
+    Promise.resolve().then(() => false),
+  ])
 }

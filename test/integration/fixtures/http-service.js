@@ -6,9 +6,13 @@ if (process.env.CRASH_BEFORE_STARTED) {
 } else {
   wait(Number.parseInt(process.env.START_DELAY || '0', 10))
     .then(() => {
-      const server = createServer((_, res) => {
-        res.write(process.env.RESPONSE_TEXT || '')
-        res.end()
+      const server = createServer((req, res) => {
+        if (req.url.endsWith('?crash')) {
+          crash()
+        } else {
+          res.write(process.env.RESPONSE_TEXT || '')
+          res.end()
+        }
       })
       server.listen(process.env.PORT)
       return once(server, 'listening')

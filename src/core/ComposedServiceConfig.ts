@@ -1,4 +1,5 @@
 import { ReadyConfigContext } from './ReadyConfigContext'
+import { HandleCrashConfigContext } from './HandleCrashConfigContext'
 
 /**
  * Configuration for a service to be composed
@@ -51,11 +52,35 @@ export interface ComposedServiceConfig {
    *
    * @remarks
    *
-   * The function takes a {@link ReadyConfigContext} as its only argument
+   * This function takes a {@link ReadyConfigContext} as its only argument
    * and should return a `Promise` that resolves when the service has started up and is ready to do its job.
    *
    * This library includes a collection of [Ready Helpers](./composite-service.oncetcpportused.md)
    * to help you define this property.
+   *
+   * @param ctx - Context
    */
   ready?: (ctx: ReadyConfigContext) => Promise<any>
+
+  /**
+   * A function to be called each time the service crashes.
+   * Defaults to `() => {}`.
+   *
+   * @remarks
+   *
+   * This function takes a {@link HandleCrashConfigContext} as its only argument.
+   *
+   * It can execute synchronously or asynchronously (i.e. return a promise that will be awaited on).
+   *
+   * If any error is encountered in its execution,
+   * the composite service will shut down any running services and crash,
+   * otherwise, the composed service will be restarted.
+   *
+   * It can be used to dynamically
+   * (1) perform arbitrary tasks, like clearing cache files or sending an email notification, and or
+   * (2) propagate crashes from composed service to composite service.
+   *
+   * @param ctx - Context
+   */
+  handleCrash?: (ctx: HandleCrashConfigContext) => any
 }

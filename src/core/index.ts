@@ -1,4 +1,6 @@
 export { CompositeServiceConfig } from './CompositeServiceConfig'
 export { ComposedServiceConfig } from './ComposedServiceConfig'
 export { ReadyConfigContext } from './ReadyConfigContext'
+export { HandleCrashConfigContext } from './HandleCrashConfigContext'
+export { ComposedServiceCrash } from './ComposedServiceCrash'
 export { startCompositeService } from './startCompositeService'
