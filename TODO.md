@@ -1,9 +1,10 @@
 # TODO
 
-- docs: contributing
-- simplify tests by having only http-service
+- handleCrash service config
 - fix disabled tests
 - count restarts
+
+- docs: contributing
 - inline TODOs
 - check for excess config fields
 - tests

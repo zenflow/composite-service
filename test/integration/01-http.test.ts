@@ -4,16 +4,15 @@ import { fetchText } from './helpers/fetchText'
 const getScript = () => {
   return `
     const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
-    const command = 'node test/integration/fixtures/http-service.js';
     const config = {
       services: {
         api: {
-          command,
+          command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8000, RESPONSE_TEXT: 'api', START_DELAY: 500, STOP_DELAY: 500 },
           ready: ctx => onceTcpPortUsed(8000),
         },
         web: {
-          command,
+          command: ['node', 'test/integration/fixtures/http-service.js'],
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
           ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },

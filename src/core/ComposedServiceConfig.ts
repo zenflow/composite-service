@@ -36,8 +36,8 @@ export interface ComposedServiceConfig {
    * @remarks
    *
    * No additional variables will be defined, except `PATH`, and some others depending on your OS.
-   * For example, in Windows 10, nodejs child processes always have `PATH`, `PATHEXT`, `WINDIR`, etc., while in Linux,
-   * nodejs child processes can actually have *no* environment variables if configured that way.
+   * For example, in Windows 10, nodejs child processes always have `PATH`, `PATHEXT`, `WINDIR`, etc.,
+   * while in Ubuntu 18.04, nodejs child processes can actually have *no* environment variables if configured that way.
    *
    * TODO: Can the above inconsistency be improved in nodejs? Or is this just an inherent fact/caveat about cross-platform compatibility?
    *

@@ -7,7 +7,7 @@ A composite server can error and crash in a number of ways
 
 1. A composite service was already started in this process
 2. Invalid configuration
-3. Error spawning process (e.g. `EPERM`, etc.)
+3. Error spawning process (e.g. `EPERM`, `ENOENT`, etc.)
 4. Error in [`ComposedServiceConfig.ready` function](../api/composite-service.composedserviceconfig.ready.md)
 5. Service crashed before ready (Note that "service crashed after ready" is not fatal,
 and will be handled by restarting the service.)

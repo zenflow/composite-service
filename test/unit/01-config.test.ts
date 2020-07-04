@@ -1,14 +1,25 @@
 import { validateAndNormalizeConfig } from '../../src/core/validateAndNormalizeConfig'
 
-describe('normalizeCompositeServiceConfig', () => {
-  it('throws if cyclic dependency is defined', () => {
-    const dummyService = { command: '', ready: async () => {} }
+describe('validateAndNormalizeConfig', () => {
+  it('throws if service has dependency on nonexistent service', () => {
     expect(() =>
       validateAndNormalizeConfig({
         services: {
-          a: { ...dummyService, dependencies: ['b'] },
-          b: { ...dummyService, dependencies: ['c'] },
-          c: { ...dummyService, dependencies: ['a'] },
+          a: { command: '' },
+          b: { command: '', dependencies: ['A'] },
+        },
+      })
+    ).toThrow(
+      "composite-service: Invalid Config: Service 'b': Dependency on nonexistent service 'A'"
+    )
+  })
+  it('throws if cyclic dependency is found', () => {
+    expect(() =>
+      validateAndNormalizeConfig({
+        services: {
+          a: { command: '', dependencies: ['b'] },
+          b: { command: '', dependencies: ['c'] },
+          c: { command: '', dependencies: ['a'] },
         },
       })
     ).toThrow(

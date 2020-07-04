@@ -2,17 +2,26 @@ import { CompositeProcess } from './helpers/composite-process'
 
 const getScript = (customCode: string) => {
   return `
-    const { onceOutputLineIncludes, startCompositeService, onceTimeout } = require('.');
-    const command = 'node test/integration/fixtures/noop-service.js';
+    const { onceOutputLineIncludes, startCompositeService } = require('.');
+    const command = 'node test/integration/fixtures/http-service.js';
     const ready = ctx => onceOutputLineIncludes(ctx.output, '🚀');
     const config = {
       services: {
-        first: { command, ready },
-        second: { command, ready },
+        first: {
+          command,
+          env: { PORT: 8000, RESPONSE_TEXT: 'first' },
+          ready,
+        },
+        second: {
+          command,
+          env: { PORT: 8001, RESPONSE_TEXT: 'second' },
+          ready,
+        },
         third: {
           dependencies: ['first', 'second'],
           command,
-          ready: () => onceTimeout(0)
+          env: { PORT: 8002, RESPONSE_TEXT: 'third' },
+          ready,
         },
       },
     };
@@ -30,8 +39,8 @@ describe('crash', () => {
   describe('crashes when a composed service crashes', () => {
     it('before any service is started', async () => {
       const script = getScript(`
-        config.services.first.env = { CRASH_BEFORE_STARTED: 1 };
-        config.services.second.env = { START_DELAY: 5000 };
+        config.services.first.env.CRASH_BEFORE_STARTED = 1;
+        config.services.second.env.START_DELAY = 5000;
       `)
       proc = new CompositeProcess(script)
       await proc.ended
@@ -56,7 +65,8 @@ describe('crash', () => {
     })
     it('before that service is started & after other service is started', async () => {
       const script = getScript(`
-        config.services.first.env = { CRASH_BEFORE_STARTED: 1, CRASH_DELAY: 500 };
+        config.services.first.env.CRASH_BEFORE_STARTED = 1
+        config.services.first.env.CRASH_DELAY = 500;
       `)
       proc = new CompositeProcess(script)
       await proc.ended
@@ -83,8 +93,9 @@ describe('crash', () => {
     })
     it.skip('after that service is started & before other service is started', async () => {
       const script = getScript(`
-        config.services.first.env = { CRASH_AFTER_STARTED: 1, CRASH_DELAY: 500 };
-        config.services.second.env = { START_DELAY: 5000 };
+        config.services.first.env.CRASH_AFTER_STARTED = 1;
+        config.services.first.env.CRASH_DELAY = 500;
+        config.services.second.env.START_DELAY = 5000;
       `)
       proc = new CompositeProcess(script)
       await proc.ended
@@ -111,8 +122,10 @@ describe('crash', () => {
     })
     it.skip('after all services are started', async () => {
       const script = getScript(`
-        config.services.first.env = { CRASH_AFTER_STARTED: 1, CRASH_DELAY: 1000 };
-        config.services.second.env = { START_DELAY: 500, STOP_DELAY: 500 };
+        config.services.first.env.CRASH_AFTER_STARTED = 1;
+        config.services.first.env.CRASH_DELAY = 1000;
+        config.services.second.env.START_DELAY = 500;
+        config.services.second.env.STOP_DELAY = 500;
       `)
       proc = new CompositeProcess(script)
       await proc.ended

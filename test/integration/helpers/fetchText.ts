@@ -1,4 +1,4 @@
-import fetch from 'isomorphic-unfetch'
+import fetch from 'node-fetch'
 
 export async function fetchText(url: string) {
   const response = await fetch(url)

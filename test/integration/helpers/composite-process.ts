@@ -5,7 +5,7 @@ import mergeStream from 'merge-stream'
 import splitStream from 'split'
 import { onceOutputLineIs } from '../../..'
 
-const LOG_OUTPUT_LINES = true
+const LOG_OUTPUT_LINES = false
 
 export class CompositeProcess {
   readonly ready: Promise<void>

@@ -21,8 +21,8 @@ export class CompositeService {
         'config =',
         serializeJavascript(config, { space: 2, unsafe: true })
       )
-    // TODO: return any errorS (plural) from normalizeCompositeServiceConfig (as well as normalized config)
     try {
+      // TODO: return *array* of errors from validateAndNormalizeConfig
       this.config = validateAndNormalizeConfig(config)
     } catch (error) {
       printConfig()
