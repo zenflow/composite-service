@@ -24,7 +24,7 @@ let started = false
  * (2) Error validating configuration
  * (3) Error spawning process, e.g. `EPERM`, `ENOENT`, etc.
  * (4) Error from user-provided configuration function,
- * {@link ComposedServiceConfig.ready} or {@link ComposedServiceConfig.handleCrash}
+ * {@link ComposedServiceConfig.ready} or {@link ComposedServiceConfig.onCrash}
  *
  * @param config - Configuration for the composite service
  *

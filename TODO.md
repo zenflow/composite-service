@@ -1,7 +1,7 @@
 # TODO
 
-- fix disabled tests
-- count restarts
+- document more examples configuring http-proxy-middleware
+- shorter interface names
 
 - docs: contributing
 - inline TODOs

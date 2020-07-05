@@ -31,6 +31,7 @@ if (process.env.CRASH_BEFORE_STARTED) {
 }
 
 function crash() {
+  console.log('Crashing')
   const delay = Number.parseInt(process.env.CRASH_DELAY || '0', 10)
   return wait(delay).then(() => process.exit(1))
 }

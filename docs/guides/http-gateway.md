@@ -2,10 +2,10 @@
 title: HTTP Gateway
 ---
 
-If we want to expose some composed http services
-through a single http service (on a single port)
+If we want to expose some composed HTTP services
+through a single HTTP service (on a single port)
 which proxies requests to the appropriate composed service according to the URL,
-we can use the included generic HTTP Gateway service
+we can use the included generic HTTP gateway service
 instead of writing a custom one every time.
 
 The HTTP gateway can be configured by calling the
@@ -16,8 +16,8 @@ to use in a [CompositeServiceConfig](../api/composite-service.compositeserviceco
 
 ## Example
 
-The following composite service includes a `gateway` (HTTP gateway) service
-that proxies all requests with URL under `/api` to the `api` service,
+The following composite service includes a `gateway` service that proxies
+all requests with URL under `/api` to the `api` service,
 and all other requests to the `web` service.
 
 ```js

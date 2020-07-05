@@ -2,7 +2,7 @@ import { PassThrough } from 'stream'
 import { InternalProcess } from './InternalProcess'
 import { NormalizedComposedServiceConfig } from './validateAndNormalizeConfig'
 import { ReadyConfigContext } from './ReadyConfigContext'
-import { HandleCrashConfigContext } from './HandleCrashConfigContext'
+import { OnCrashConfigContext } from './OnCrashConfigContext'
 import { ComposedServiceCrash } from './ComposedServiceCrash'
 
 export class ComposedService {
@@ -46,19 +46,25 @@ export class ComposedService {
     })
   }
   private async startProcess() {
-    const proc = new InternalProcess(this.config.command, this.config.env)
+    const proc = new InternalProcess(
+      this.config.command,
+      this.config.env,
+      this.config.logTailLength
+    )
     this.proc = proc
     proc.output.pipe(this.output, { end: false })
     proc.ended.then(async () => {
-      if (!this.stopResult && (await didProcessStart())) {
-        this.handleCrash(proc)
+      if (this.stopResult) {
+        return
       }
-      function didProcessStart() {
-        return proc.started.then(
-          () => true,
-          () => false
-        )
+      const started = await proc.started.then(
+        () => true,
+        () => false
+      )
+      if (!started) {
+        return
       }
+      this.handleCrash(proc)
     })
     try {
       await this.proc.started
@@ -68,27 +74,34 @@ export class ComposedService {
   }
   private async handleCrash(proc: InternalProcess) {
     console.log(`Service '${this.id}' crashed`)
-    void proc
+    const delay = new Promise(resolve =>
+      setTimeout(resolve, this.config.minimumRestartDelay)
+    )
     const crash: ComposedServiceCrash = {
       date: new Date(),
+      logTail: proc.logTail,
     }
     this.crashes.push(crash)
     const isServiceReady = await isResolved(this.ready!)
-    const ctx: HandleCrashConfigContext = {
+    const ctx: OnCrashConfigContext = {
       isServiceReady,
       crash,
       crashes: this.crashes,
     }
     try {
-      await this.config.handleCrash(ctx)
+      await this.config.onCrash(ctx)
     } catch (error) {
-      await this.die(
-        `Error from handleCrash function: ${maybeErrorText(error)}`
-      )
+      await this.die(`Error from onCrash function: ${maybeErrorText(error)}`)
     }
-    console.log(`Restarting service '${this.id}'...`)
+    if (this.stopResult) {
+      return
+    }
+    await delay
+    if (this.stopResult) {
+      return
+    }
+    console.log(`Restarting service '${this.id}'`)
     await this.startProcess()
-    console.log(`Restarted service '${this.id}'`)
   }
   stop() {
     if (!this.stopResult) {

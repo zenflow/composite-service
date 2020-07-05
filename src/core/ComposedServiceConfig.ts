@@ -1,5 +1,5 @@
 import { ReadyConfigContext } from './ReadyConfigContext'
-import { HandleCrashConfigContext } from './HandleCrashConfigContext'
+import { OnCrashConfigContext } from './OnCrashConfigContext'
 
 /**
  * Configuration for a service to be composed
@@ -63,24 +63,32 @@ export interface ComposedServiceConfig {
   ready?: (ctx: ReadyConfigContext) => Promise<any>
 
   /**
-   * A function to be called each time the service crashes.
+   * A function to be executed each time the service crashes.
    * Defaults to `() => {}`.
    *
    * @remarks
    *
-   * This function takes a {@link HandleCrashConfigContext} as its only argument.
+   * This function is called with an {@link OnCrashConfigContext} object as its only argument.
    *
    * It can execute synchronously or asynchronously (i.e. return a promise that will be awaited on).
    *
    * If any error is encountered in its execution,
-   * the composite service will shut down any running services and crash,
+   * the composite service will shut down any running services and exit,
    * otherwise, the composed service will be restarted.
-   *
-   * It can be used to dynamically
-   * (1) perform arbitrary tasks, like clearing cache files or sending an email notification, and or
-   * (2) propagate crashes from composed service to composite service.
    *
    * @param ctx - Context
    */
-  handleCrash?: (ctx: HandleCrashConfigContext) => any
+  onCrash?: (ctx: OnCrashConfigContext) => any
+
+  /**
+   * Maximum number of lines to keep from the tail of the service's log output.
+   * Defaults to `0`.
+   */
+  logTailLength?: number
+
+  /**
+   * Minimum amount of time in milliseconds between the service crashing and being restarted.
+   * Defaults to `1000`.
+   */
+  minimumRestartDelay?: number
 }

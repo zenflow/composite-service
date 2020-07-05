@@ -1,7 +1,7 @@
 import { CompositeServiceConfig } from './CompositeServiceConfig'
 import { ComposedServiceConfig } from './ComposedServiceConfig'
 import { ReadyConfigContext } from './ReadyConfigContext'
-import { HandleCrashConfigContext } from './HandleCrashConfigContext'
+import { OnCrashConfigContext } from './OnCrashConfigContext'
 
 export interface NormalizedCompositeServiceConfig {
   printConfig: boolean
@@ -13,53 +13,57 @@ export interface NormalizedComposedServiceConfig {
   command: string[]
   env: { [key: string]: string }
   ready: (ctx: ReadyConfigContext) => Promise<any>
-  handleCrash: (ctx: HandleCrashConfigContext) => any
+  onCrash: (ctx: OnCrashConfigContext) => any
+  logTailLength: number
+  minimumRestartDelay: number
 }
 
 class ConfigValidationError extends Error {
-  constructor(key: string, message: string) {
-    super(`config.${key}: ${message}`)
+  constructor(message: string) {
+    super(`config.${message}`)
   }
 }
-const assert = (truthy: any, key: string, message: string) => {
+const assert = (truthy: any, message: string) => {
   if (!truthy) {
-    throw new ConfigValidationError(key, message)
+    throw new ConfigValidationError(message)
   }
 }
 
+/**
+ * Does a lot of validation since most script,
+ * since most scripts to implement composite server will NOT use TypeScript
+ * @param config
+ */
 export function validateAndNormalizeConfig(
   config: CompositeServiceConfig
 ): NormalizedCompositeServiceConfig {
-  // Let's do a lot of validation, since most scripts to implement composite server will NOT use TypeScript
   const printConfig = Boolean(config.printConfig)
   const filteredServiceEntries = Object.entries(config.services).filter(
     ([, value]) => value
   ) as [string, ComposedServiceConfig][]
   const serviceIds = filteredServiceEntries.map(([id]) => id)
-  assert(serviceIds.length > 0, 'services', 'No configured service')
+  assert(serviceIds.length > 0, 'services: No configured service')
   const services = Object.fromEntries(
     filteredServiceEntries.map(([id, config]) => {
-      const _assert = (truthy: any, key: string, message: string) =>
-        assert(truthy, `services.${id}.${key}`, message)
-      const dependencies = config.dependencies || []
-      _assert(Array.isArray(dependencies), 'dependencies', 'Not an array')
+      const _assert = (truthy: any, message: string) =>
+        assert(truthy, `services.${id}.${message}`)
+      const { dependencies = [] } = config
+      _assert(Array.isArray(dependencies), 'dependencies: Not an array')
       dependencies.forEach(dependency => {
         _assert(
           serviceIds.includes(dependency),
-          'dependencies',
-          `Contains invalid service id '${dependency}'`
+          `dependencies: Contains invalid service id '${dependency}'`
         )
       })
       let command =
         typeof config.command === 'string'
           ? config.command.split(/\s+/).filter(Boolean)
           : config.command
-      _assert(Array.isArray(command), 'command', 'Not a string or an array')
+      _assert(Array.isArray(command), 'command: Not a string or an array')
       command = command.map(part => {
         _assert(
           ['string', 'number'].includes(typeof part),
-          'command',
-          `Contains an element that is not string or number`
+          `command: Contains an element that is not string or number`
         )
         return String(part)
       })
@@ -69,29 +73,41 @@ export function validateAndNormalizeConfig(
           .map(([key, value]) => {
             _assert(
               ['string', 'number'].includes(typeof value),
-              `env.${key}`,
-              'Not a string, a number, or undefined'
+              `env.${key}: Not a string, a number, or undefined`
             )
             return [key, String(value)]
           })
       )
-      const ready = config.ready || (() => Promise.resolve())
-      _assert(typeof ready === 'function', 'ready', 'Not a function')
-      const handleCrash = config.handleCrash || (() => {})
+      const { ready = () => Promise.resolve() } = config
+      _assert(typeof ready === 'function', 'ready: Not a function')
+      const { onCrash = () => {} } = config
+      _assert(typeof onCrash === 'function', 'onCrash: Not a function')
+      const { logTailLength = 0 } = config
+      _assert(typeof logTailLength === 'number', 'logTailLength: Not a number')
+      const { minimumRestartDelay = 1000 } = config
       _assert(
-        typeof handleCrash === 'function',
-        'handleCrash',
-        'Not a function'
+        typeof minimumRestartDelay === 'number',
+        'minimumRestartDelay: Not a number'
       )
-      return [id, { dependencies, command, env, ready, handleCrash }]
+      return [
+        id,
+        {
+          dependencies,
+          command,
+          env,
+          ready,
+          onCrash,
+          logTailLength,
+          minimumRestartDelay,
+        },
+      ]
     })
   )
   Object.keys(services).forEach(serviceId => checkForCyclicDeps(serviceId))
   function checkForCyclicDeps(serviceId: string, path: string[] = []) {
     assert(
       !path.includes(serviceId),
-      'services',
-      `Found cyclic dependency ${path
+      `services: Found cyclic dependency ${path
         .slice(path.indexOf(serviceId))
         .concat(serviceId)
         .join(' -> ')}`

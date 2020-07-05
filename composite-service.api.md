@@ -15,13 +15,16 @@ export interface ComposedServiceConfig {
     env?: {
         [key: string]: string | number | undefined;
     };
-    handleCrash?: (ctx: HandleCrashConfigContext) => any;
+    logTailLength?: number;
+    minimumRestartDelay?: number;
+    onCrash?: (ctx: OnCrashConfigContext) => any;
     ready?: (ctx: ReadyConfigContext) => Promise<any>;
 }
 
 // @public
 export interface ComposedServiceCrash {
     date: Date;
+    logTail: string[];
 }
 
 // @public
@@ -34,13 +37,6 @@ export interface CompositeServiceConfig {
 
 // @public
 export function configureHttpGateway(config: HttpGatewayConfig): ComposedServiceConfig;
-
-// @public
-export interface HandleCrashConfigContext {
-    crash: ComposedServiceCrash;
-    crashes: ComposedServiceCrash[];
-    isServiceReady: boolean;
-}
 
 // @public
 export interface HttpGatewayConfig {
@@ -68,6 +64,13 @@ export function onceTcpPortUsed(port: number | string, host?: string): Promise<v
 
 // @public
 export function onceTimeout(milliseconds: number): Promise<void>;
+
+// @public
+export interface OnCrashConfigContext {
+    crash: ComposedServiceCrash;
+    crashes: ComposedServiceCrash[];
+    isServiceReady: boolean;
+}
 
 // @public
 export interface ReadyConfigContext {

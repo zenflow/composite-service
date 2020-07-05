@@ -9,10 +9,9 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 ## Planned Features
 
 1. config `verbosity`
-2. service config `restartDelay`, default: 1000
-3. service config `cwd: string` (reminder: PATH env var)
-4. use `npm-run-path` package
-5. service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
+2. service config `cwd: string` (reminder: PATH env var)
+3. use `npm-run-path` package
+4. service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
 
 *(in no particular order)*
 

@@ -32,7 +32,7 @@ function getApiItems() {
         getApiNode('CompositeServiceConfig'),
         getApiNode('ComposedServiceConfig'),
         getApiNode('ReadyConfigContext'),
-        getApiNode('HandleCrashConfigContext'),
+        getApiNode('OnCrashConfigContext'),
         getApiNode('ComposedServiceCrash'),
       ],
       'Ready Helpers': [

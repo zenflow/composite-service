@@ -2,11 +2,11 @@ import { ComposedServiceCrash } from './ComposedServiceCrash'
 
 /**
  * Context object given as argument to the
- * {@link ComposedServiceConfig.handleCrash | ComposedServiceConfig.handleCrash function}
+ * {@link ComposedServiceConfig.onCrash | ComposedServiceConfig.onCrash function}
  *
  * @public
  */
-export interface HandleCrashConfigContext {
+export interface OnCrashConfigContext {
   /**
    * Whether the service became ready
    * (as determined by its {@link ComposedServiceConfig.ready | ready config})

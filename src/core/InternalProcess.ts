@@ -11,8 +11,13 @@ export class InternalProcess {
   readonly started: Promise<void>
   readonly ended: Promise<void>
   isEnded = false
+  logTail: string[] = []
   private readonly child: ChildProcessWithoutNullStreams
-  constructor(command: string[], env: { [key: string]: string }) {
+  constructor(
+    command: string[],
+    env: { [key: string]: string },
+    logTailLength: number
+  ) {
     const { PATH } = process.env
     this.child = spawn(command[0], command.slice(1), {
       env: { PATH, ...env },
@@ -22,6 +27,14 @@ export class InternalProcess {
       this.child.stderr.setEncoding('utf8').pipe(split())
     )
     childOutput.pipe(this.output)
+    if (logTailLength > 0) {
+      this.output.on('data', line => {
+        this.logTail.push(line)
+        if (this.logTail.length > logTailLength) {
+          this.logTail.shift()
+        }
+      })
+    }
     const error = new Promise(resolve => this.child.on('error', resolve))
     this.started = Promise.race([
       error,

@@ -1,6 +1,36 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { getBoilerScript } from './helpers/getBoilerScript'
 import { redactStackTrace } from './helpers/redactStackTrace'
+
+function getScript(customCode = '') {
+  return `
+    const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
+    const config = {
+      services: {
+        api: {
+          command: 'node test/integration/fixtures/http-service.js',
+          env: { PORT: 8000, RESPONSE_TEXT: 'api' },
+          ready: ctx => onceTcpPortUsed(8000),
+        },
+        web: {
+        dependencies: ['api'],
+          command: ['node', 'test/integration/fixtures/http-service.js'],
+          env: { PORT: 8001, RESPONSE_TEXT: 'web' },
+          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
+        },
+        gateway: configureHttpGateway({
+          dependencies: ['api', 'web'],
+          port: 8080,
+          proxies: [
+            ['/api', { target: 'http://localhost:8000' }],
+            ['/', { target: 'http://localhost:8001' }],
+          ],
+        }),
+      },
+    };
+    ${customCode};
+    startCompositeService(config);
+  `
+}
 
 describe('crashing', () => {
   jest.setTimeout(process.platform === 'win32' ? 15000 : 5000)
@@ -9,7 +39,7 @@ describe('crashing', () => {
     if (proc) await proc.end()
   })
   it('crashes before starting on error validating configuration', async () => {
-    const script = getBoilerScript(`
+    const script = getScript(`
       config.services.gateway.dependencies.push('this_dependency_does_not_exist')
     `)
     proc = new CompositeProcess(script)
@@ -24,8 +54,7 @@ describe('crashing', () => {
     `)
   })
   it('crashes gracefully on error starting process', async () => {
-    const script = getBoilerScript(`
-      config.services.web.dependencies = ['api']
+    const script = getScript(`
       config.services.web.command = 'this_command_does_not_exist'
     `)
     proc = new CompositeProcess(script)
@@ -51,8 +80,7 @@ describe('crashing', () => {
     `)
   })
   it('crashes gracefully on error from `ready`', async () => {
-    const script = getBoilerScript(`
-      config.services.web.dependencies = ['api'];
+    const script = getScript(`
       config.services.web.ready = () => global.foo.bar()
     `)
     proc = new CompositeProcess(script)
@@ -81,11 +109,10 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('crashes gracefully on error from handleCrash *while* starting up', async () => {
-    const script = getBoilerScript(`
-      config.services.web.dependencies = ['api'];
+  it('crashes gracefully on error from onCrash *while* starting up', async () => {
+    const script = getScript(`
       config.services.web.env.CRASH_BEFORE_STARTED = 1
-      config.services.web.handleCrash = () => {
+      config.services.web.onCrash = () => {
         throw new Error('Crash')
       };
     `)
@@ -98,10 +125,11 @@ describe('crashing', () => {
         "api     | Started 🚀",
         "Started service 'api'",
         "Starting service 'web'...",
+        "web     | Crashing",
         "web     | ",
         "web     | ",
         "Service 'web' crashed",
-        "Error in 'web': Error from handleCrash function: Error: Crash",
+        "Error in 'web': Error from onCrash function: Error: Crash",
         "--- stack trace ---",
         "Stopping composite service...",
         "Stopping service 'api'...",
@@ -114,14 +142,14 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('crashes gracefully on error from handleCrash *after* starting up', async () => {
-    const script = getBoilerScript(`
+  it('crashes gracefully on error from onCrash *after* starting up', async () => {
+    const script = getScript(`
       config.services.api.env.STOP_DELAY = 250;
       Object.assign(config.services.web.env, {
         CRASH_AFTER_STARTED: 1,
-        CRASH_DELAY: 1000,
+        CRASH_DELAY: 500,
       });
-      config.services.web.handleCrash = () => {
+      config.services.web.onCrash = () => {
         throw new Error('Crash')
       };
     `)
@@ -133,7 +161,7 @@ describe('crashing', () => {
         "web     | ",
         "web     | ",
         "Service 'web' crashed",
-        "Error in 'web': Error from handleCrash function: Error: Crash",
+        "Error in 'web': Error from onCrash function: Error: Crash",
         "--- stack trace ---",
         "Stopping composite service...",
         "Stopping service 'gateway'...",
