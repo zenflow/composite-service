@@ -21,7 +21,7 @@ const features = [
     description: (
       <>
         Define your composite service at a high-level, in a format that is
-        declarative, flexible, explicit & easy-to-read.
+        flexible, explicit & easy-to-read.
       </>
     ),
   },

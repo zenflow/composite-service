@@ -1,0 +1,21 @@
+{
+  "public": "build",
+  "rewrites": [
+    {
+      "source": "/composite-service",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/composite-service/docs/:dir?/:subdir?",
+      "destination": "/docs/:dir?/:subdir?/index.html"
+    },
+    {
+      "source": "/composite-service/img/:file",
+      "destination": "/img/:file"
+    },
+    {
+      "source": "/composite-service/:file",
+      "destination": "/:file"
+    }
+  ]
+}

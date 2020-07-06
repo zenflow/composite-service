@@ -5,6 +5,7 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "serve": "serve -l 3000 --no-clipboard",
     "deploy": "docusaurus deploy"
   },
   "dependencies": {
@@ -12,7 +13,8 @@
     "@docusaurus/preset-classic": "^2.0.0-alpha.58",
     "clsx": "^1.1.1",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "react-dom": "^16.8.4",
+    "serve": "^11.3.2"
   },
   "browserslist": {
     "production": [

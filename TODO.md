@@ -1,20 +1,25 @@
 # TODO
 
+- buffering stdout/stderr twice? (also in child_process.ChildProcess?)
 - document more examples configuring http-proxy-middleware
 - shorter interface names
 - docs: separate motivation
-- docs: contributing
+- `npm it` should work
+- docs: contributing (section & notice soliciting contributions)
 - inline TODOs
 - check for excess config fields
 - tests
     - unit tests for validation
     - use ctrl+c to shutdown composite service (for Windows compat)
-
 - publish v0.1.0
-
 - website:
-  - https://metatags.io
-  - publish on unpkg.com for versioned docs?
+  - nicer theme
+  - frontpage SVG animation
+  - sitemap - docusaurus-plugin-sitemap
+  - social media metadata - https://metatags.io
+  - versioning?
+    - docusaurus's versioning feature?
+    - publish on unpkg.com?
   - give landing-page love
     - https://faastjs.org/
     - https://repeater.js.org/

@@ -22,9 +22,10 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 4. service configs `beforeStarting`, `afterStarted`, `beforeStopping`, `afterStopped`: event handler or "hook" functions
 5. service config `readyTimeout`: milliseconds to wait for service to be "ready" before giving up and erroring
 6. service config `forceKillTimeout`: milliseconds to wait before sending SIGKILL
-7. http gateway: logging
-8. http gateway: stop accepting new requests, but finish pending requests, when SIGTERM received
-9. http gateway: support making calls over a Unix domain socket instead of a port
-10. service configurator `configureNodeCluster({script: 'path/to/script.js', scale: 4})` which uses same node binary that main process was started with
+7. http gateway
+    - logging
+    - stop accepting new requests, but finish pending requests, when SIGTERM received
+    - support making calls over a Unix domain socket, e.g. `unix:/path/to/socket.sock` instead of host & port
+8. service configurator `configureNodeCluster({script: 'path/to/script.js', scale: 4})` which uses same node binary that main process was started with
 
 *(in no particular order)*

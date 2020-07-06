@@ -9,7 +9,7 @@ to help you run multiple services as if they were a *single* service,
 running under a *single* process from a *single* command.
 
 `composite-service` lets you implement a "composite service"
-in a declarative, flexible, explicit & easy-to-read script like this:
+in a flexible, explicit & easy-to-read script like this:
 
 ```js
 const { startCompositeService } = require('composite-service')

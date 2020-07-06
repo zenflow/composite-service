@@ -5,8 +5,8 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
-:root {
+/* Defaults */
+/* :root {
   --ifm-color-primary: #25c2a0;
   --ifm-color-primary-dark: rgb(33, 175, 144);
   --ifm-color-primary-darker: rgb(31, 165, 136);
@@ -14,6 +14,35 @@
   --ifm-color-primary-light: rgb(70, 203, 174);
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
+  --ifm-code-font-size: 95%;
+} */
+
+/* https://v2.docusaurus.io/docs/styling-layout */
+/* https://facebookincubator.github.io/infima/docs/getting-started/introduction */
+/* https://docs.theochu.com/docusaurus/styling/ */
+
+/*
+https://www.colorbox.io/#steps=6#hue_start=200#hue_end=110#hue_curve=easeOutQuad#sat_start=18#sat_end=100#sat_curve=easeOutQuad#sat_rate=130#lum_start=100#lum_end=53#lum_curve=easeOutQuad#minor_steps_map=10
+{
+    "0": "#c3ebff",
+    "10": "#5dd2fa",
+    "15": "#34d3f3",
+
+    "20": "#0edaed",
+
+    "30": "#00d7a6",
+    "40": "#00b338",
+    "50": "#178700"
+}
+ */
+:root {
+  --ifm-color-primary: #0edaed;
+  --ifm-color-primary-dark: #00d7a6;
+  --ifm-color-primary-darker: #00b338;
+  --ifm-color-primary-darkest: #178700;
+  --ifm-color-primary-light: #34d3f3;
+  --ifm-color-primary-lighter: #5dd2fa;
+  --ifm-color-primary-lightest: #c3ebff;
   --ifm-code-font-size: 95%;
 }
 
