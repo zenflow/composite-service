@@ -19,11 +19,13 @@ const { PORT, DATABASE_URL } = process.env
 startCompositeService({
   services: {
     worker: {
-      command: 'node worker/main.js',
+      cwd: `${__dirname}/worker`,
+      command: 'node main.js',
       env: { DATABASE_URL },
     },
     web: {
-      command: 'node web/main.js',
+      cwd: `${__dirname}/web`,
+      command: 'node main.js',
       env: { PORT, DATABASE_URL },
     },
   },
@@ -32,7 +34,7 @@ startCompositeService({
 
 **The above script will:**
 
-1. Start composed services (`worker` & `web`) with their respective `command` and `env` (environment variables)
+1. Start composed services (`worker` & `web`) with their respective `cwd` (current working directory), `command` and `env` (environment variables)
 2. Pipe stdout & stderr from composed services to stdout, each line prepended with the service ID
 3. Restart composed services when they crash
 4. Shut down composed services when it is itself told to shut down

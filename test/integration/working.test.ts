@@ -12,7 +12,8 @@ function getScript() {
           ready: ctx => onceTcpPortUsed(8000),
         },
         web: {
-          command: ['node', 'test/integration/fixtures/http-service.js'],
+          cwd: 'test/integration/fixtures',
+          command: ['node', 'http-service.js'],
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
           ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },

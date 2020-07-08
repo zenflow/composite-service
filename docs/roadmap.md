@@ -9,8 +9,7 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 ## Planned Features
 
 1. config `logLevel`
-2. service config `cwd: string` (reminder: PATH env var)
-4. service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
+2. service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
 
 *(in no particular order)*
 

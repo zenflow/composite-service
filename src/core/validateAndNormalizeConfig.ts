@@ -10,6 +10,7 @@ export interface NormalizedCompositeServiceConfig {
 
 export interface NormalizedComposedServiceConfig {
   dependencies: string[]
+  cwd: string
   command: string[]
   env: { [key: string]: string }
   ready: (ctx: ReadyConfigContext) => Promise<any>
@@ -55,6 +56,8 @@ export function validateAndNormalizeConfig(
           `dependencies: Contains invalid service id '${dependency}'`
         )
       })
+      let { cwd = '.' } = config
+      _assert(typeof cwd === 'string', 'cwd: Not a string')
       let command =
         typeof config.command === 'string'
           ? config.command.split(/\s+/).filter(Boolean)
@@ -93,6 +96,7 @@ export function validateAndNormalizeConfig(
         id,
         {
           dependencies,
+          cwd,
           command,
           env,
           ready,

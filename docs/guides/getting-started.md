@@ -32,10 +32,12 @@ which includes a [services property](../api/composite-service.compositeserviceco
 which is a collection of [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) objects keyed by service ID.
 
 The most basic properties of [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) are:
+- [`cwd`](../api/composite-service.composedserviceconfig.cwd.md)
+Current working directory of the service. Defaults to `'.'`.
 - [`command`](../api/composite-service.composedserviceconfig.command.md)
-Command used to run the service
+Command used to run the service. **Required.**
 - [`env`](../api/composite-service.composedserviceconfig.env.md)
-Environment variables to pass to the service
+Environment variables to pass to the service. Defaults to `{}`.
 
 ### Example
 
@@ -47,11 +49,13 @@ const { PORT, DATABASE_URL } = process.env
 startCompositeService({
   services: {
     worker: {
-      command: 'node worker/main.js',
+      cwd: `${__dirname}/worker`,
+      command: 'node main.js',
       env: { DATABASE_URL },
     },
     web: {
-      command: 'node web/main.js',
+      cwd: `${__dirname}/web`,
+      command: 'node main.js',
       env: { PORT, DATABASE_URL },
     },
   },
@@ -76,3 +80,17 @@ you are required to define the exact collection of environment variables.
 You can easily just include everything from `process.env`,
 but you should consider instead passing each necessary variable *explicitly*,
 in order to maintain a clear picture of which variables are used by which service.
+
+### Define absolute CWDs
+
+You can easily define a *relative* path for `cwd`,
+to be resolved from the CWD of the composite service,
+or even omit `cwd` altogether,
+but this makes your composite service script dependent on the CWD from which it was called.
+
+You should consider defining an absolute path for every `cwd`,
+so that calling your composite service script from different directories
+yields consistent results.
+
+Most of the examples here won't follow this approach,
+simply for the sake of brevity.

@@ -1,8 +1,11 @@
 # TODO
 
-- buffering stdout/stderr twice? (also in child_process.ChildProcess?)
-- document more examples configuring http-proxy-middleware
 - shorter interface names
+- crashing.test.ts: check value of OnCrashConfigContext.isServiceReady
+- buffering stdout/stderr twice? (also in child_process.ChildProcess?)
+
+- docs: Development Mode guide
+- docs: more examples in guide on configuring http-proxy-middleware
 - docs: separate motivation
 - `npm it` should work
 - docs: contributing (section & notice soliciting contributions)

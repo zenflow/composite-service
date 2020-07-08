@@ -74,7 +74,7 @@ const myServiceConfig = {
       if (timespan < 1000 * 60 * 60) {
         email(
           'me@me.com',
-          'Crashed for 10th time inside of an hour!',
+          'Last 10 crashes happened inside of an hour!',
           ctx.crash.logTail,
         ).catch(console.error)
       }

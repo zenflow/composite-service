@@ -11,6 +11,7 @@ import stream from 'stream';
 // @public
 export interface ComposedServiceConfig {
     command: string | string[];
+    cwd?: string;
     dependencies?: string[];
     env?: {
         [key: string]: string | number | undefined;

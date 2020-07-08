@@ -20,6 +20,16 @@ export interface ComposedServiceConfig {
   dependencies?: string[]
 
   /**
+   * Current working directory of the service.
+   * Defaults to `'.'`.
+   *
+   * @remarks
+   *
+   * This can be an absolute path or a path relative to the composite service's cwd.
+   */
+  cwd?: string
+
+  /**
    * Command used to run the service
    *
    * @remarks
