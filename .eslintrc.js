@@ -1,4 +1,9 @@
 module.exports = {
+  "ignorePatterns": [
+    "**/node_modules",
+    "website/.docusaurus",
+    "website/build"
+  ],
   "extends": [
     "react-app",
     "prettier/@typescript-eslint",
