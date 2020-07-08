@@ -1,10 +1,10 @@
-import { ComposedServiceConfig } from '../core'
+import { ServiceConfig, ReadyContext } from '../core'
 import serializeJavascript from 'serialize-javascript'
 import { onceOutputLineIncludes } from '../ready-helpers'
 import { HttpGatewayConfig } from './HttpGatewayConfig'
 
 /**
- * Generates a {@link ComposedServiceConfig} for an HTTP gateway service
+ * Generates a {@link ServiceConfig} for an HTTP gateway service
  *
  * @param config - Configuration for the HTTP gateway service
  *
@@ -16,13 +16,11 @@ import { HttpGatewayConfig } from './HttpGatewayConfig'
  * service as determined by the {@link HttpGatewayConfig.proxies | proxies} option.
  *
  * The service can safely be used as a dependency of other services,
- * since its configuration includes {@link ComposedServiceConfig.ready | ready}.
+ * since its configuration includes {@link ServiceConfig.ready}.
  *
  * @public
  */
-export function configureHttpGateway(
-  config: HttpGatewayConfig
-): ComposedServiceConfig {
+export function configureHttpGateway(config: HttpGatewayConfig): ServiceConfig {
   // TODO: validate config
   const { dependencies, host, port, proxies } = config
   return {
@@ -33,6 +31,7 @@ export function configureHttpGateway(
       PORT: String(port),
       PROXIES: serializeJavascript(proxies, { unsafe: true }),
     },
-    ready: ctx => onceOutputLineIncludes(ctx.output, 'Listening @ http://'),
+    ready: (ctx: ReadyContext) =>
+      onceOutputLineIncludes(ctx.output, 'Listening @ http://'),
   }
 }

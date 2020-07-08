@@ -2,7 +2,7 @@ import {
   Filter as HttpProxyContext,
   Options as HttpProxyOptions,
 } from 'http-proxy-middleware'
-import { ComposedServiceConfig } from '../core'
+import { ServiceConfig } from '../core'
 
 export { HttpProxyContext, HttpProxyOptions }
 
@@ -13,18 +13,21 @@ export { HttpProxyContext, HttpProxyOptions }
  */
 export interface HttpGatewayConfig {
   /**
-   * Value to use for {@link ComposedServiceConfig.dependencies | dependencies}
+   * Value to use for {@link ServiceConfig.dependencies}
    */
-  dependencies?: ComposedServiceConfig['dependencies']
+  dependencies?: ServiceConfig['dependencies']
+
   /**
    * Host to listen on.
    * Defaults to `'0.0.0.0'`.
    */
   host?: string
+
   /**
    * Port to listen on
    */
   port: number | string
+
   /**
    * Configuration for each instance of [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware)
    *

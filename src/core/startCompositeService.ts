@@ -8,8 +8,8 @@ let started = false
  *
  * @remarks
  *
- * Each service defined in {@link CompositeServiceConfig.services | `config.services`}
- * is started according to its {@link ComposedServiceConfig | configuration}.
+ * Each service defined in {@link CompositeServiceConfig.services}
+ * is started and managed according to its {@link ServiceConfig}.
  *
  * The stdout & stderr from each service is piped to stdout,
  * each line prepended with the service ID.
@@ -24,7 +24,7 @@ let started = false
  * (2) Error validating configuration
  * (3) Error spawning process, e.g. `EPERM`, `ENOENT`, etc.
  * (4) Error from user-provided configuration function,
- * {@link ComposedServiceConfig.ready} or {@link ComposedServiceConfig.onCrash}
+ * {@link ServiceConfig.ready} or {@link ServiceConfig.onCrash}
  *
  * @param config - Configuration for the composite service
  *

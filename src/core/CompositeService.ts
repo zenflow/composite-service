@@ -1,4 +1,4 @@
-import { ComposedService } from './ComposedService'
+import { Service } from './Service'
 import serializeJavascript from 'serialize-javascript'
 import {
   NormalizedCompositeServiceConfig,
@@ -11,8 +11,8 @@ import { CompositeServiceConfig } from './CompositeServiceConfig'
 
 export class CompositeService {
   private config: NormalizedCompositeServiceConfig
-  private services: ComposedService[]
-  private serviceMap: Map<string, ComposedService>
+  private services: Service[]
+  private serviceMap: Map<string, Service>
   private stopping = false
 
   constructor(config: CompositeServiceConfig) {
@@ -37,7 +37,7 @@ export class CompositeService {
     }
 
     this.services = Object.entries(this.config.services).map(
-      ([id, config]) => new ComposedService(id, config, this.die.bind(this))
+      ([id, config]) => new Service(id, config, this.die.bind(this))
     )
     this.serviceMap = new Map(
       this.services.map(service => [service.id, service])
@@ -60,7 +60,7 @@ export class CompositeService {
     ).then(() => console.log('Started composite service'))
   }
 
-  private async startService(service: ComposedService) {
+  private async startService(service: Service) {
     const dependencies = service.config.dependencies.map(
       id => this.serviceMap.get(id)!
     )
@@ -85,7 +85,7 @@ export class CompositeService {
     return never()
   }
 
-  private async stopService(service: ComposedService) {
+  private async stopService(service: Service) {
     const dependents = this.services.filter(({ config }) =>
       config.dependencies.includes(service.id)
     )

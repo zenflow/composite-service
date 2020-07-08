@@ -1,12 +1,12 @@
-import { ReadyConfigContext } from './ReadyConfigContext'
-import { OnCrashConfigContext } from './OnCrashConfigContext'
+import { ReadyContext } from './ReadyContext'
+import { OnCrashContext } from './OnCrashContext'
 
 /**
  * Configuration for a service to be composed
  *
  * @public
  */
-export interface ComposedServiceConfig {
+export interface ServiceConfig {
   /**
    * IDs of other composed services that this service depends on.
    * Defaults to `[]`.
@@ -14,7 +14,7 @@ export interface ComposedServiceConfig {
    * @remarks
    *
    * The service will not be started until all dependencies are started and ready
-   * (as determined by their {@link ComposedServiceConfig.ready | ready config}),
+   * (as determined by their {@link ServiceConfig.ready} functions),
    * and no dependencies will be stopped until the service has stopped.
    */
   dependencies?: string[]
@@ -59,7 +59,7 @@ export interface ComposedServiceConfig {
    *
    * The final value used for `PATH` is, if defined, the `PATH` value defined here
    * *appended with paths to locally installed package binaries*.
-   * This allows you to execute Node.js CLI programs by name in {@link ComposedServiceConfig.command}.
+   * This allows you to execute Node.js CLI programs by name in {@link ServiceConfig.command}.
    *
    * On Windows, the final value used for `PATHEXT` is, if defined, the `PATHEXT` value provided here,
    * or if not defined, the Windows default.
@@ -72,7 +72,7 @@ export interface ComposedServiceConfig {
    *
    * @remarks
    *
-   * This function takes a {@link ReadyConfigContext} as its only argument
+   * This function takes a {@link ReadyContext} as its only argument
    * and should return a `Promise` that resolves when the service has started up and is ready to do its job.
    *
    * This library includes a collection of [Ready Helpers](./composite-service.oncetcpportused.md)
@@ -80,7 +80,7 @@ export interface ComposedServiceConfig {
    *
    * @param ctx - Context
    */
-  ready?: (ctx: ReadyConfigContext) => Promise<any>
+  ready?: (ctx: ReadyContext) => Promise<any>
 
   /**
    * A function to be executed each time the service crashes.
@@ -88,7 +88,7 @@ export interface ComposedServiceConfig {
    *
    * @remarks
    *
-   * This function is called with an {@link OnCrashConfigContext} object as its only argument.
+   * This function is called with an {@link OnCrashContext} object as its only argument.
    *
    * It can execute synchronously or asynchronously (i.e. return a promise that will be awaited on).
    *
@@ -98,7 +98,7 @@ export interface ComposedServiceConfig {
    *
    * @param ctx - Context
    */
-  onCrash?: (ctx: OnCrashConfigContext) => any
+  onCrash?: (ctx: OnCrashContext) => any
 
   /**
    * Maximum number of lines to keep from the tail of the service's log output.

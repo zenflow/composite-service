@@ -11,7 +11,7 @@ instead of writing a custom one every time.
 The HTTP gateway can be configured by calling the
 [configureHttpGateway function](../api/composite-service.configurehttpgateway.md)
 with a [HttpGatewayConfig](../api/composite-service.httpgatewayconfig.md) object.
-This returns a [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) object
+This returns a [ServiceConfig](../api/composite-service.serviceconfig.md) object
 to use in a [CompositeServiceConfig](../api/composite-service.compositeserviceconfig.md) object.
 
 ## Example

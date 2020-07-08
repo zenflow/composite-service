@@ -1,24 +1,24 @@
 import { PassThrough } from 'stream'
 import { ServiceProcess } from './ServiceProcess'
-import { NormalizedComposedServiceConfig } from './validateAndNormalizeConfig'
-import { ReadyConfigContext } from './ReadyConfigContext'
-import { OnCrashConfigContext } from './OnCrashConfigContext'
-import { ComposedServiceCrash } from './ComposedServiceCrash'
+import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
+import { ReadyContext } from './ReadyContext'
+import { OnCrashContext } from './OnCrashContext'
+import { ServiceCrash } from './ServiceCrash'
 import { InternalError } from './InternalError'
 
-export class ComposedService {
+export class Service {
   public readonly id: string
-  public readonly config: NormalizedComposedServiceConfig
+  public readonly config: NormalizedServiceConfig
   public readonly output = new PassThrough({ objectMode: true })
   private readonly die: (message: string) => Promise<never>
   private ready: Promise<void> | undefined
   private process: ServiceProcess | undefined
   private startResult: Promise<void> | undefined
   private stopResult: Promise<void> | undefined
-  private crashes: ComposedServiceCrash[] = []
+  private crashes: ServiceCrash[] = []
   constructor(
     id: string,
-    config: NormalizedComposedServiceConfig,
+    config: NormalizedServiceConfig,
     die: (message: string) => Promise<never>
   ) {
     this.id = id
@@ -43,7 +43,7 @@ export class ComposedService {
   }
   private defineReady() {
     this.ready = promiseTry(() => {
-      const ctx: ReadyConfigContext = { output: this.output }
+      const ctx: ReadyContext = { output: this.output }
       return this.config.ready(ctx)
     }).catch(error => {
       return this.die(`Error from ready function: ${maybeErrorText(error)}`)
@@ -72,13 +72,13 @@ export class ComposedService {
     const delay = new Promise(resolve =>
       setTimeout(resolve, this.config.minimumRestartDelay)
     )
-    const crash: ComposedServiceCrash = {
+    const crash: ServiceCrash = {
       date: new Date(),
       logTail: proc.logTail,
     }
     this.crashes.push(crash)
     const isServiceReady = await isResolved(this.ready!)
-    const ctx: OnCrashConfigContext = {
+    const ctx: OnCrashContext = {
       isServiceReady,
       crash,
       crashes: this.crashes,

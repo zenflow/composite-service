@@ -3,7 +3,7 @@ import { ChildProcessWithoutNullStreams } from 'child_process'
 import { once } from 'events'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
-import { NormalizedComposedServiceConfig } from './validateAndNormalizeConfig'
+import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
 
 const split = () => splitStream((line: string) => `${line}\n`)
@@ -16,7 +16,7 @@ export class ServiceProcess {
   private readonly process: ChildProcessWithoutNullStreams
   private readonly ended: Promise<void>
   private wasEndCalled = false
-  constructor(config: NormalizedComposedServiceConfig, onCrash: () => void) {
+  constructor(config: NormalizedServiceConfig, onCrash: () => void) {
     this.process = spawnProcess(config)
     const childOutput = mergeStream(
       this.process.stdout.setEncoding('utf8').pipe(split()),

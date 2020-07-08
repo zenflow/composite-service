@@ -3,11 +3,11 @@ title: Graceful Startup & Shutdown
 ---
 
 If we want to start a service *only after some other service or services are ready*,
-we can use the following [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) properties:
+we can use the following [ServiceConfig](../api/composite-service.serviceconfig.md) properties:
 
-- [`ready`](../api/composite-service.composedserviceconfig.ready.md)
+- [`ready`](../api/composite-service.serviceconfig.ready.md)
 A function to determine when the service is ready
-- [`dependencies`](../api/composite-service.composedserviceconfig.dependencies.md)
+- [`dependencies`](../api/composite-service.serviceconfig.dependencies.md)
 IDs of other composed services that this service depends on
 
 A service will not be started until all its dependencies are started and ready,

@@ -4,10 +4,10 @@ title: Crash Handling
 
 By default, a service crashing will be handled by restarting the service.
 
-We can use the [ComposedServiceConfig.onCrash function](../api/composite-service.composedserviceconfig.oncrash.md)
+We can use the [ServiceConfig.onCrash function](../api/composite-service.serviceconfig.oncrash.md)
 to execute some custom code (sync or async) *before* restarting.
 
-`onCrash` is called with a [OnCrashConfigContext](../api/composite-service.oncrashconfigcontext.md)
+`onCrash` is called with a [OnCrashContext](../api/composite-service.oncrashcontext.md)
 object as its only argument.
 
 Unhandled errors from `onCrash` will cause composite service to crash.
@@ -83,5 +83,5 @@ const myServiceConfig = {
 }
 ```
 
-Note that defining [logTailLength](../api/composite-service.composedserviceconfig.logtaillength.md) (as above)
-is necessary in order for [ctx.logTail](../api/composite-service.composedservicecrash.logtail.md) to have any lines.
+Note that defining [`logTailLength`](../api/composite-service.serviceconfig.logtaillength.md) (as above)
+is necessary in order for [`ctx.crash.logTail`](../api/composite-service.servicecrash.logtail.md) to have any lines.

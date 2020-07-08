@@ -3,7 +3,7 @@
  *
  * @public
  */
-export interface ComposedServiceCrash {
+export interface ServiceCrash {
   /**
    * When the crash happened
    */
@@ -13,7 +13,7 @@ export interface ComposedServiceCrash {
    *
    * @remarks
    *
-   * Maximum length is determined by {@link ComposedServiceConfig.logTailLength}.
+   * Maximum length is determined by {@link ServiceConfig.logTailLength}.
    */
   logTail: string[]
 }

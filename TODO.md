@@ -1,20 +1,21 @@
 # TODO
 
-- shorter interface names
-- crashing.test.ts: check value of OnCrashConfigContext.isServiceReady
+- logLevel
+- stopWith ctrl+c
+- crashing.test.ts: check value of OnCrashContext.isServiceReady
 - buffering stdout/stderr twice? (also in child_process.ChildProcess?)
-
-- docs: Development Mode guide
-- docs: more examples in guide on configuring http-proxy-middleware
-- docs: separate motivation
-- `npm it` should work
-- docs: contributing (section & notice soliciting contributions)
 - inline TODOs
 - check for excess config fields
 - tests
     - unit tests for validation
     - use ctrl+c to shutdown composite service (for Windows compat)
 - publish v0.1.0
+
+- docs: Development Mode guide
+- docs: more examples in guide on configuring http-proxy-middleware
+- docs: separate motivation
+- `npm it` should work
+- docs: contributing (section & notice soliciting contributions)
 - website:
   - nicer theme
   - frontpage SVG animation

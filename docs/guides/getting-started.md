@@ -29,14 +29,14 @@ Create a Node.js script that calls the
 [startCompositeService function](../api/composite-service.startcompositeservice.md)
 with a [CompositeServiceConfig](../api/composite-service.compositeserviceconfig.md) object,
 which includes a [services property](../api/composite-service.compositeserviceconfig.services.md),
-which is a collection of [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) objects keyed by service ID.
+which is a collection of [ServiceConfig](../api/composite-service.serviceconfig.md) objects keyed by service ID.
 
-The most basic properties of [ComposedServiceConfig](../api/composite-service.composedserviceconfig.md) are:
-- [`cwd`](../api/composite-service.composedserviceconfig.cwd.md)
+The most basic properties of [ServiceConfig](../api/composite-service.serviceconfig.md) are:
+- [`cwd`](../api/composite-service.serviceconfig.cwd.md)
 Current working directory of the service. Defaults to `'.'`.
-- [`command`](../api/composite-service.composedserviceconfig.command.md)
+- [`command`](../api/composite-service.serviceconfig.command.md)
 Command used to run the service. **Required.**
-- [`env`](../api/composite-service.composedserviceconfig.env.md)
+- [`env`](../api/composite-service.serviceconfig.env.md)
 Environment variables to pass to the service. Defaults to `{}`.
 
 ### Example
@@ -69,7 +69,7 @@ startCompositeService({
 - [startCompositeService function](../api/composite-service.startcompositeservice.md)
 for general specifications
 - [CompositeServiceConfig interface](../api/composite-service.compositeserviceconfig.md)
-& [ComposedServiceConfig interface](../api/composite-service.composedserviceconfig.md)
+& [ServiceConfig interface](../api/composite-service.serviceconfig.md)
 for configuration options
 
 ### Define each environment variable explicitly

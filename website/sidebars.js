@@ -30,10 +30,10 @@ function getApiItems() {
       Core: [
         getApiNode('startCompositeService'),
         getApiNode('CompositeServiceConfig'),
-        getApiNode('ComposedServiceConfig'),
-        getApiNode('ReadyConfigContext'),
-        getApiNode('OnCrashConfigContext'),
-        getApiNode('ComposedServiceCrash'),
+        getApiNode('ServiceConfig'),
+        getApiNode('ReadyContext'),
+        getApiNode('OnCrashContext'),
+        getApiNode('ServiceCrash'),
       ],
       'Ready Helpers': [
         getApiNode('onceTcpPortUsed'),

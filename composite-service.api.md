@@ -9,39 +9,19 @@ import { Options as HttpProxyOptions } from 'http-proxy-middleware';
 import stream from 'stream';
 
 // @public
-export interface ComposedServiceConfig {
-    command: string | string[];
-    cwd?: string;
-    dependencies?: string[];
-    env?: {
-        [key: string]: string | number | undefined;
-    };
-    logTailLength?: number;
-    minimumRestartDelay?: number;
-    onCrash?: (ctx: OnCrashConfigContext) => any;
-    ready?: (ctx: ReadyConfigContext) => Promise<any>;
-}
-
-// @public
-export interface ComposedServiceCrash {
-    date: Date;
-    logTail: string[];
-}
-
-// @public
 export interface CompositeServiceConfig {
     printConfig?: boolean;
     services: {
-        [id: string]: ComposedServiceConfig | false | null | undefined | 0 | '';
+        [id: string]: ServiceConfig | false | null | undefined | 0 | '';
     };
 }
 
 // @public
-export function configureHttpGateway(config: HttpGatewayConfig): ComposedServiceConfig;
+export function configureHttpGateway(config: HttpGatewayConfig): ServiceConfig;
 
 // @public
 export interface HttpGatewayConfig {
-    dependencies?: ComposedServiceConfig['dependencies'];
+    dependencies?: ServiceConfig['dependencies'];
     host?: string;
     port: number | string;
     proxies: [HttpProxyContext, HttpProxyOptions][];
@@ -67,15 +47,35 @@ export function onceTcpPortUsed(port: number | string, host?: string): Promise<v
 export function onceTimeout(milliseconds: number): Promise<void>;
 
 // @public
-export interface OnCrashConfigContext {
-    crash: ComposedServiceCrash;
-    crashes: ComposedServiceCrash[];
+export interface OnCrashContext {
+    crash: ServiceCrash;
+    crashes: ServiceCrash[];
     isServiceReady: boolean;
 }
 
 // @public
-export interface ReadyConfigContext {
+export interface ReadyContext {
     output: stream.Readable;
+}
+
+// @public
+export interface ServiceConfig {
+    command: string | string[];
+    cwd?: string;
+    dependencies?: string[];
+    env?: {
+        [key: string]: string | number | undefined;
+    };
+    logTailLength?: number;
+    minimumRestartDelay?: number;
+    onCrash?: (ctx: OnCrashContext) => any;
+    ready?: (ctx: ReadyContext) => Promise<any>;
+}
+
+// @public
+export interface ServiceCrash {
+    date: Date;
+    logTail: string[];
 }
 
 // @public

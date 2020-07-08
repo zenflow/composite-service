@@ -1,4 +1,4 @@
-import { ComposedServiceConfig } from './ComposedServiceConfig'
+import { ServiceConfig } from './ServiceConfig'
 
 /**
  * Configuration for a composite service
@@ -22,7 +22,7 @@ export interface CompositeServiceConfig {
    * @remarks
    *
    * Each key is used as the service ID,
-   * and each entry value is a {@link ComposedServiceConfig}.
+   * and each entry value is a {@link ServiceConfig}.
    *
    * Entries with falsy values (i.e. no configuration) are discarded.
    * Useful for including an entry conditionally, like this:
@@ -37,6 +37,6 @@ export interface CompositeServiceConfig {
    * ```
    */
   services: {
-    [id: string]: ComposedServiceConfig | false | null | undefined | 0 | ''
+    [id: string]: ServiceConfig | false | null | undefined | 0 | ''
   }
 }

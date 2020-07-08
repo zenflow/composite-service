@@ -3,7 +3,7 @@ import { resolve, normalize } from 'path'
 import npmRunPath from 'npm-run-path'
 import getPathKey from 'path-key'
 import which from 'which'
-import { NormalizedComposedServiceConfig } from './validateAndNormalizeConfig'
+import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 
 // https://github.com/npm/node-which/blob/6a822d836de79f92fb3170f685a6e283fbfeff87/which.js#L1-L3
 const isWindows =
@@ -11,7 +11,7 @@ const isWindows =
   process.env.OSTYPE === 'cygwin' ||
   process.env.OSTYPE === 'msys'
 
-export function spawnProcess(config: NormalizedComposedServiceConfig) {
+export function spawnProcess(config: NormalizedServiceConfig) {
   const cwd = resolve(config.cwd)
   let [binary, ...args] = config.command
   let env = { ...config.env }

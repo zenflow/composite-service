@@ -15,7 +15,7 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 
 ## Feature Ideas
 
-1. config `serviceDefaults: ComposedServiceConfig`
+1. config `serviceDefaults: ServiceConfig`
 2. port utilities: `assertPortFree(port)` & `findPorts(numberOfPorts, options)` (use it like: `const [apiPort, webPort] = findPorts(2, { exclude: PORT })`)
 3. use AsyncIterable for stream processing, improving API types
 4. service configs `beforeStarting`, `afterStarted`, `beforeStopping`, `afterStopped`: event handler or "hook" functions

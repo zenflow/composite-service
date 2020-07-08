@@ -1,20 +1,20 @@
 import { CompositeServiceConfig } from './CompositeServiceConfig'
-import { ComposedServiceConfig } from './ComposedServiceConfig'
-import { ReadyConfigContext } from './ReadyConfigContext'
-import { OnCrashConfigContext } from './OnCrashConfigContext'
+import { ServiceConfig } from './ServiceConfig'
+import { ReadyContext } from './ReadyContext'
+import { OnCrashContext } from './OnCrashContext'
 
 export interface NormalizedCompositeServiceConfig {
   printConfig: boolean
-  services: { [id: string]: NormalizedComposedServiceConfig }
+  services: { [id: string]: NormalizedServiceConfig }
 }
 
-export interface NormalizedComposedServiceConfig {
+export interface NormalizedServiceConfig {
   dependencies: string[]
   cwd: string
   command: string[]
   env: { [key: string]: string }
-  ready: (ctx: ReadyConfigContext) => Promise<any>
-  onCrash: (ctx: OnCrashConfigContext) => any
+  ready: (ctx: ReadyContext) => Promise<any>
+  onCrash: (ctx: OnCrashContext) => any
   logTailLength: number
   minimumRestartDelay: number
 }
@@ -41,7 +41,7 @@ export function validateAndNormalizeConfig(
   const printConfig = Boolean(config.printConfig)
   const filteredServiceEntries = Object.entries(config.services).filter(
     ([, value]) => value
-  ) as [string, ComposedServiceConfig][]
+  ) as [string, ServiceConfig][]
   const serviceIds = filteredServiceEntries.map(([id]) => id)
   assert(serviceIds.length > 0, 'services: No configured service')
   const services = Object.fromEntries(
