@@ -25,8 +25,10 @@ export interface ComposedServiceConfig {
    * @remarks
    *
    * If it's a single string, it will be parsed into binary and arguments.
+   * Otherwise it must be an array of strings
+   * where the first element is the binary, and the remaining elements are the arguments.
    *
-   * If it's an array of strings, the first element is the binary, and the remaining elements are the arguments.
+   * The binary part can be the name (path & extension not required) of a Node.js CLI program.
    */
   command: string | string[]
 
@@ -36,13 +38,21 @@ export interface ComposedServiceConfig {
    *
    * @remarks
    *
-   * No additional variables will be defined, except `PATH`, and some others depending on your OS.
-   * For example, in Windows 10, nodejs child processes always have `PATH`, `PATHEXT`, `WINDIR`, etc.,
-   * while in Ubuntu 18.04, nodejs child processes can actually have *no* environment variables if configured that way.
-   *
-   * TODO: Can the above inconsistency be improved in nodejs? Or is this just an inherent fact/caveat about cross-platform compatibility?
-   *
    * Entries with value `undefined` are discarded.
+   *
+   * No additional variables will be passed to the service, except
+   * (1) `PATH`
+   * (2) on Windows only, `PATHEXT`, and
+   * (3) Some others depending on your OS.
+   * For example, on Ubuntu 18.04, service processes will have only `PATH` if no other variables are defined,
+   * while on Windows 10, child processes always have `PATH`, `SYSTEMDRIVE`, `SYSTEMROOT`, `TEMP`, etc.
+   *
+   * The final value used for `PATH` is, if defined, the `PATH` value defined here
+   * *appended with paths to locally installed package binaries*.
+   * This allows you to execute Node.js CLI programs by name in {@link ComposedServiceConfig.command}.
+   *
+   * On Windows, the final value used for `PATHEXT` is, if defined, the `PATHEXT` value provided here,
+   * or if not defined, the Windows default.
    */
   env?: { [key: string]: string | number | undefined }
 

@@ -1,15 +1,15 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { redactStackTrace } from './helpers/redactStackTrace'
+import { redactStackTraces } from './helpers/redactStackTraces'
 
 function getScript(customCode = '') {
   return `
-    const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
+    const { onceOutputLineIs, configureHttpGateway, startCompositeService } = require('.');
     const config = {
       services: {
         api: {
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8000, RESPONSE_TEXT: 'api' },
-          ready: ctx => onceTcpPortUsed(8000),
+          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },
         web: {
         dependencies: ['api'],
@@ -44,7 +44,7 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTrace(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "ConfigValidationError: config.services.gateway.dependencies: Contains invalid service id 'this_dependency_does_not_exist'",
         "--- stack trace ---",
@@ -59,7 +59,7 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTrace(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "Starting composite service...",
         "Starting service 'api'...",
@@ -85,7 +85,7 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTrace(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "Starting composite service...",
         "Starting service 'api'...",
@@ -118,7 +118,7 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTrace(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "Starting composite service...",
         "Starting service 'api'...",
@@ -156,7 +156,7 @@ describe('crashing', () => {
     proc = await new CompositeProcess(script).start()
     proc.flushOutput()
     await proc.ended
-    expect(redactStackTrace(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "web     | ",
         "web     | ",

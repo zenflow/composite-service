@@ -30,6 +30,10 @@ export class CompositeProcess {
     )
     this.ended = once(outputStream, 'end').then(() => {})
   }
+
+  /**
+   * Warning: Requires logLevel >= 1
+   */
   async start(): Promise<CompositeProcess> {
     await Promise.race([
       this.ready,

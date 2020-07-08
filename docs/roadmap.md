@@ -8,9 +8,8 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 
 ## Planned Features
 
-1. config `verbosity`
+1. config `logLevel`
 2. service config `cwd: string` (reminder: PATH env var)
-3. use `npm-run-path` package
 4. service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
 
 *(in no particular order)*

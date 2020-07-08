@@ -2,7 +2,7 @@
 
 - document more examples configuring http-proxy-middleware
 - shorter interface names
-
+- docs: separate motivation
 - docs: contributing
 - inline TODOs
 - check for excess config fields
@@ -24,5 +24,7 @@
 
 ---
 
-- Nodejs issue: no ChildProcess 'started' event
+- Nodejs issues
+    - no ChildProcess 'started' event
+    - child_process.spawn uses scripts initial process.env, not updated process.env
 - PR to add composite-service example to https://docs.docker.com/config/containers/multi-service_container/

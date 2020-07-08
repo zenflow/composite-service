@@ -1,17 +1,18 @@
 import { PassThrough } from 'stream'
-import { InternalProcess } from './InternalProcess'
+import { ServiceProcess } from './ServiceProcess'
 import { NormalizedComposedServiceConfig } from './validateAndNormalizeConfig'
 import { ReadyConfigContext } from './ReadyConfigContext'
 import { OnCrashConfigContext } from './OnCrashConfigContext'
 import { ComposedServiceCrash } from './ComposedServiceCrash'
+import { InternalError } from './InternalError'
 
 export class ComposedService {
-  readonly id: string
-  readonly config: NormalizedComposedServiceConfig
-  readonly output = new PassThrough({ objectMode: true })
+  public readonly id: string
+  public readonly config: NormalizedComposedServiceConfig
+  public readonly output = new PassThrough({ objectMode: true })
   private readonly die: (message: string) => Promise<never>
   private ready: Promise<void> | undefined
-  private proc: InternalProcess | undefined
+  private process: ServiceProcess | undefined
   private startResult: Promise<void> | undefined
   private stopResult: Promise<void> | undefined
   private crashes: ComposedServiceCrash[] = []
@@ -24,8 +25,11 @@ export class ComposedService {
     this.config = config
     this.die = message => die(`Error in '${id}': ${message}`)
   }
-  start() {
-    if (this.stopResult) throw new Error('Cannot start after stopping')
+  public start() {
+    if (this.stopResult) {
+      console.error(new InternalError('Cannot start after stopping'))
+      return this.startResult
+    }
     if (!this.startResult) {
       console.log(`Starting service '${this.id}'...`)
       this.defineReady()
@@ -46,33 +50,24 @@ export class ComposedService {
     })
   }
   private async startProcess() {
-    const proc = new InternalProcess(
-      this.config.command,
-      this.config.env,
-      this.config.logTailLength
-    )
-    this.proc = proc
-    proc.output.pipe(this.output, { end: false })
-    proc.ended.then(async () => {
-      if (this.stopResult) {
-        return
-      }
-      const started = await proc.started.then(
-        () => true,
-        () => false
-      )
-      if (!started) {
-        return
-      }
+    const proc = new ServiceProcess(this.config, () => {
       this.handleCrash(proc)
     })
+    this.process = proc
+    proc.output.pipe(this.output, { end: false })
     try {
-      await this.proc.started
+      await this.process.started
     } catch (error) {
       await this.die(`Error starting process: ${error.stack}`)
     }
   }
-  private async handleCrash(proc: InternalProcess) {
+  private async handleCrash(proc: ServiceProcess) {
+    if (this.stopResult) {
+      console.error(
+        new InternalError('Not expecting handleCrash called when stopping')
+      )
+      return
+    }
     console.log(`Service '${this.id}' crashed`)
     const delay = new Promise(resolve =>
       setTimeout(resolve, this.config.minimumRestartDelay)
@@ -103,13 +98,13 @@ export class ComposedService {
     console.log(`Restarting service '${this.id}'`)
     await this.startProcess()
   }
-  stop() {
+  public stop() {
     if (!this.stopResult) {
-      if (!this.proc || this.proc.isEnded) {
+      if (!this.process || this.process.isEnded) {
         this.stopResult = Promise.resolve()
       } else {
         console.log(`Stopping service '${this.id}'...`)
-        this.stopResult = this.proc.end().then(() => {
+        this.stopResult = this.process.end().then(() => {
           console.log(`Stopped service '${this.id}'`)
         })
       }

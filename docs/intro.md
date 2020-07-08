@@ -51,8 +51,9 @@ However, if any fatal error occurs, the composite service will shut down any run
 ## Features
 
 1. Supports [Graceful Startup & Shutdown](guides/graceful-startup-shutdown.md)
-2. Configurable [Crash Handling](guides/crash-handling.md)
-3. Includes configurable [HTTP Gateway](guides/http-gateway.md)
+2. Configurable [Crash Handling](guides/crash-handling.md) (default is to just restart the service)
+3. Includes fluently configurable [HTTP Gateway](guides/http-gateway.md)
+4. Supports executing Node.js CLI programs by name in [ComposedServiceConfig.command](api/composite-service.composedserviceconfig.command.md)
 
 ...and more to come. See [Roadmap](roadmap.md).
 
