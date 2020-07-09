@@ -41,19 +41,19 @@ describe('working', () => {
     proc = await new CompositeProcess(getScript()).start()
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
-        "Starting composite service...",
-        "Starting service 'api'...",
-        "Starting service 'web'...",
+        "info: Starting composite service...",
+        "info: Starting service 'api'...",
+        "info: Starting service 'web'...",
         "web     | Started 🚀",
-        "Started service 'web'",
+        "info: Started service 'web'",
         "api     | Started 🚀",
-        "Started service 'api'",
-        "Starting service 'gateway'...",
+        "info: Started service 'api'",
+        "info: Starting service 'gateway'...",
         "gateway | [HPM] Proxy created: /api  -> http://localhost:8000",
         "gateway | [HPM] Proxy created: /  -> http://localhost:8001",
         "gateway | Listening @ http://0.0.0.0:8080",
-        "Started service 'gateway'",
-        "Started composite service",
+        "info: Started service 'gateway'",
+        "info: Started composite service",
       ]
     `)
     expect(await fetchText('http://localhost:8080/api')).toBe('api')
@@ -68,21 +68,21 @@ describe('working', () => {
     } else {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
-          "Received shutdown signal 'SIGINT'",
-          "Stopping composite service...",
-          "Stopping service 'gateway'...",
+          "error: Received shutdown signal 'SIGINT'",
+          "info: Stopping composite service...",
+          "info: Stopping service 'gateway'...",
           "gateway | ",
           "gateway | ",
-          "Stopped service 'gateway'",
-          "Stopping service 'api'...",
-          "Stopping service 'web'...",
+          "info: Stopped service 'gateway'",
+          "info: Stopping service 'api'...",
+          "info: Stopping service 'web'...",
           "web     | ",
           "web     | ",
-          "Stopped service 'web'",
+          "info: Stopped service 'web'",
           "api     | ",
           "api     | ",
-          "Stopped service 'api'",
-          "Stopped composite service",
+          "info: Stopped service 'api'",
+          "info: Stopped composite service",
           "",
           "",
         ]

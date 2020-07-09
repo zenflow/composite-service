@@ -7,14 +7,10 @@ import { ServiceConfig } from './ServiceConfig'
  */
 export interface CompositeServiceConfig {
   /**
-   * Whether to print the configuration before starting the composite service.
-   * Defaults to false.
-   *
-   * @remarks
-   *
-   * Useful for debugging dynamic configurations.
+   * Level of detail in logging.
+   * Defaults to `'info'`.
    */
-  printConfig?: boolean
+  logLevel?: 'debug' | 'info' | 'error'
 
   /**
    * Configuration for each service to be composed.

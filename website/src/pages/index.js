@@ -26,8 +26,32 @@ const features = [
     ),
   },
   {
+    title: <>Zero lock-in</>,
+    description: (
+      <>
+        Easily <em>de</em>-compose your composite service and run services
+        individually at any time since they are, at a lower level, still
+        separate services, with clearly defined parameters and requirements.
+      </>
+    ),
+  },
+  {
+    title: <>JavaScript or TypeScript</>,
+    description: (
+      <>
+        Designed for use with JS, but uses TS under-the-hood and provides type
+        definitions in case you want to use TS too.
+      </>
+    ),
+  },
+  {
     title: <>Batteries included</>,
-    description: <>Includes configurable HTTP gateway</>,
+    description: (
+      <>
+        Get up and running fast, with all the necessary components provided,
+        including a configurable HTTP gateway.
+      </>
+    ),
   },
 ]
 

@@ -3,7 +3,7 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
 import { once } from 'events'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
-import { onceOutputLineIs } from '../../..'
+import { onceOutputLineIncludes } from '../../..'
 
 const LOG_OUTPUT_LINES = false
 
@@ -24,7 +24,7 @@ export class CompositeProcess {
       outputStream.on('data', line => console.log(line))
     }
     outputStream.on('data', line => this.output.push(line))
-    this.ready = onceOutputLineIs(
+    this.ready = onceOutputLineIncludes(
       (outputStream as unknown) as Readable,
       'Started composite service'
     )

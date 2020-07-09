@@ -1,5 +1,5 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { redactStackTraces } from './helpers/redactStackTraces'
+import { redactEscapedCwdInstances, redactStackTraces } from './helpers/redact'
 
 function getScript(customCode = '') {
   return `
@@ -33,7 +33,7 @@ function getScript(customCode = '') {
 }
 
 describe('crashing', () => {
-  jest.setTimeout(process.platform === 'win32' ? 15000 : 5000)
+  jest.setTimeout(process.platform === 'win32' ? 30000 : 10000)
   let proc: CompositeProcess | undefined
   afterEach(async () => {
     if (proc) await proc.end()
@@ -44,10 +44,54 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(redactEscapedCwdInstances(redactStackTraces(proc.flushOutput())))
+      .toMatchInlineSnapshot(`
       Array [
-        "ConfigValidationError: config.services.gateway.dependencies: Contains invalid service id 'this_dependency_does_not_exist'",
-        "--- stack trace ---",
+        "debug: config = {",
+        "debug:   \\"services\\": {",
+        "debug:     \\"api\\": {",
+        "debug:       \\"command\\": \\"node test/integration/fixtures/http-service.js\\",",
+        "debug:       \\"env\\": {",
+        "debug:         \\"PORT\\": 8000,",
+        "debug:         \\"RESPONSE_TEXT\\": \\"api\\"",
+        "debug:       },",
+        "debug:       \\"ready\\": ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\\\n')",
+        "debug:     },",
+        "debug:     \\"web\\": {",
+        "debug:       \\"dependencies\\": [",
+        "debug:         \\"api\\"",
+        "debug:       ],",
+        "debug:       \\"command\\": [",
+        "debug:         \\"node\\",",
+        "debug:         \\"test/integration/fixtures/http-service.js\\"",
+        "debug:       ],",
+        "debug:       \\"env\\": {",
+        "debug:         \\"PORT\\": 8001,",
+        "debug:         \\"RESPONSE_TEXT\\": \\"web\\"",
+        "debug:       },",
+        "debug:       \\"ready\\": ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\\\n')",
+        "debug:     },",
+        "debug:     \\"gateway\\": {",
+        "debug:       \\"dependencies\\": [",
+        "debug:         \\"api\\",",
+        "debug:         \\"web\\",",
+        "debug:         \\"this_dependency_does_not_exist\\"",
+        "debug:       ],",
+        "debug:       \\"command\\": [",
+        "debug:         \\"node\\",",
+        "debug:         \\"<cwd>dist/http-gateway-server.js\\"",
+        "debug:       ],",
+        "debug:       \\"env\\": {",
+        "debug:         \\"HOST\\": \\"0.0.0.0\\",",
+        "debug:         \\"PORT\\": \\"8080\\",",
+        "debug:         \\"PROXIES\\": \\"[[\\\\\\"/api\\\\\\",{\\\\\\"target\\\\\\":\\\\\\"http://localhost:8000\\\\\\"}],[\\\\\\"/\\\\\\",{\\\\\\"target\\\\\\":\\\\\\"http://localhost:8001\\\\\\"}]]\\"",
+        "debug:       },",
+        "debug:       \\"ready\\": ctx => onceOutputLineIncludes(ctx.output, 'Listening @ http://')",
+        "debug:     }",
+        "debug:   }",
+        "debug: }",
+        "error: ConfigValidationError: config.services.gateway.dependencies: Contains invalid service id 'this_dependency_does_not_exist'",
+        "<stack trace>",
         "",
         "",
       ]
@@ -61,19 +105,19 @@ describe('crashing', () => {
     await proc.ended
     expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
-        "Starting composite service...",
-        "Starting service 'api'...",
+        "info: Starting composite service...",
+        "info: Starting service 'api'...",
         "api     | Started 🚀",
-        "Started service 'api'",
-        "Starting service 'web'...",
-        "Error in 'web': Error starting process: Error: spawn this_command_does_not_exist ENOENT",
-        "--- stack trace ---",
-        "Stopping composite service...",
-        "Stopping service 'api'...",
+        "info: Started service 'api'",
+        "info: Starting service 'web'...",
+        "error: Error in 'web': Error starting process: Error: spawn this_command_does_not_exist ENOENT",
+        "<stack trace>",
+        "info: Stopping composite service...",
+        "info: Stopping service 'api'...",
         "api     | ",
         "api     | ",
-        "Stopped service 'api'",
-        "Stopped composite service",
+        "info: Stopped service 'api'",
+        "info: Stopped composite service",
         "",
         "",
       ]
@@ -87,23 +131,23 @@ describe('crashing', () => {
     await proc.ended
     expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
-        "Starting composite service...",
-        "Starting service 'api'...",
+        "info: Starting composite service...",
+        "info: Starting service 'api'...",
         "api     | Started 🚀",
-        "Started service 'api'",
-        "Starting service 'web'...",
-        "Error in 'web': Error from ready function: TypeError: Cannot read property 'bar' of undefined",
-        "--- stack trace ---",
-        "Stopping composite service...",
-        "Stopping service 'web'...",
+        "info: Started service 'api'",
+        "info: Starting service 'web'...",
+        "error: Error in 'web': Error from ready function: TypeError: Cannot read property 'bar' of undefined",
+        "<stack trace>",
+        "info: Stopping composite service...",
+        "info: Stopping service 'web'...",
         "web     | ",
         "web     | ",
-        "Stopped service 'web'",
-        "Stopping service 'api'...",
+        "info: Stopped service 'web'",
+        "info: Stopping service 'api'...",
         "api     | ",
         "api     | ",
-        "Stopped service 'api'",
-        "Stopped composite service",
+        "info: Stopped service 'api'",
+        "info: Stopped composite service",
         "",
         "",
       ]
@@ -120,23 +164,23 @@ describe('crashing', () => {
     await proc.ended
     expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
-        "Starting composite service...",
-        "Starting service 'api'...",
+        "info: Starting composite service...",
+        "info: Starting service 'api'...",
         "api     | Started 🚀",
-        "Started service 'api'",
-        "Starting service 'web'...",
+        "info: Started service 'api'",
+        "info: Starting service 'web'...",
         "web     | Crashing",
         "web     | ",
         "web     | ",
-        "Service 'web' crashed",
-        "Error in 'web': Error from onCrash function: Error: Crash",
-        "--- stack trace ---",
-        "Stopping composite service...",
-        "Stopping service 'api'...",
+        "info: Service 'web' crashed",
+        "error: Error in 'web': Error from onCrash function: Error: Crash",
+        "<stack trace>",
+        "info: Stopping composite service...",
+        "info: Stopping service 'api'...",
         "api     | ",
         "api     | ",
-        "Stopped service 'api'",
-        "Stopped composite service",
+        "info: Stopped service 'api'",
+        "info: Stopped composite service",
         "",
         "",
       ]
@@ -160,19 +204,19 @@ describe('crashing', () => {
       Array [
         "web     | ",
         "web     | ",
-        "Service 'web' crashed",
-        "Error in 'web': Error from onCrash function: Error: Crash",
-        "--- stack trace ---",
-        "Stopping composite service...",
-        "Stopping service 'gateway'...",
+        "info: Service 'web' crashed",
+        "error: Error in 'web': Error from onCrash function: Error: Crash",
+        "<stack trace>",
+        "info: Stopping composite service...",
+        "info: Stopping service 'gateway'...",
         "gateway | ",
         "gateway | ",
-        "Stopped service 'gateway'",
-        "Stopping service 'api'...",
+        "info: Stopped service 'gateway'",
+        "info: Stopping service 'api'...",
         "api     | ",
         "api     | ",
-        "Stopped service 'api'",
-        "Stopped composite service",
+        "info: Stopped service 'api'",
+        "info: Stopped composite service",
         "",
         "",
       ]

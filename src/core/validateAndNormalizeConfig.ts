@@ -1,10 +1,11 @@
 import { CompositeServiceConfig } from './CompositeServiceConfig'
+import { LogLevel, isValidLogLevel } from './Logger'
 import { ServiceConfig } from './ServiceConfig'
 import { ReadyContext } from './ReadyContext'
 import { OnCrashContext } from './OnCrashContext'
 
 export interface NormalizedCompositeServiceConfig {
-  printConfig: boolean
+  logLevel: LogLevel
   services: { [id: string]: NormalizedServiceConfig }
 }
 
@@ -20,6 +21,7 @@ export interface NormalizedServiceConfig {
 }
 
 class ConfigValidationError extends Error {
+  name = 'ConfigValidationError'
   constructor(message: string) {
     super(`config.${message}`)
   }
@@ -38,7 +40,8 @@ const assert = (truthy: any, message: string) => {
 export function validateAndNormalizeConfig(
   config: CompositeServiceConfig
 ): NormalizedCompositeServiceConfig {
-  const printConfig = Boolean(config.printConfig)
+  const { logLevel = 'info' } = config
+  assert(isValidLogLevel(logLevel), `logLevel: Invalid value "${logLevel}"`)
   const filteredServiceEntries = Object.entries(config.services).filter(
     ([, value]) => value
   ) as [string, ServiceConfig][]
@@ -120,5 +123,5 @@ export function validateAndNormalizeConfig(
       checkForCyclicDeps(dep, [...path, serviceId])
     }
   }
-  return { printConfig, services }
+  return { logLevel, services }
 }

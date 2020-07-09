@@ -8,27 +8,37 @@ import mergeStream from 'merge-stream'
 import { Duplex } from 'stream'
 import mapStreamAsync from 'map-stream'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
+import { Logger } from './Logger'
 
 export class CompositeService {
   private config: NormalizedCompositeServiceConfig
   private services: Service[]
   private serviceMap: Map<string, Service>
   private stopping = false
-
+  private logger: Logger
   constructor(config: CompositeServiceConfig) {
-    if (config.printConfig) {
-      console.log(
-        'config =',
-        serializeJavascript(config, { space: 2, unsafe: true })
-      )
-    }
+    let configValidationError = ''
+    let normalizedConfig: NormalizedCompositeServiceConfig | undefined
     try {
       // TODO: return *array* of errors from validateAndNormalizeConfig
-      this.config = validateAndNormalizeConfig(config)
+      normalizedConfig = validateAndNormalizeConfig(config)
     } catch (error) {
-      console.error(error)
+      configValidationError = error.stack as string
+    }
+
+    this.logger = new Logger(
+      normalizedConfig ? normalizedConfig.logLevel : 'debug'
+    )
+    this.logger.output.pipe(process.stdout)
+
+    this.logger.debug(
+      `config = ${serializeJavascript(config, { space: 2, unsafe: true })}`
+    )
+    if (!normalizedConfig) {
+      this.logger.error(configValidationError)
       process.exit(1)
     }
+    this.config = normalizedConfig
 
     for (const signal of ['SIGINT', 'SIGTERM']) {
       process.on(signal, () => {
@@ -37,7 +47,8 @@ export class CompositeService {
     }
 
     this.services = Object.entries(this.config.services).map(
-      ([id, config]) => new Service(id, config, this.die.bind(this))
+      ([id, config]) =>
+        new Service(id, config, this.logger, this.die.bind(this))
     )
     this.serviceMap = new Map(
       this.services.map(service => [service.id, service])
@@ -54,10 +65,10 @@ export class CompositeService {
       )
     ).pipe(process.stdout)
 
-    console.log('Starting composite service...')
+    this.logger.info('Starting composite service...')
     Promise.all(
       this.services.map(service => this.startService(service))
-    ).then(() => console.log('Started composite service'))
+    ).then(() => this.logger.info('Started composite service'))
   }
 
   private async startService(service: Service) {
@@ -74,10 +85,10 @@ export class CompositeService {
   private die(message: string): Promise<never> {
     if (!this.stopping) {
       this.stopping = true
-      console.log(message)
-      console.log('Stopping composite service...')
+      this.logger.error(message)
+      this.logger.info('Stopping composite service...')
       Promise.all(this.services.map(service => this.stopService(service)))
-        .then(() => console.log('Stopped composite service'))
+        .then(() => this.logger.info('Stopped composite service'))
         // Wait one micro tick for output to flush
         .then(() => process.exit(1))
     }

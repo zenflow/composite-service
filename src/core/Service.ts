@@ -5,11 +5,13 @@ import { ReadyContext } from './ReadyContext'
 import { OnCrashContext } from './OnCrashContext'
 import { ServiceCrash } from './ServiceCrash'
 import { InternalError } from './InternalError'
+import { Logger } from './Logger'
 
 export class Service {
   public readonly id: string
   public readonly config: NormalizedServiceConfig
   public readonly output = new PassThrough({ objectMode: true })
+  private readonly logger: Logger
   private readonly die: (message: string) => Promise<never>
   private ready: Promise<void> | undefined
   private process: ServiceProcess | undefined
@@ -19,10 +21,12 @@ export class Service {
   constructor(
     id: string,
     config: NormalizedServiceConfig,
+    logger: Logger,
     die: (message: string) => Promise<never>
   ) {
     this.id = id
     this.config = config
+    this.logger = logger
     this.die = message => die(`Error in '${id}': ${message}`)
   }
   public start() {
@@ -31,12 +35,12 @@ export class Service {
       return this.startResult
     }
     if (!this.startResult) {
-      console.log(`Starting service '${this.id}'...`)
+      this.logger.info(`Starting service '${this.id}'...`)
       this.defineReady()
       this.startResult = this.startProcess()
         .then(() => this.ready)
         .then(() => {
-          console.log(`Started service '${this.id}'`)
+          this.logger.info(`Started service '${this.id}'`)
         })
     }
     return this.startResult
@@ -68,7 +72,7 @@ export class Service {
       )
       return
     }
-    console.log(`Service '${this.id}' crashed`)
+    this.logger.info(`Service '${this.id}' crashed`)
     const delay = new Promise(resolve =>
       setTimeout(resolve, this.config.minimumRestartDelay)
     )
@@ -95,7 +99,7 @@ export class Service {
     if (this.stopResult) {
       return
     }
-    console.log(`Restarting service '${this.id}'`)
+    this.logger.info(`Restarting service '${this.id}'`)
     await this.startProcess()
   }
   public stop() {
@@ -103,9 +107,9 @@ export class Service {
       if (!this.process || this.process.isEnded) {
         this.stopResult = Promise.resolve()
       } else {
-        console.log(`Stopping service '${this.id}'...`)
+        this.logger.info(`Stopping service '${this.id}'...`)
         this.stopResult = this.process.end().then(() => {
-          console.log(`Stopped service '${this.id}'`)
+          this.logger.info(`Stopped service '${this.id}'`)
         })
       }
     }

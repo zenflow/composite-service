@@ -54,7 +54,7 @@ export function getScript() {
 }
 
 describe('crash handling', () => {
-  jest.setTimeout(process.platform === 'win32' ? 30000 : 10000)
+  jest.setTimeout(process.platform === 'win32' ? 45000 : 15000)
   let proc: CompositeProcess | undefined
   afterEach(async () => {
     if (proc) await proc.end()
@@ -98,22 +98,22 @@ describe('crash handling', () => {
         "web     | Crashing",
         "web     | ",
         "web     | ",
-        "Service 'web' crashed",
+        "info: Service 'web' crashed",
         "number of crashes: 1",
         "crash logTail: [\\"Crashing\\\\n\\",\\"\\\\n\\",\\"\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
-        "Restarting service 'web'",
+        "info: Restarting service 'web'",
         "web     | Started 🚀",
         "web     | Crashing",
         "web     | ",
         "web     | ",
-        "Service 'web' crashed",
+        "info: Service 'web' crashed",
         "number of crashes: 2",
         "crash logTail: [\\"Crashing\\\\n\\",\\"\\\\n\\",\\"\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
-        "Restarting service 'web'",
+        "info: Restarting service 'web'",
         "web     | Started 🚀",
       ]
     `)
