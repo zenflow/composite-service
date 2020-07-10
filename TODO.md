@@ -1,10 +1,14 @@
 # TODO
 
 - remove map-stream package + types/index.d.ts
+- dont remove /n from output stream lines
 - use AsyncIterable (`for await (const foo of bar)`) for stream processing, improving API types
     - https://github.com/SocketCluster/socketcluster-server#benefits-of-async-iterable-over-eventemitter
-- fix flaky tests using CRASH_AFTER_STARTED, make them crash with http call instead
+
 - use schema validator instead of long & complex normalizeAndValidate function
+    - check for excess config fields
+    - unit tests for validation
+
 - use `@default` annotation in TypeDoc comments and make sure it shows up on website *in tables*
 
 ---
@@ -14,7 +18,7 @@
     - TypeScript badge link
     - badge https://nodei.co/npm/composite-service.png?compact=true
     - badges from shields.io
-        - remove GitHub Issues & PRs
+        - GitHub Issues & PRs should just say "Welcome"
         - David devDependencies
         - Cross-platform compatible
         - "node-lts"
@@ -35,13 +39,10 @@
 ---
 
 - stopWith ctrl+c
+    - in tests use ctrl+c to shutdown composite service (for Windows compat)
 - crashing.test.ts: check value of OnCrashContext.isServiceReady
 - buffering stdout/stderr twice? (also in child_process.ChildProcess?)
 - inline TODOs
-- check for excess config fields
-- tests
-    - unit tests for validation
-    - use ctrl+c to shutdown composite service (for Windows compat)
 - publish v0.1.0
 
 ---
