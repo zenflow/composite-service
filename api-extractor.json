@@ -31,6 +31,9 @@
     "tsdocMessageReporting": {
       "default": {
         "logLevel": "warning"
+      },
+      "tsdoc-unnecessary-backslash": {
+        "logLevel": "none"
       }
     }
   }

@@ -1,9 +1,7 @@
-import { Readable } from 'stream'
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
 import { once } from 'events'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
-import { onceOutputLineIncludes } from '../../..'
 
 const LOG_OUTPUT_LINES = false
 
@@ -24,15 +22,20 @@ export class CompositeProcess {
       outputStream.on('data', line => console.log(line))
     }
     outputStream.on('data', line => this.output.push(line))
-    this.ready = onceOutputLineIncludes(
-      (outputStream as unknown) as Readable,
-      'Started composite service'
-    )
+    this.ready = new Promise<void>(resolve => {
+      const handler = (line: string) => {
+        if (line.includes('Started composite service')) {
+          outputStream.off('data', handler)
+          resolve()
+        }
+      }
+      outputStream.on('data', handler)
+    })
     this.ended = once(outputStream, 'end').then(() => {})
   }
 
   /**
-   * Warning: Requires logLevel >= 1
+   * Warning: Requires logLevel 'info' or higher
    */
   async start(): Promise<CompositeProcess> {
     await Promise.race([

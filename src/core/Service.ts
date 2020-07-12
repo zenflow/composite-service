@@ -46,12 +46,11 @@ export class Service {
     return this.startResult
   }
   private defineReady() {
-    this.ready = promiseTry(() => {
-      const ctx: ReadyContext = { output: this.output }
-      return this.config.ready(ctx)
-    }).catch(error => {
-      return this.die(`Error from ready function: ${maybeErrorText(error)}`)
-    })
+    const output = this.output.pipe(new PassThrough({ objectMode: true }))
+    const ctx: ReadyContext = { output }
+    this.ready = promiseTry(() => this.config.ready(ctx)).catch(error =>
+      this.die(`Error from ready function: ${maybeErrorText(error)}`)
+    )
   }
   private async startProcess() {
     const proc = new ServiceProcess(this.config, () => {

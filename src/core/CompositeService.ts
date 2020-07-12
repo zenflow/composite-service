@@ -5,8 +5,7 @@ import {
   validateAndNormalizeConfig,
 } from './validateAndNormalizeConfig'
 import mergeStream from 'merge-stream'
-import { Duplex } from 'stream'
-import mapStreamAsync from 'map-stream'
+import { Duplex, Readable } from 'stream'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
 import { Logger } from './Logger'
 
@@ -59,8 +58,9 @@ export class CompositeService {
     )
     mergeStream(
       this.services.map(service =>
-        service.output.pipe(
-          mapStream(line => `${rightPad(service.id, maxLabelLength)} | ${line}`)
+        prefixStream(
+          service.output,
+          `${rightPad(service.id, maxLabelLength)} | `
         )
       )
     ).pipe(process.stdout)
@@ -105,10 +105,18 @@ export class CompositeService {
   }
 }
 
-function mapStream(mapper: (arg0: string) => string): Duplex {
-  return mapStreamAsync((string: string, cb: Function) =>
-    cb(null, mapper(string))
-  )
+function prefixStream(stream: Readable, prefix: string) {
+  return stream.pipe(mapStream(line => `${prefix}${line}`))
+}
+
+function mapStream(mapper: (line: string) => string) {
+  return new Duplex({
+    write(line, _, callback) {
+      this.push(mapper(line))
+      callback()
+    },
+    read() {},
+  })
 }
 
 function rightPad(string: string, length: number): string {

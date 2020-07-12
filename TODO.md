@@ -1,10 +1,5 @@
 # TODO
 
-- remove map-stream package + types/index.d.ts
-- dont remove /n from output stream lines
-- use AsyncIterable (`for await (const foo of bar)`) for stream processing, improving API types
-    - https://github.com/SocketCluster/socketcluster-server#benefits-of-async-iterable-over-eventemitter
-
 - use schema validator instead of long & complex normalizeAndValidate function
     - check for excess config fields
     - unit tests for validation
@@ -41,7 +36,6 @@
 - stopWith ctrl+c
     - in tests use ctrl+c to shutdown composite service (for Windows compat)
 - crashing.test.ts: check value of OnCrashContext.isServiceReady
-- buffering stdout/stderr twice? (also in child_process.ChildProcess?)
 - inline TODOs
 - publish v0.1.0
 

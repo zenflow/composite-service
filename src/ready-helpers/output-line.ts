@@ -24,9 +24,13 @@ export function onceOutputLine(
   test: (line: string) => boolean
 ) {
   return new Promise<void>(resolve => {
-    output.on('data', line => {
-      if (test(line)) resolve()
-    })
+    const handler = (line: string) => {
+      if (test(line)) {
+        output.off('data', handler)
+        resolve()
+      }
+    }
+    output.on('data', handler)
   })
 }
 
@@ -43,7 +47,7 @@ export function onceOutputLine(
  *
  * const myServiceConfig = {
  *   command: 'node service.js',
- *   ready: ctx => onceOutputLineIs(ctx.output, 'Ready.'),
+ *   ready: ctx => onceOutputLineIs(ctx.output, 'Ready\n'),
  * }
  * ```
  *

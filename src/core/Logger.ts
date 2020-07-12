@@ -2,23 +2,23 @@ import { PassThrough } from 'stream'
 
 export type LogLevel = 'debug' | 'info' | 'error'
 
-const orderedLogLevels: LogLevel[] = ['debug', 'info', 'error']
+const orderedLogLevels: LogLevel[] = ['error', 'info', 'debug']
 
 export function isValidLogLevel(string: string) {
-  return (orderedLogLevels as string[]).includes(string)
+  return orderedLogLevels.includes(string as LogLevel)
 }
 
 export class Logger {
-  public readonly output = new PassThrough({ objectMode: true })
-  public readonly debug: (text: string) => void
-  public readonly info: (text: string) => void
-  public readonly error: (text: string) => void
   private level: LogLevel
+  public readonly error: (text: string) => void
+  public readonly info: (text: string) => void
+  public readonly debug: (text: string) => void
+  public readonly output = new PassThrough({ objectMode: true })
   constructor(level: LogLevel) {
     this.level = level
-    this.debug = this.log.bind(this, 'debug')
-    this.info = this.log.bind(this, 'info')
     this.error = this.log.bind(this, 'error')
+    this.info = this.log.bind(this, 'info')
+    this.debug = this.log.bind(this, 'debug')
   }
   private log(level: LogLevel, text: string) {
     if (this.shouldLog(level)) {
@@ -29,7 +29,7 @@ export class Logger {
   }
   private shouldLog(level: LogLevel) {
     return (
-      orderedLogLevels.indexOf(level) >= orderedLogLevels.indexOf(this.level)
+      orderedLogLevels.indexOf(level) <= orderedLogLevels.indexOf(this.level)
     )
   }
 }
