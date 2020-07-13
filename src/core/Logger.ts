@@ -2,11 +2,7 @@ import { PassThrough } from 'stream'
 
 export type LogLevel = 'debug' | 'info' | 'error'
 
-const orderedLogLevels: LogLevel[] = ['error', 'info', 'debug']
-
-export function isValidLogLevel(string: string) {
-  return orderedLogLevels.includes(string as LogLevel)
-}
+export const orderedLogLevels: LogLevel[] = ['error', 'info', 'debug']
 
 export class Logger {
   private level: LogLevel

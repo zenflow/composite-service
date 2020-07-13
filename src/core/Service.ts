@@ -61,7 +61,7 @@ export class Service {
     try {
       await this.process.started
     } catch (error) {
-      await this.die(`Error starting process: ${error.stack}`)
+      await this.die(`Error starting process: ${error}`)
     }
   }
   private async handleCrash(proc: ServiceProcess) {

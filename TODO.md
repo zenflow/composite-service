@@ -1,13 +1,5 @@
 # TODO
 
-- use schema validator instead of long & complex normalizeAndValidate function
-    - check for excess config fields
-    - unit tests for validation
-
-- use `@default` annotation in TypeDoc comments and make sure it shows up on website *in tables*
-
----
-
 - semantic release
 - documentation, community & marketing
     - TypeScript badge link

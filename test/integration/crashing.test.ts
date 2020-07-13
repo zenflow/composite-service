@@ -1,5 +1,5 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { redactEscapedCwdInstances, redactStackTraces } from './helpers/redact'
+import { redactStackTraces } from './helpers/redact'
 import { fetchStatusAndText, fetchText } from './helpers/fetch'
 
 function getScript(customCode = '') {
@@ -70,59 +70,24 @@ describe('crashing', () => {
     if (proc) await proc.end()
   })
   it('crashes before starting on error validating configuration', async () => {
-    const script = getScript(`
-      config.services.gateway.dependencies.push('this_dependency_does_not_exist');
-    `)
+    const script = `
+      const { startCompositeService } = require('.');
+      startCompositeService({
+        logLevel: 'oops',
+        services: {},
+      });
+    `
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactEscapedCwdInstances(redactStackTraces(proc.flushOutput())))
-      .toMatchInlineSnapshot(`
+    expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
-        "debug: config = {",
-        "debug:   \\"services\\": {",
-        "debug:     \\"api\\": {",
-        "debug:       \\"command\\": \\"node test/integration/fixtures/http-service.js\\",",
-        "debug:       \\"env\\": {",
-        "debug:         \\"PORT\\": 8000,",
-        "debug:         \\"RESPONSE_TEXT\\": \\"api\\"",
-        "debug:       },",
-        "debug:       \\"ready\\": ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\\\n')",
-        "debug:     },",
-        "debug:     \\"web\\": {",
-        "debug:       \\"dependencies\\": [",
-        "debug:         \\"api\\"",
-        "debug:       ],",
-        "debug:       \\"command\\": [",
-        "debug:         \\"node\\",",
-        "debug:         \\"test/integration/fixtures/http-service.js\\"",
-        "debug:       ],",
-        "debug:       \\"env\\": {",
-        "debug:         \\"PORT\\": 8001,",
-        "debug:         \\"RESPONSE_TEXT\\": \\"web\\"",
-        "debug:       },",
-        "debug:       \\"ready\\": ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\\\n')",
-        "debug:     },",
-        "debug:     \\"gateway\\": {",
-        "debug:       \\"dependencies\\": [",
-        "debug:         \\"api\\",",
-        "debug:         \\"web\\",",
-        "debug:         \\"this_dependency_does_not_exist\\"",
-        "debug:       ],",
-        "debug:       \\"command\\": [",
-        "debug:         \\"node\\",",
-        "debug:         \\"<cwd>dist/http-gateway-server.js\\"",
-        "debug:       ],",
-        "debug:       \\"env\\": {",
-        "debug:         \\"HOST\\": \\"0.0.0.0\\",",
-        "debug:         \\"PORT\\": \\"8080\\",",
-        "debug:         \\"PROXIES\\": \\"[[\\\\\\"/api\\\\\\",{\\\\\\"target\\\\\\":\\\\\\"http://localhost:8000\\\\\\"}],[\\\\\\"/\\\\\\",{\\\\\\"target\\\\\\":\\\\\\"http://localhost:8001\\\\\\"}]]\\"",
-        "debug:       },",
-        "debug:       \\"ready\\": ctx => onceOutputLineIncludes(ctx.output, 'Listening @ http://')",
-        "debug:     }",
-        "debug:   }",
-        "debug: }",
-        "error: ConfigValidationError: config.services.gateway.dependencies: Contains invalid service id 'this_dependency_does_not_exist'",
-        "<stack trace>",
+        "error: Errors validating composite service config:",
+        "error:   config.logLevel is not one of 'error', 'info', 'debug'",
+        "error:   config.services has no actual entries",
+        "error: Config: {",
+        "error:   \\"logLevel\\": \\"oops\\",",
+        "error:   \\"services\\": {}",
+        "error: }",
         "",
         "",
       ]
@@ -142,7 +107,6 @@ describe('crashing', () => {
         "info: Started service 'api'",
         "info: Starting service 'web'...",
         "error: Error in 'web': Error starting process: Error: spawn this_command_does_not_exist ENOENT",
-        "<stack trace>",
         "info: Stopping composite service...",
         "info: Stopping service 'api'...",
         "api     | ",

@@ -15,29 +15,29 @@ export class CompositeService {
   private serviceMap: Map<string, Service>
   private stopping = false
   private logger: Logger
-  constructor(config: CompositeServiceConfig) {
-    let configValidationError = ''
-    let normalizedConfig: NormalizedCompositeServiceConfig | undefined
-    try {
-      // TODO: return *array* of errors from validateAndNormalizeConfig
-      normalizedConfig = validateAndNormalizeConfig(config)
-    } catch (error) {
-      configValidationError = error.stack as string
-    }
 
-    this.logger = new Logger(
-      normalizedConfig ? normalizedConfig.logLevel : 'debug'
-    )
+  constructor(config: CompositeServiceConfig) {
+    const configDump =
+      'Config: ' +
+      serializeJavascript(config, {
+        space: 2,
+        unsafe: true,
+      })
+
+    const validationErrors: string[] = []
+    this.config = validateAndNormalizeConfig(validationErrors, config)
+
+    this.logger = new Logger(this.config.logLevel)
     this.logger.output.pipe(process.stdout)
 
-    this.logger.debug(
-      `config = ${serializeJavascript(config, { space: 2, unsafe: true })}`
-    )
-    if (!normalizedConfig) {
-      this.logger.error(configValidationError)
+    if (validationErrors.length) {
+      const message = 'Errors validating composite service config'
+      const errorsText = validationErrors.map(s => `  ${s}`).join('\n')
+      this.logger.error(`${message}:\n${errorsText}\n${configDump}`)
       process.exit(1)
     }
-    this.config = normalizedConfig
+
+    this.logger.debug(configDump)
 
     for (const signal of ['SIGINT', 'SIGTERM']) {
       process.on(signal, () => {
