@@ -26,9 +26,7 @@
   "typings": "dist/index.d.ts",
   "files": [
     "dist/index.js",
-    "dist/index.js.map",
     "dist/http-gateway-server.js",
-    "dist/http-gateway-server.js.map",
     "dist/**/*.d.ts",
     "src"
   ],
@@ -47,8 +45,7 @@
     "_website": "yarn document-api && cd website && yarn && yarn",
     "start-website": "yarn _website start",
     "build-website": "yarn _website build",
-    "deploy-website": "yarn _website deploy",
-    "prepublishOnly": "yarn lint && yarn build && yarn test && yarn check-api"
+    "deploy-website": "yarn _website deploy"
   },
   "dependencies": {
     "express": "^4.17.1",

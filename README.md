@@ -4,7 +4,7 @@ Helps you run multiple services as one
 
 **[Documentation](http://zenflow.github.io/composite-service/docs/intro)**
 
-![npm stats](https://nodei.co/npm/composite-service.png?compact=true)
+[![npm stats](https://nodei.co/npm/composite-service.png?compact=true)](http://npmjs.com/package/composite-service)
 
 [![CI status](https://img.shields.io/github/workflow/status/zenflow/composite-service/CI?logo=GitHub&label=CI)](https://github.com/zenflow/composite-service/actions?query=branch%3Amaster)
 [![dependencies status](https://img.shields.io/david/zenflow/composite-service)](https://david-dm.org/zenflow/composite-service)
