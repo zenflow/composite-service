@@ -102,3 +102,24 @@ jobs:
           path: dist/
       - run: yarn install --frozen-lockfile
       - run: yarn test
+  release:
+    needs: [lint, build, check-api, test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: nodeModules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            nodeModules-
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist/
+      - run: yarn semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
