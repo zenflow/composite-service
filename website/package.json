@@ -5,8 +5,7 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",
-    "serve": "serve -l 3000 --no-clipboard",
-    "deploy": "docusaurus deploy"
+    "serve": "serve -l 3000 --no-clipboard"
   },
   "dependencies": {
     "@docusaurus/core": "^2.0.0-alpha.58",

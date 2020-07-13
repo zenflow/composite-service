@@ -45,7 +45,7 @@
     "_website": "yarn document-api && cd website && yarn && yarn",
     "start-website": "yarn _website start",
     "build-website": "yarn _website build",
-    "deploy-website": "yarn _website deploy"
+    "serve-website": "yarn _website serve"
   },
   "dependencies": {
     "express": "^4.17.1",

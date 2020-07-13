@@ -3,7 +3,7 @@
 - issues
     - HttpGatewayConfig validation
     - packages `require`d in HttpProxyOptions.onOpen, HttpProxyOptions.onClose, etc. may be wrong version due to cwd
-- `npm it` should work
+- `npm it` should work!
 - tests
     - crashing.test.ts: check value of OnCrashContext.isServiceReady
 - docs
