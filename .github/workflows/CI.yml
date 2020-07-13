@@ -6,7 +6,6 @@ jobs:
     outputs:
       jsOrTs: ${{ steps.filter.outputs.jsOrTs }}
       package: ${{ steps.filter.outputs.package }}
-      apiMeta: ${{ steps.filter.outputs.apiMeta }}
       test: ${{ steps.filter.outputs.test }}
     steps:
       - uses: actions/checkout@v2
@@ -31,7 +30,7 @@ jobs:
   lint:
     needs: [changes]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || needs.changes.outputs.jsOrTs == 'true'
+    if: github.ref == 'refs/heads/master' || needs.changes.outputs.jsOrTs == 'true'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -46,7 +45,7 @@ jobs:
   build:
     needs: [changes]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
+    if: github.ref == 'refs/heads/master' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -65,7 +64,7 @@ jobs:
   check-api:
     needs: [changes, build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || needs.changes.outputs.package == 'true'
+    if: github.ref == 'refs/heads/master' || needs.changes.outputs.package == 'true'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -83,7 +82,7 @@ jobs:
   test:
     needs: [changes, build]
     runs-on: ${{ matrix.os }}
-    if: github.ref == 'refs/heads/main' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
+    if: github.ref == 'refs/heads/master' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
     strategy:
       fail-fast: false
       matrix:

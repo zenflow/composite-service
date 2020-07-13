@@ -59,14 +59,6 @@ However, if any fatal error occurs, the composite service will shut down any run
 
 ...and more to come. See [Roadmap](roadmap.md).
 
-## Similar Projects
-
-1. https://github.com/docker/compose
-2. https://github.com/Unitech/pm2
-3. https://github.com/godaddy/node-cluster-service
-
-*TODO: quick comparison of this package to each of projects*
-
 ## Motivation
 
 ### Reusing Services

@@ -21,7 +21,6 @@ import { HttpGatewayConfig } from './HttpGatewayConfig'
  * @public
  */
 export function configureHttpGateway(config: HttpGatewayConfig): ServiceConfig {
-  // TODO: validate config
   const { dependencies, host, port, proxies } = config
   return {
     dependencies,
