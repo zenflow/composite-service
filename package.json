@@ -48,6 +48,7 @@
     "serve-website": "yarn _website serve"
   },
   "dependencies": {
+    "@scarf/scarf": "^1.0.6",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.4",
     "merge-stream": "^2.0.0",
