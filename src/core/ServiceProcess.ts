@@ -1,70 +1,75 @@
-import { PassThrough } from 'stream'
+import { Readable, PassThrough } from 'stream'
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { once } from 'events'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
 
-const split = () => splitStream((line: string) => `${line}\n`)
-
 export class ServiceProcess {
   public readonly output = new PassThrough({ objectMode: true })
   public readonly started: Promise<void>
-  public isEnded = false
   public logTail: string[] = []
   private readonly process: ChildProcessWithoutNullStreams
+  private didError = false
+  private didEnd = false
   private readonly ended: Promise<void>
   private wasEndCalled = false
   constructor(config: NormalizedServiceConfig, onCrash: () => void) {
     this.process = spawnProcess(config)
-    const childOutput = mergeStream(
-      this.process.stdout.setEncoding('utf8').pipe(split()),
-      this.process.stderr.setEncoding('utf8').pipe(split())
-    )
-    childOutput.pipe(this.output)
-    if (config.logTailLength > 0) {
-      this.output.on('data', line => {
-        this.logTail.push(line)
-        if (this.logTail.length > config.logTailLength) {
-          this.logTail.shift()
-        }
-      })
-    }
-    const error = new Promise(resolve => this.process.on('error', resolve))
     this.started = Promise.race([
-      error,
-      new Promise(resolve => setTimeout(resolve, 100)),
+      new Promise(resolve => this.process.once('error', resolve)),
+      new Promise(resolve => setTimeout(() => resolve(), 100)),
     ]).then(error => {
-      if (!error) {
-        return
+      if (error) {
+        this.didError = true
+        throw error
       }
-      childOutput.unpipe(this.output)
-      this.output.end()
-      return Promise.reject(error)
     })
-    const didStart = this.started.then(
-      () => true,
-      () => false
+    const processOutput = mergeStream(
+      transformStream(this.process.stdout),
+      transformStream(this.process.stderr)
     )
-    this.ended = Promise.race([error, once(childOutput, 'end')]).then(() => {
-      this.isEnded = true
-      if (!this.wasEndCalled) {
-        didStart.then(didStart => {
-          if (didStart) {
-            onCrash()
+    this.ended = (async () => {
+      for await (const line of processOutput as AsyncIterable<string>) {
+        if (this.didError) {
+          break
+        }
+        this.output.write(line)
+        if (config.logTailLength > 0) {
+          this.logTail.push(line)
+          if (this.logTail.length > config.logTailLength) {
+            this.logTail.shift()
           }
-        })
+        }
+      }
+      this.didEnd = true
+      this.output.end()
+    })()
+    Promise.all([this.started.catch(() => {}), this.ended]).then(() => {
+      if (!this.didError && !this.wasEndCalled) {
+        onCrash()
       }
     })
   }
-  end() {
+  public isRunning() {
+    return !this.didError && !this.didEnd
+  }
+  public end() {
     if (!this.wasEndCalled) {
       this.wasEndCalled = true
-      if (!this.isEnded) {
+      if (this.isRunning()) {
         this.process.kill('SIGINT')
       }
     }
     return this.ended
   }
+}
+
+/**
+ * Split input into stream of utf8 strings ending in '\n'
+ * */
+function transformStream(input: Readable): Readable {
+  return input
+    .setEncoding('utf8')
+    .pipe(splitStream((line: string) => `${line}\n`))
 }

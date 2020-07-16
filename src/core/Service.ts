@@ -1,4 +1,5 @@
 import { PassThrough } from 'stream'
+import cloneable from 'cloneable-readable'
 import { ServiceProcess } from './ServiceProcess'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { ReadyContext } from './ReadyContext'
@@ -10,9 +11,10 @@ import { Logger } from './Logger'
 export class Service {
   public readonly id: string
   public readonly config: NormalizedServiceConfig
-  public readonly output = new PassThrough({ objectMode: true })
+  public readonly output = cloneable(new PassThrough({ objectMode: true }))
   private readonly logger: Logger
   private readonly die: (message: string) => Promise<never>
+  private readonly outputClone = this.output.clone()
   private ready: Promise<void> | undefined
   private process: ServiceProcess | undefined
   private startResult: Promise<void> | undefined
@@ -46,11 +48,16 @@ export class Service {
     return this.startResult
   }
   private defineReady() {
-    const output = this.output.pipe(new PassThrough({ objectMode: true }))
-    const ctx: ReadyContext = { output }
-    this.ready = promiseTry(() => this.config.ready(ctx)).catch(error =>
-      this.die(`Error from ready function: ${maybeErrorText(error)}`)
-    )
+    const ctx: ReadyContext = {
+      output: this.outputClone,
+    }
+    this.ready = promiseTry(() => this.config.ready(ctx))
+      .catch(error =>
+        this.die(`Error from ready function: ${maybeErrorText(error)}`)
+      )
+      .then(() => {
+        this.outputClone.destroy()
+      })
   }
   private async startProcess() {
     const proc = new ServiceProcess(this.config, () => {
@@ -103,7 +110,7 @@ export class Service {
   }
   public stop() {
     if (!this.stopResult) {
-      if (!this.process || this.process.isEnded) {
+      if (!this.process || !this.process.isRunning()) {
         this.stopResult = Promise.resolve()
       } else {
         this.logger.info(`Stopping service '${this.id}'...`)
