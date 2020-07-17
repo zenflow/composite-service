@@ -31,7 +31,7 @@ describe('process', () => {
       await proc.ended
       const output = proc.flushOutput()
       expect(output.find(line => line.startsWith('only | shx '))).toBe(
-        'only | shx v0.3.2 (using ShellJS v0.8.4)'
+        'only | shx v0.3.2 (using ShellJS v0.8.4)',
       )
     })
     it('with relative cwd', async () => {
@@ -50,7 +50,7 @@ describe('process', () => {
       await proc.ended
       const output = proc.flushOutput()
       expect(output.find(line => line.startsWith('only | shx '))).toBe(
-        'only | shx v0.3.1 (using ShellJS v0.8.4)'
+        'only | shx v0.3.1 (using ShellJS v0.8.4)',
       )
     })
     it('with absolute cwd', async () => {
@@ -69,7 +69,7 @@ describe('process', () => {
       await proc.ended
       const output = proc.flushOutput()
       expect(output.find(line => line.startsWith('only | shx '))).toBe(
-        'only | shx v0.3.1 (using ShellJS v0.8.4)'
+        'only | shx v0.3.1 (using ShellJS v0.8.4)',
       )
     })
   })

@@ -21,7 +21,7 @@ import stream from 'stream'
  */
 export function onceOutputLine(
   output: stream.Readable,
-  test: (line: string) => boolean
+  test: (line: string) => boolean,
 ) {
   return new Promise<void>(resolve => {
     const handler = (line: string) => {

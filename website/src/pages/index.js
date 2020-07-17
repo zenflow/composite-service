@@ -83,7 +83,7 @@ function Home() {
             <Link
               className={clsx(
                 'button button--outline button--secondary button--lg',
-                styles.button
+                styles.button,
               )}
               to={useBaseUrl('docs/intro')}
             >
@@ -92,7 +92,7 @@ function Home() {
             <Link
               className={clsx(
                 'button button--outline button--secondary button--lg',
-                styles.button
+                styles.button,
               )}
               to={useBaseUrl('docs/guides/getting-started')}
             >

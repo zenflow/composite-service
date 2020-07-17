@@ -41,7 +41,9 @@ export class CompositeProcess {
     await Promise.race([
       this.ready,
       this.ended.then(() =>
-        Promise.reject(new CompositeProcessCrashError(this.script, this.output))
+        Promise.reject(
+          new CompositeProcessCrashError(this.script, this.output),
+        ),
       ),
     ])
     return this
@@ -67,7 +69,7 @@ export class CompositeProcessCrashError extends Error {
         '--- Output ---',
         ...indent(output),
         '--------------\n',
-      ].join('\n')
+      ].join('\n'),
     )
   }
 }

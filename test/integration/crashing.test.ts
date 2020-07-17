@@ -35,7 +35,7 @@ function getScript(customCode = '') {
 
 async function fetchCrash() {
   expect(
-    await fetchStatusAndText('http://localhost:8080/?crash')
+    await fetchStatusAndText('http://localhost:8080/?crash'),
   ).toStrictEqual({
     status: 504,
     text: 'Error occured while trying to proxy to: localhost:8080/?crash',

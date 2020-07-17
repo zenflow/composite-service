@@ -27,7 +27,7 @@ export class ServiceProcess {
     })
     const processOutput = mergeStream(
       transformStream(this.process.stdout),
-      transformStream(this.process.stderr)
+      transformStream(this.process.stderr),
     )
     this.ended = (async () => {
       for await (const line of processOutput as AsyncIterable<string>) {

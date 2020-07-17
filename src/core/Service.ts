@@ -24,7 +24,7 @@ export class Service {
     id: string,
     config: NormalizedServiceConfig,
     logger: Logger,
-    die: (message: string) => Promise<never>
+    die: (message: string) => Promise<never>,
   ) {
     this.id = id
     this.config = config
@@ -53,7 +53,7 @@ export class Service {
     }
     this.ready = promiseTry(() => this.config.ready(ctx))
       .catch(error =>
-        this.die(`Error from ready function: ${maybeErrorText(error)}`)
+        this.die(`Error from ready function: ${maybeErrorText(error)}`),
       )
       .then(() => {
         this.outputClone.destroy()
@@ -74,13 +74,13 @@ export class Service {
   private async handleCrash(proc: ServiceProcess) {
     if (this.stopResult) {
       console.error(
-        new InternalError('Not expecting handleCrash called when stopping')
+        new InternalError('Not expecting handleCrash called when stopping'),
       )
       return
     }
     this.logger.info(`Service '${this.id}' crashed`)
     const delay = new Promise(resolve =>
-      setTimeout(resolve, this.config.minimumRestartDelay)
+      setTimeout(resolve, this.config.minimumRestartDelay),
     )
     const crash: ServiceCrash = {
       date: new Date(),
@@ -139,7 +139,7 @@ function isResolved(promise: Promise<any>): Promise<boolean> {
   return Promise.race([
     promise.then(
       () => true,
-      () => false
+      () => false,
     ),
     Promise.resolve().then(() => false),
   ])

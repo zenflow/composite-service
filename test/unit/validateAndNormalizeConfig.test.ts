@@ -13,7 +13,7 @@ describe('validateAndNormalizeConfig', () => {
       getValidationErrors({
         services: { ok: { command: 'foo' } },
         logLevel: 'bad',
-      })
+      }),
     ).toMatchInlineSnapshot(`
       Array [
         "config.logLevel is not one of 'error', 'info', 'debug'",
@@ -32,7 +32,7 @@ describe('validateAndNormalizeConfig', () => {
     expect(
       getValidationErrors({
         services: { none: undefined, nope: null, nah: false, nono: '', no: 0 },
-      })
+      }),
     ).toMatchInlineSnapshot(`
       Array [
         "config.services has no actual entries",
@@ -45,7 +45,7 @@ describe('validateAndNormalizeConfig', () => {
           bad2: 'bad',
           bad3: 1,
         },
-      })
+      }),
     ).toMatchInlineSnapshot(`
       Array [
         "config.services.bad1 is not an object",
@@ -58,7 +58,7 @@ describe('validateAndNormalizeConfig', () => {
         services: { ok: { command: 'foo' } },
         unknownProperty1: true,
         unknownProperty2: false,
-      })
+      }),
     ).toMatchInlineSnapshot(`
       Array [
         "config has unknown property 'unknownProperty1'",
@@ -74,7 +74,7 @@ describe('validateAndNormalizeConfig', () => {
             a: { command: 'foo' },
             b: { command: 'foo', dependencies: ['A'] },
           },
-        })
+        }),
       ).toMatchInlineSnapshot(`
         Array [
           "config.services.b.dependencies contains invalid service id 'A'",
@@ -87,7 +87,7 @@ describe('validateAndNormalizeConfig', () => {
             b: { command: 'foo', dependencies: ['c'] },
             c: { command: 'foo', dependencies: ['a'] },
           },
-        })
+        }),
       ).toMatchInlineSnapshot(`
         Array [
           "config.services.a has cyclic dependency a -> b -> c -> a",
@@ -108,7 +108,7 @@ describe('validateAndNormalizeConfig', () => {
             bad3: { command: [] },
             bad4: { command: ['foo', 'bar', null] },
           },
-        })
+        }),
       ).toMatchInlineSnapshot(`
         Array [
           "config.services.bad1.command is not defined",
@@ -129,7 +129,7 @@ describe('validateAndNormalizeConfig', () => {
             bad2: { command: 'foo', env: null },
             bad3: { command: 'foo', env: { FOO: false, BAR: null } },
           },
-        })
+        }),
       ).toMatchInlineSnapshot(`
         Array [
           "config.services.bad1.env is not an object",
@@ -152,7 +152,7 @@ describe('validateAndNormalizeConfig', () => {
               minimumRestartDelay: false,
             },
           },
-        })
+        }),
       ).toMatchInlineSnapshot(`
         Array [
           "config.services.bad.cwd is not a string",
@@ -173,7 +173,7 @@ describe('validateAndNormalizeConfig', () => {
               unknownProperty2: false,
             },
           },
-        })
+        }),
       ).toMatchInlineSnapshot(`
         Array [
           "config.services.bad has unknown property 'unknownProperty1'",

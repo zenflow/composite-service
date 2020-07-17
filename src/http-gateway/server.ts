@@ -7,7 +7,7 @@ const app = express()
 
 // eslint-disable-next-line no-eval
 const proxies: HttpGatewayConfig['proxies'] = eval(
-  process.env.PROXIES as string
+  process.env.PROXIES as string,
 )
 for (const [filter, options] of proxies) {
   const middleware = createProxyMiddleware(filter, options)

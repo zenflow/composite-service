@@ -21,7 +21,7 @@ export function spawnProcess(config: NormalizedServiceConfig) {
     npmRunPath({
       cwd,
       path: config.env[getPathKey({ env: config.env })] || '',
-    })
+    }),
   )
 
   if (isWindows) {

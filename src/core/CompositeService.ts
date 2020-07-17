@@ -47,33 +47,33 @@ export class CompositeService {
 
     this.services = Object.entries(this.config.services).map(
       ([id, config]) =>
-        new Service(id, config, this.logger, this.die.bind(this))
+        new Service(id, config, this.logger, this.die.bind(this)),
     )
     this.serviceMap = new Map(
-      this.services.map(service => [service.id, service])
+      this.services.map(service => [service.id, service]),
     )
 
     const maxLabelLength = Math.max(
-      ...Object.keys(this.config.services).map(({ length }) => length)
+      ...Object.keys(this.config.services).map(({ length }) => length),
     )
     mergeStream(
       this.services.map(service =>
         prefixStream(
           service.output,
-          `${rightPad(service.id, maxLabelLength)} | `
-        )
-      )
+          `${rightPad(service.id, maxLabelLength)} | `,
+        ),
+      ),
     ).pipe(process.stdout)
 
     this.logger.info('Starting composite service...')
     Promise.all(
-      this.services.map(service => this.startService(service))
+      this.services.map(service => this.startService(service)),
     ).then(() => this.logger.info('Started composite service'))
   }
 
   private async startService(service: Service) {
     const dependencies = service.config.dependencies.map(
-      id => this.serviceMap.get(id)!
+      id => this.serviceMap.get(id)!,
     )
     await Promise.all(dependencies.map(service => this.startService(service)))
     if (this.stopping) {
@@ -98,7 +98,7 @@ export class CompositeService {
 
   private async stopService(service: Service) {
     const dependents = this.services.filter(({ config }) =>
-      config.dependencies.includes(service.id)
+      config.dependencies.includes(service.id),
     )
     await Promise.all(dependents.map(service => this.stopService(service)))
     await service.stop()

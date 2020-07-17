@@ -34,7 +34,7 @@ type GetAssertFunction = (path: string) => AssertFunction
  */
 export function validateAndNormalizeConfig(
   errors: string[],
-  config: CompositeServiceConfig
+  config: CompositeServiceConfig,
 ): NormalizedCompositeServiceConfig {
   return process(
     path => (truthy, message) => {
@@ -42,22 +42,22 @@ export function validateAndNormalizeConfig(
         errors.push(`config${path} ${message}`)
       }
     },
-    config
+    config,
   )
 }
 
 function process(
   getAssert: GetAssertFunction,
-  config: CompositeServiceConfig
+  config: CompositeServiceConfig,
 ): NormalizedCompositeServiceConfig {
   const result = {
     logLevel: processLogLevel(
       path => getAssert(`.logLevel${path}`),
-      config.logLevel
+      config.logLevel,
     ),
     services: processServices(
       path => getAssert(`.services${path}`),
-      config.services
+      config.services,
     ),
   }
   checkUnknownProperties(getAssert, config, result)
@@ -66,7 +66,7 @@ function process(
 
 function processLogLevel(
   getAssert: GetAssertFunction,
-  logLevel: CompositeServiceConfig['logLevel'] = 'info'
+  logLevel: CompositeServiceConfig['logLevel'] = 'info',
 ): NormalizedCompositeServiceConfig['logLevel'] {
   const levelsText = orderedLogLevels.map(s => `'${s}'`).join(', ')
   const isValid = orderedLogLevels.includes(logLevel)
@@ -76,7 +76,7 @@ function processLogLevel(
 
 function processServices(
   getAssert: GetAssertFunction,
-  services: CompositeServiceConfig['services']
+  services: CompositeServiceConfig['services'],
 ): NormalizedCompositeServiceConfig['services'] {
   const isDefined = typeof services !== 'undefined'
   getAssert('')(isDefined, 'is not defined')
@@ -90,7 +90,7 @@ function processServices(
   }
   let filtered = Object.entries(services).filter(([, value]) => value) as [
     string,
-    ServiceConfig
+    ServiceConfig,
   ][]
   getAssert('')(filtered.length > 0, 'has no actual entries')
   for (const [id, service] of filtered) {
@@ -104,7 +104,7 @@ function processServices(
       .map(([id, service]) => [
         id,
         processService(path => getAssert(`.${id}${path}`), service, serviceIds),
-      ])
+      ]),
   )
   checkServicesForCyclicDeps(getAssert, result)
   return result
@@ -113,7 +113,7 @@ function processServices(
 function processService(
   getAssert: GetAssertFunction,
   config: ServiceConfig,
-  serviceIds: string[]
+  serviceIds: string[],
 ): NormalizedServiceConfig {
   const { cwd = '.' } = config
   getAssert('.cwd')(typeof cwd === 'string', 'is not a string')
@@ -124,23 +124,23 @@ function processService(
   const { logTailLength = 0 } = config
   getAssert('.logTailLength')(
     typeof logTailLength === 'number',
-    'is not a number'
+    'is not a number',
   )
   const { minimumRestartDelay = 1000 } = config
   getAssert('.minimumRestartDelay')(
     typeof minimumRestartDelay === 'number',
-    'is not a number'
+    'is not a number',
   )
   const result = {
     dependencies: processDependencies(
       path => getAssert(`.dependencies${path}`),
       config.dependencies,
-      serviceIds
+      serviceIds,
     ),
     cwd,
     command: processCommand(
       path => getAssert(`.command${path}`),
-      config.command
+      config.command,
     ),
     env: processEnv(path => getAssert(`.env${path}`), config.env),
     ready,
@@ -155,7 +155,7 @@ function processService(
 function processDependencies(
   getAssert: GetAssertFunction,
   dependencies: ServiceConfig['dependencies'] = [],
-  serviceIds: string[]
+  serviceIds: string[],
 ): NormalizedServiceConfig['dependencies'] {
   const isArrayOfStrings =
     Array.isArray(dependencies) &&
@@ -167,7 +167,7 @@ function processDependencies(
   for (const dependency of dependencies) {
     getAssert('')(
       serviceIds.includes(dependency),
-      `contains invalid service id '${dependency}'`
+      `contains invalid service id '${dependency}'`,
     )
   }
   // filter invalid dependencies so we don't try to walk them in checkServicesForCyclicDeps
@@ -176,7 +176,7 @@ function processDependencies(
 
 function processCommand(
   getAssert: GetAssertFunction,
-  command: ServiceConfig['command']
+  command: ServiceConfig['command'],
 ): NormalizedServiceConfig['command'] {
   const isDefined = typeof command !== 'undefined'
   getAssert('')(isDefined, 'is not defined')
@@ -187,7 +187,7 @@ function processCommand(
     typeof command === 'string' ||
       (Array.isArray(command) &&
         command.every(element => typeof element === 'string')),
-    'is not a string or an array of strings'
+    'is not a string or an array of strings',
   )
   const result =
     typeof command === 'string' ? command.split(/\s+/).filter(Boolean) : command
@@ -197,7 +197,7 @@ function processCommand(
 
 function processEnv(
   getAssert: GetAssertFunction,
-  env: ServiceConfig['env'] = {}
+  env: ServiceConfig['env'] = {},
 ): NormalizedServiceConfig['env'] {
   const isObject = typeof env === 'object' && env !== null
   getAssert('')(isObject, 'is not an object')
@@ -207,13 +207,13 @@ function processEnv(
   for (const [key, value] of Object.entries(env)) {
     getAssert(`.${key}`)(
       ['string', 'number', 'undefined'].includes(typeof value),
-      'is not a string, number, or undefined'
+      'is not a string, number, or undefined',
     )
   }
   return Object.fromEntries(
     Object.entries(env)
       .filter(([, value]) => typeof value !== 'undefined')
-      .map(([key, value]) => [key, String(value)])
+      .map(([key, value]) => [key, String(value)]),
   )
 }
 
@@ -221,7 +221,7 @@ function checkServicesForCyclicDeps(
   getAssert: GetAssertFunction,
   services: {
     [id: string]: NormalizedServiceConfig
-  }
+  },
 ): void {
   Object.keys(services).forEach(serviceId => checkForCyclicDeps(serviceId))
   function checkForCyclicDeps(serviceId: string, path: string[] = []) {
@@ -232,7 +232,7 @@ function checkServicesForCyclicDeps(
         `has cyclic dependency ${path
           .slice(path.indexOf(serviceId))
           .concat(serviceId)
-          .join(' -> ')}`
+          .join(' -> ')}`,
       )
     } else {
       for (const dep of services[serviceId].dependencies) {
@@ -245,11 +245,11 @@ function checkServicesForCyclicDeps(
 function checkUnknownProperties(
   getAssert: GetAssertFunction,
   object: { [key: string]: any },
-  model: { [key: string]: any }
+  model: { [key: string]: any },
 ) {
   const modelKeys = Object.keys(model)
   const unknownKeys = Object.keys(object).filter(
-    key => !modelKeys.includes(key)
+    key => !modelKeys.includes(key),
   )
   const error = getAssert('').bind(null, false)
   for (const key of unknownKeys) {

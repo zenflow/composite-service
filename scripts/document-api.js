@@ -32,7 +32,7 @@ async function main() {
       } catch (error) {
         console.error(`Could not process ${file}: ${error}`)
       }
-    })
+    }),
   )
 }
 
@@ -46,7 +46,7 @@ async function processMdFile(file) {
     while (escapedMarkdownLinkPattern.test(result)) {
       result = result.replace(
         escapedMarkdownLinkPattern,
-        (_, link, title) => `[${link}](${title})`
+        (_, link, title) => `[${link}](${title})`,
       )
     }
     return result
@@ -57,13 +57,13 @@ async function processMdFile(file) {
   // that doesn't support this. Replace with an escape sequence
   // that renders |.
   lines = lines.map(line =>
-    line.startsWith('|') ? line.replace(/\\\|/g, '&#124;') : line
+    line.startsWith('|') ? line.replace(/\\\|/g, '&#124;') : line,
   )
 
   // Convert some section headings to actual headings
   for (const section of ['Signature', 'Returns']) {
     lines = lines.map(line =>
-      line === `<b>${section}:</b>` ? `## ${section}` : line
+      line === `<b>${section}:</b>` ? `## ${section}` : line,
     )
   }
 
@@ -77,7 +77,7 @@ async function processMdFile(file) {
 
   const breadcrumbsPattern = /\[Home\]\(.\/index\.md\) &gt; (.*)/
   const breadcrumbsIndex = lines.findIndex(line =>
-    breadcrumbsPattern.test(line)
+    breadcrumbsPattern.test(line),
   )
   const breadcrumbs = lines[breadcrumbsIndex].match(breadcrumbsPattern)[1]
 
