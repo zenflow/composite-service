@@ -12,9 +12,9 @@ export class Service {
   public readonly id: string
   public readonly config: NormalizedServiceConfig
   public readonly output = cloneable(new PassThrough({ objectMode: true }))
+  private readonly outputClone = this.output.clone()
   private readonly logger: Logger
   private readonly die: (message: string) => Promise<never>
-  private readonly outputClone = this.output.clone()
   private ready: Promise<void> | undefined
   private process: ServiceProcess | undefined
   private startResult: Promise<void> | undefined
@@ -61,6 +61,7 @@ export class Service {
   }
   private async startProcess() {
     const proc = new ServiceProcess(this.config, () => {
+      proc.output.unpipe()
       this.handleCrash(proc)
     })
     this.process = proc

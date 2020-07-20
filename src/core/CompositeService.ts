@@ -17,6 +17,9 @@ export class CompositeService {
   private logger: Logger
 
   constructor(config: CompositeServiceConfig) {
+    const outputStream = mergeStream()
+    outputStream.pipe(process.stdout)
+
     const configDump =
       'Config: ' +
       serializeJavascript(config, {
@@ -28,7 +31,7 @@ export class CompositeService {
     this.config = validateAndNormalizeConfig(validationErrors, config)
 
     this.logger = new Logger(this.config.logLevel)
-    this.logger.output.pipe(process.stdout)
+    outputStream.add(this.logger.output)
 
     if (validationErrors.length) {
       const message = 'Errors validating composite service config'
@@ -56,14 +59,11 @@ export class CompositeService {
     const maxLabelLength = Math.max(
       ...Object.keys(this.config.services).map(({ length }) => length),
     )
-    mergeStream(
-      this.services.map(service =>
-        prefixStream(
-          service.output,
-          `${rightPad(service.id, maxLabelLength)} | `,
-        ),
+    outputStream.add(
+      this.services.map(({ output, id }) =>
+        prefixStream(output, `${rightPad(id, maxLabelLength)} | `),
       ),
-    ).pipe(process.stdout)
+    )
 
     this.logger.info('Starting composite service...')
     Promise.all(
