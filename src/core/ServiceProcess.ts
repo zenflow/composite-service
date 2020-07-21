@@ -1,12 +1,14 @@
-import { Readable, PassThrough } from 'stream'
+import { once } from 'events'
+import { Readable } from 'stream'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
+import { tapStreamLines, filterBlankLastLine } from './util/stream'
 
 export class ServiceProcess {
-  public readonly output = new PassThrough({ objectMode: true })
+  public readonly output: Readable
   public readonly started: Promise<void>
   public logTail: string[] = []
   private readonly process: ChildProcessWithoutNullStreams
@@ -25,27 +27,23 @@ export class ServiceProcess {
         throw error
       }
     })
-    const processOutput = mergeStream(
-      transformStream(this.process.stdout),
-      transformStream(this.process.stderr),
-    )
-    this.ended = (async () => {
-      for await (const line of processOutput as AsyncIterable<string>) {
-        if (this.didError) {
-          break
-        }
-        this.output.write(line)
-        if (config.logTailLength > 0) {
+    this.output = getProcessOutput(this.process)
+    if (config.logTailLength > 0) {
+      this.output = this.output.pipe(
+        tapStreamLines(line => {
           this.logTail.push(line)
           if (this.logTail.length > config.logTailLength) {
             this.logTail.shift()
           }
-        }
-      }
-      this.didEnd = true
-      this.output.end()
-    })()
-    Promise.all([this.started.catch(() => {}), this.ended]).then(() => {
+        }),
+      )
+    }
+    this.ended = Promise.all([
+      this.started.catch(() => {}),
+      once(this.output, 'end').then(() => {
+        this.didEnd = true
+      }),
+    ]).then(() => {
       if (!this.didError && !this.wasEndCalled) {
         onCrash()
       }
@@ -65,11 +63,13 @@ export class ServiceProcess {
   }
 }
 
-/**
- * Split input into stream of utf8 strings ending in '\n'
- * */
-function transformStream(input: Readable): Readable {
-  return input
-    .setEncoding('utf8')
-    .pipe(splitStream((line: string) => `${line}\n`))
+function getProcessOutput(proc: ChildProcessWithoutNullStreams) {
+  return (mergeStream(
+    [proc.stdout, proc.stderr].map(stream =>
+      stream
+        .setEncoding('utf8')
+        .pipe(splitStream((line: string) => `${line}\n`))
+        .pipe(filterBlankLastLine('\n')),
+    ),
+  ) as unknown) as Readable
 }

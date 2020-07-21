@@ -1,5 +1,5 @@
-import { validateAndNormalizeConfig } from '../../src/core/validateAndNormalizeConfig'
-import { CompositeServiceConfig } from '../../src/core/CompositeServiceConfig'
+import { validateAndNormalizeConfig } from '../../../src/core/validateAndNormalizeConfig'
+import { CompositeServiceConfig } from '../../../src/core/CompositeServiceConfig'
 
 function getValidationErrors(config: unknown) {
   const errors: string[] = []

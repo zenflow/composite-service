@@ -109,8 +109,6 @@ describe('crashing', () => {
         "error: Error in 'web': Error starting process: Error: spawn this_command_does_not_exist ENOENT",
         "info: Stopping composite service...",
         "info: Stopping service 'api'...",
-        "api     | ",
-        "api     | ",
         "info: Stopped service 'api'",
         "info: Stopped composite service",
         "",
@@ -135,12 +133,8 @@ describe('crashing', () => {
         "<stack trace>",
         "info: Stopping composite service...",
         "info: Stopping service 'web'...",
-        "web     | ",
-        "web     | ",
         "info: Stopped service 'web'",
         "info: Stopping service 'api'...",
-        "api     | ",
-        "api     | ",
         "info: Stopped service 'api'",
         "info: Stopped composite service",
         "",
@@ -165,15 +159,11 @@ describe('crashing', () => {
         "info: Started service 'api'",
         "info: Starting service 'web'...",
         "web     | Crashing",
-        "web     | ",
-        "web     | ",
         "info: Service 'web' crashed",
         "error: Error in 'web': Error from onCrash function: Error: Crash",
         "<stack trace>",
         "info: Stopping composite service...",
         "info: Stopping service 'api'...",
-        "api     | ",
-        "api     | ",
         "info: Stopped service 'api'",
         "info: Stopped composite service",
         "",
@@ -199,19 +189,13 @@ describe('crashing', () => {
     expect(output).toMatchInlineSnapshot(`
       Array [
         "web     | Crashing",
-        "web     | ",
-        "web     | ",
         "info: Service 'web' crashed",
         "error: Error in 'web': Error from onCrash function: Error: Crash",
         "<stack trace>",
         "info: Stopping composite service...",
         "info: Stopping service 'gateway'...",
-        "gateway | ",
-        "gateway | ",
         "info: Stopped service 'gateway'",
         "info: Stopping service 'api'...",
-        "api     | ",
-        "api     | ",
         "info: Stopped service 'api'",
         "info: Stopped composite service",
         "",
@@ -222,7 +206,7 @@ describe('crashing', () => {
   it('restarts after calling onCrash successfully', async () => {
     const script = getScript(`
       config.services.web.dependencies = [];
-      config.services.web.logTailLength = 2;
+      config.services.web.logTailLength = 1;
       config.services.web.minimumRestartDelay = 0;
       config.services.web.onCrash = async ctx => {
         const tests = [
@@ -260,11 +244,9 @@ describe('crashing', () => {
       .toMatchInlineSnapshot(`
       Array [
         "web     | Crashing",
-        "web     | ",
-        "web     | ",
         "info: Service 'web' crashed",
         "number of crashes: 1",
-        "crash logTail: [\\"\\\\n\\",\\"\\\\n\\"]",
+        "crash logTail: [\\"Crashing\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
         "info: Restarting service 'web'",
@@ -283,11 +265,9 @@ describe('crashing', () => {
       .toMatchInlineSnapshot(`
       Array [
         "web     | Crashing",
-        "web     | ",
-        "web     | ",
         "info: Service 'web' crashed",
         "number of crashes: 2",
-        "crash logTail: [\\"\\\\n\\",\\"\\\\n\\"]",
+        "crash logTail: [\\"Crashing\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
         "info: Restarting service 'web'",

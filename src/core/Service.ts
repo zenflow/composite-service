@@ -33,7 +33,7 @@ export class Service {
   }
   public start() {
     if (this.stopResult) {
-      console.error(new InternalError('Cannot start after stopping'))
+      this.logger.error(new InternalError('Cannot start after stopping').stack!)
       return this.startResult
     }
     if (!this.startResult) {
@@ -74,8 +74,9 @@ export class Service {
   }
   private async handleCrash(proc: ServiceProcess) {
     if (this.stopResult) {
-      console.error(
-        new InternalError('Not expecting handleCrash called when stopping'),
+      this.logger.error(
+        new InternalError('Not expecting handleCrash called when stopping')
+          .stack!,
       )
       return
     }
