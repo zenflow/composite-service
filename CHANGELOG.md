@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/zenflow/composite-service/compare/v0.2.2...v0.3.0) (2020-07-21)
+
+
+### Features
+
+* **core:** Eliminate trailing blank lines from stdout & stderr ([35ffa82](https://github.com/zenflow/composite-service/commit/35ffa82f5b3860227fbf3fc43c4bc79e0f785c92))
+
 ## [0.2.2](https://github.com/zenflow/composite-service/compare/v0.2.1...v0.2.2) (2020-07-21)
 
 
