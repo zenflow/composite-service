@@ -1,3 +1,10 @@
+## [0.2.2](https://github.com/zenflow/composite-service/compare/v0.2.1...v0.2.2) (2020-07-21)
+
+
+### Bug Fixes
+
+* **core:** When piping multiple streams to single destination, do so safely ([85e5761](https://github.com/zenflow/composite-service/commit/85e5761687f1e7a21f0abe957780069446c58822))
+
 ## [0.2.1](https://github.com/zenflow/composite-service/compare/v0.2.0...v0.2.1) (2020-07-17)
 
 
