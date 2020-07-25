@@ -1,3 +1,4 @@
+import { promisify } from 'util'
 import { once } from 'events'
 import { Readable } from 'stream'
 import { ChildProcessWithoutNullStreams } from 'child_process'
@@ -6,6 +7,8 @@ import splitStream from 'split'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
 import { tapStreamLines, filterBlankLastLine } from './util/stream'
+
+const delay = promisify(setTimeout)
 
 export class ServiceProcess {
   public readonly output: Readable
@@ -18,15 +21,14 @@ export class ServiceProcess {
   private wasEndCalled = false
   constructor(config: NormalizedServiceConfig, onCrash: () => void) {
     this.process = spawnProcess(config)
-    this.started = Promise.race([
-      new Promise(resolve => this.process.once('error', resolve)),
-      new Promise(resolve => setTimeout(() => resolve(), 100)),
-    ]).then(error => {
-      if (error) {
-        this.didError = true
-        throw error
-      }
-    })
+    this.started = Promise.race([once(this.process, 'error'), delay(100)]).then(
+      result => {
+        if (result && result[0]) {
+          this.didError = true
+          throw result[0]
+        }
+      },
+    )
     this.output = getProcessOutput(this.process)
     if (config.logTailLength > 0) {
       this.output = this.output.pipe(

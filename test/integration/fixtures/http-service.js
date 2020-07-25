@@ -1,10 +1,15 @@
+const { promisify } = require('util')
 const { createServer } = require('http')
 const { once } = require('events')
 
-const wait = ms =>
-  new Promise(resolve => setTimeout(resolve, Number.parseInt(ms || '0', 10)))
+const delay = promisify(setTimeout)
 
-wait(process.env.START_DELAY)
+const getEnvAsInt = key => {
+  const string = process.env[key]
+  return string ? Number.parseInt(string, 10) : null
+}
+
+delay(getEnvAsInt('START_DELAY'))
   .then(() => {
     const server = createServer((req, res) => {
       if (req.url.endsWith('?crash')) {
@@ -21,5 +26,5 @@ wait(process.env.START_DELAY)
   .then(() => console.log('Started 🚀'))
 
 process.on('SIGINT', () => {
-  wait(process.env.STOP_DELAY).then(() => process.exit(1))
+  delay(getEnvAsInt('STOP_DELAY')).then(() => process.exit(1))
 })

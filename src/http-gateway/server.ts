@@ -15,7 +15,7 @@ for (const [filter, options] of proxies) {
 }
 
 const host = process.env.HOST as string
-const port = parseInt(process.env.PORT as string, 10)
+const port = Number.parseInt(process.env.PORT as string, 10)
 const server = app.listen(port, host)
 once(server, 'listening').then(() => {
   console.log(`Listening @ http://${host}:${port}`)

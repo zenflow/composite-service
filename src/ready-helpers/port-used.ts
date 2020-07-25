@@ -29,7 +29,7 @@ import { waitUntilUsedOnHost } from 'tcp-port-used'
 export async function onceTcpPortUsed(
   port: number | string,
   host = 'localhost',
-) {
+): Promise<void> {
   const portNumber = typeof port === 'number' ? port : parseInt(port, 10)
   await waitUntilUsedOnHost(portNumber, host, 250, 2147483647)
 }

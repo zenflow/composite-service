@@ -1,3 +1,4 @@
+import { promisify } from 'util'
 import { PassThrough } from 'stream'
 import cloneable from 'cloneable-readable'
 import { ServiceProcess } from './ServiceProcess'
@@ -7,6 +8,8 @@ import { OnCrashContext } from './OnCrashContext'
 import { ServiceCrash } from './ServiceCrash'
 import { InternalError } from './InternalError'
 import { Logger } from './Logger'
+
+const delay = promisify(setTimeout)
 
 export class Service {
   public readonly id: string
@@ -81,9 +84,7 @@ export class Service {
       return
     }
     this.logger.info(`Service '${this.id}' crashed`)
-    const delay = new Promise(resolve =>
-      setTimeout(resolve, this.config.minimumRestartDelay),
-    )
+    const delayPromise = delay(this.config.minimumRestartDelay)
     const crash: ServiceCrash = {
       date: new Date(),
       logTail: proc.logTail,
@@ -103,7 +104,7 @@ export class Service {
     if (this.stopResult) {
       return
     }
-    await delay
+    await delayPromise
     if (this.stopResult) {
       return
     }

@@ -2,6 +2,10 @@ import { CompositeProcess } from './helpers/composite-process'
 import { redactStackTraces } from './helpers/redact'
 import { fetchStatusAndText, fetchText } from './helpers/fetch'
 
+// TODO: `const delay = promisify(setTimeout)` doesn't work here for some reason
+const delay = (time: number) =>
+  new Promise(resolve => setTimeout(() => resolve(), time))
+
 function getScript(customCode = '') {
   return `
     const { onceOutputLineIs, configureHttpGateway, startCompositeService } = require('.');
@@ -236,7 +240,7 @@ describe('crashing', () => {
     // crash once
     await fetchCrash()
     // allow time for restart
-    await new Promise(resolve => setTimeout(resolve, 250))
+    await delay(250)
     // make sure it restarted
     expect(await fetchText('http://localhost:8080/')).toBe('web')
     // correct output for 1st crash
@@ -257,7 +261,7 @@ describe('crashing', () => {
     // crash again
     await fetchCrash()
     // allow time for restart again
-    await new Promise(resolve => setTimeout(resolve, 250))
+    await delay(250)
     // make sure it restarted again
     expect(await fetchText('http://localhost:8080/')).toBe('web')
     // correct output for 2nd crash

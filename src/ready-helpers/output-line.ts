@@ -22,7 +22,7 @@ import stream from 'stream'
 export function onceOutputLine(
   output: stream.Readable,
   test: (line: string) => boolean,
-) {
+): Promise<void> {
   return new Promise<void>(resolve => {
     const handler = (line: string) => {
       if (test(line)) {

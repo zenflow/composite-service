@@ -1,3 +1,7 @@
+import { promisify } from 'util'
+
+const delay = promisify(setTimeout)
+
 /**
  * Waits a predetermined length of time
  *
@@ -16,6 +20,6 @@
  *
  * @public
  */
-export function onceTimeout(milliseconds: number) {
-  return new Promise<void>(resolve => setTimeout(resolve, milliseconds))
+export async function onceTimeout(milliseconds: number): Promise<void> {
+  await delay(milliseconds)
 }
