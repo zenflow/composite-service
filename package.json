@@ -1,6 +1,6 @@
 {
   "name": "composite-service",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Helps you run multiple services as one",
   "keywords": [
     "compose",

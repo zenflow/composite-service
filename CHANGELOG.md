@@ -1,3 +1,10 @@
+## [0.3.2](https://github.com/zenflow/composite-service/compare/v0.3.1...v0.3.2) (2020-08-07)
+
+
+### Bug Fixes
+
+* **package:** Remove useless dependency on @scarf/scarf ([21bcc4b](https://github.com/zenflow/composite-service/commit/21bcc4be2a08ef8711aac11dead39443d01634cc))
+
 ## [0.3.1](https://github.com/zenflow/composite-service/compare/v0.3.0...v0.3.1) (2020-08-07)
 
 
