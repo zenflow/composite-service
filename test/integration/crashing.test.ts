@@ -78,19 +78,15 @@ describe('crashing', () => {
       const { startCompositeService } = require('.');
       startCompositeService({
         logLevel: 'oops',
-        services: {},
       });
     `
     proc = new CompositeProcess(script)
     await proc.ended
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
-        "error: Errors validating composite service config:",
-        "error:   config.logLevel is not one of 'error', 'info', 'debug'",
-        "error:   config.services has no actual entries",
+        "error: Error validating config: \`config.logLevel\` is none of \\"debug\\", \\"info\\", \\"error\\"",
         "error: Config: {",
-        "error:   \\"logLevel\\": \\"oops\\",",
-        "error:   \\"services\\": {}",
+        "error:   \\"logLevel\\": \\"oops\\"",
         "error: }",
         "",
         "",

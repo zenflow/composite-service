@@ -1,5 +1,15 @@
 {
-  "presets": [["@babel/preset-env", {
-    "targets": { "node": "10.0.0" }
-  }]]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "10.0.0"
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    ["macros"]
+  ]
 }

@@ -6,7 +6,7 @@ import mergeStream from 'merge-stream'
 import splitStream from 'split'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
-import { tapStreamLines, filterBlankLastLine } from './util/stream'
+import { filterBlankLastLine, tapStreamLines } from './util/stream'
 
 const delay = promisify(setTimeout)
 
@@ -67,11 +67,19 @@ export class ServiceProcess {
 
 function getProcessOutput(proc: ChildProcessWithoutNullStreams) {
   return (mergeStream(
-    [proc.stdout, proc.stderr].map(stream =>
-      stream
-        .setEncoding('utf8')
-        .pipe(splitStream((line: string) => `${line}\n`))
-        .pipe(filterBlankLastLine('\n')),
-    ),
+    [proc.stdout, proc.stderr]
+      .map(stream => stream.setEncoding('utf8'))
+      .map(stream =>
+        /* We don't need `stream.pipeline` because we are not:
+            1. using streams to propagate/handle errors, *nor*
+            2. using streams to cancel upstream work when downstream closes
+          The resulting stream just doesn't
+            1. propagate destination stream errors to the source stream (not necessary)
+            2. can not be cancelled (also not necessary)
+        */
+        stream
+          .pipe(splitStream((line: string) => `${line}\n`))
+          .pipe(filterBlankLastLine('\n')),
+      ),
   ) as unknown) as Readable
 }

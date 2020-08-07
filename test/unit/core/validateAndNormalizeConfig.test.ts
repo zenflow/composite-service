@@ -1,185 +1,129 @@
-import { validateAndNormalizeConfig } from '../../../src/core/validateAndNormalizeConfig'
 import { CompositeServiceConfig } from '../../../src/core/CompositeServiceConfig'
+import { validateAndNormalizeConfig } from '../../../src/core/validateAndNormalizeConfig'
 
-function getValidationErrors(config: unknown) {
-  const errors: string[] = []
-  validateAndNormalizeConfig(errors, config as CompositeServiceConfig)
-  return errors
+const _v = (config: any) => {
+  return validateAndNormalizeConfig(config as CompositeServiceConfig)[0]
+}
+const minValid = { services: { foo: { command: 'foo' } } }
+const _vs = (serviceConfig: any) => {
+  return _v({
+    services: { foo: { ...minValid.services.foo, ...serviceConfig } },
+  })
 }
 
-describe('validateAndNormalizeConfig', () => {
-  it('CompositeServiceConfig properties', () => {
-    expect(
-      getValidationErrors({
-        services: { ok: { command: 'foo' } },
-        logLevel: 'bad',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        "config.logLevel is not one of 'error', 'info', 'debug'",
-      ]
-    `)
-    expect(getValidationErrors({})).toMatchInlineSnapshot(`
-      Array [
-        "config.services is not defined",
-      ]
-    `)
-    expect(getValidationErrors({ services: 'bad' })).toMatchInlineSnapshot(`
-      Array [
-        "config.services is not an object",
-      ]
-    `)
-    expect(
-      getValidationErrors({
-        services: { none: undefined, nope: null, nah: false, nono: '', no: 0 },
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        "config.services has no actual entries",
-      ]
-    `)
-    expect(
-      getValidationErrors({
-        services: {
-          bad1: true,
-          bad2: 'bad',
-          bad3: 1,
-        },
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        "config.services.bad1 is not an object",
-        "config.services.bad2 is not an object",
-        "config.services.bad3 is not an object",
-      ]
-    `)
-    expect(
-      getValidationErrors({
-        services: { ok: { command: 'foo' } },
-        unknownProperty1: true,
-        unknownProperty2: false,
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        "config has unknown property 'unknownProperty1'",
-        "config has unknown property 'unknownProperty2'",
-      ]
-    `)
-  })
-  describe('ServiceConfig properties', () => {
-    it('dependencies', () => {
+describe('core/config/validate', () => {
+  describe('CompositeServiceConfig', () => {
+    it('services property', () => {
+      expect(_v(undefined)).toMatchInlineSnapshot(
+        `"\`config\` is not an object"`,
+      )
+      expect(_v({})).toMatchInlineSnapshot(`"\`config.services\` is missing"`)
+      expect(_v({ services: true })).toMatchInlineSnapshot(
+        `"\`config.services\` is not an object"`,
+      )
+      expect(_v({ services: {} })).toMatchInlineSnapshot(
+        `"\`config.services\` has no entries"`,
+      )
+      expect(_v({ services: { foo: false } })).toMatchInlineSnapshot(
+        `"\`config.services\` has no entries"`,
+      )
+      expect(_v({ services: { foo: true } })).toMatchInlineSnapshot(
+        `"\`config.services.foo\` is not an object"`,
+      )
+      expect(_v({ services: { foo: {} } })).toMatchInlineSnapshot(
+        `"\`config.services.foo.command\` is missing"`,
+      )
+      expect(_v(minValid)).toBeUndefined()
       expect(
-        getValidationErrors({
-          services: {
-            a: { command: 'foo' },
-            b: { command: 'foo', dependencies: ['A'] },
-          },
-        }),
-      ).toMatchInlineSnapshot(`
-        Array [
-          "config.services.b.dependencies contains invalid service id 'A'",
-        ]
-      `)
-      expect(
-        getValidationErrors({
+        _v({
           services: {
             a: { command: 'foo', dependencies: ['b'] },
-            b: { command: 'foo', dependencies: ['c'] },
-            c: { command: 'foo', dependencies: ['a'] },
+            b: { command: 'foo', dependencies: ['a'] },
           },
         }),
-      ).toMatchInlineSnapshot(`
-        Array [
-          "config.services.a has cyclic dependency a -> b -> c -> a",
-          "config.services.b has cyclic dependency b -> c -> a -> b",
-          "config.services.c has cyclic dependency c -> a -> b -> c",
-        ]
-      `)
+      ).toMatchInlineSnapshot(
+        `"Service \\"a\\" has cyclic dependency a -> b -> a"`,
+      )
     })
-    it('command', () => {
-      // TODO: test normalization result
-      expect(
-        getValidationErrors({
-          services: {
-            ok1: { command: 'foo bar' },
-            ok2: { command: ['foo', 'bar'] },
-            bad1: {},
-            bad2: { command: '' },
-            bad3: { command: [] },
-            bad4: { command: ['foo', 'bar', null] },
-          },
-        }),
-      ).toMatchInlineSnapshot(`
-        Array [
-          "config.services.bad1.command is not defined",
-          "config.services.bad2.command is empty",
-          "config.services.bad3.command is empty",
-          "config.services.bad4.command is not a string or an array of strings",
-        ]
-      `)
+    it('logLevel property', () => {
+      expect(_v({ ...minValid, logLevel: 'debg' })).toMatchInlineSnapshot(
+        `"\`config.logLevel\` is none of \\"debug\\", \\"info\\", \\"error\\""`,
+      )
+      expect(_v({ ...minValid, logLevel: 'debug' })).toBeUndefined()
     })
-    it('env', () => {
-      // TODO: test normalization result
+  })
+  describe('ServiceConfig', () => {
+    it('dependencies property', () => {
+      expect(_vs({ dependencies: true })).toMatchInlineSnapshot(
+        `"\`config.services.foo.dependencies\` is not an array"`,
+      )
+      expect(_vs({ dependencies: [] })).toBeUndefined()
+      expect(_vs({ dependencies: [false] })).toMatchInlineSnapshot(
+        `"\`config.services.foo.dependencies[0]\` is not a string"`,
+      )
       expect(
-        getValidationErrors({
+        _v({
           services: {
-            ok1: { command: 'foo', env: undefined },
-            ok2: { command: 'foo', env: { FOO: 'str', BAR: 3 } },
-            bad1: { command: 'foo', env: false },
-            bad2: { command: 'foo', env: null },
-            bad3: { command: 'foo', env: { FOO: false, BAR: null } },
+            foo: { dependencies: ['bar'], command: 'foo' },
+            bar: { command: 'bar' },
           },
         }),
-      ).toMatchInlineSnapshot(`
-        Array [
-          "config.services.bad1.env is not an object",
-          "config.services.bad2.env is not an object",
-          "config.services.bad3.env.FOO is not a string, number, or undefined",
-          "config.services.bad3.env.BAR is not a string, number, or undefined",
-        ]
-      `)
+      ).toBeUndefined()
     })
-    it('...rest', () => {
-      expect(
-        getValidationErrors({
-          services: {
-            bad: {
-              command: 'foo',
-              cwd: false,
-              ready: false,
-              onCrash: false,
-              logTailLength: false,
-              minimumRestartDelay: false,
-            },
-          },
-        }),
-      ).toMatchInlineSnapshot(`
-        Array [
-          "config.services.bad.cwd is not a string",
-          "config.services.bad.ready is not a function",
-          "config.services.bad.onCrash is not a function",
-          "config.services.bad.logTailLength is not a number",
-          "config.services.bad.minimumRestartDelay is not a number",
-        ]
+    it('command property', async () => {
+      expect(_vs({ command: true })).toMatchInlineSnapshot(
+        `"\`config.services.foo.command\` is none of string, 1 more"`,
+      )
+      expect(_vs({ command: '' })).toMatchInlineSnapshot(
+        `"\`config.services.foo.command\` is empty"`,
+      )
+      expect(_vs({ command: 'foo' })).toBeUndefined()
+      expect(_vs({ command: [] })).toMatchInlineSnapshot(
+        `"\`config.services.foo.command\` is empty"`,
+      )
+      expect(_vs({ command: [''] })).toMatchInlineSnapshot(
+        `"\`config.services.foo.command\` is empty"`,
+      )
+      expect(_vs({ command: ['foo'] })).toBeUndefined()
+      expect(_vs({ command: ['foo', false] })).toMatchInlineSnapshot(`
+        "\`config.services.foo.command\` is none of string, 1 more
+            \`config.services.foo.command[1]\` is not a string"
       `)
+      expect(_vs({ command: ['foo', ''] })).toBeUndefined()
     })
-    it('unknown property', () => {
+    it('other properties', () => {
+      expect(_vs({ cwd: false })).toMatchInlineSnapshot(
+        `"\`config.services.foo.cwd\` is not a string"`,
+      )
+      expect(_vs({ cwd: 'foo' })).toBeUndefined()
+      expect(_vs({ env: false })).toMatchInlineSnapshot(
+        `"\`config.services.foo.env\` is not an object"`,
+      )
+      expect(_vs({ env: {} })).toBeUndefined()
+      expect(_vs({ ready: false })).toMatchInlineSnapshot(
+        `"\`config.services.foo.ready\` is not a function"`,
+      )
       expect(
-        getValidationErrors({
-          services: {
-            bad: {
-              command: 'foo',
-              unknownProperty1: true,
-              unknownProperty2: false,
-            },
-          },
+        _vs({
+          ready: () => {},
         }),
-      ).toMatchInlineSnapshot(`
-        Array [
-          "config.services.bad has unknown property 'unknownProperty1'",
-          "config.services.bad has unknown property 'unknownProperty2'",
-        ]
-      `)
+      ).toBeUndefined()
+      expect(_vs({ onCrash: false })).toMatchInlineSnapshot(
+        `"\`config.services.foo.onCrash\` is not a function"`,
+      )
+      expect(
+        _vs({
+          onCrash: () => {},
+        }),
+      ).toBeUndefined()
+      expect(_vs({ logTailLength: false })).toMatchInlineSnapshot(
+        `"\`config.services.foo.logTailLength\` is not a number"`,
+      )
+      expect(_vs({ logTailLength: 1 })).toBeUndefined()
+      expect(_vs({ minimumRestartDelay: false })).toMatchInlineSnapshot(
+        `"\`config.services.foo.minimumRestartDelay\` is not a number"`,
+      )
+      expect(_vs({ minimumRestartDelay: 1 })).toBeUndefined()
     })
   })
 })

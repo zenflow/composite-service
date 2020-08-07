@@ -1,8 +1,10 @@
+import { getCheckers } from '@zen_flow/ts-interface-builder/macro'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
-import { LogLevel, orderedLogLevels } from './Logger'
 import { ServiceConfig } from './ServiceConfig'
+import { LogLevel } from './Logger'
 import { ReadyContext } from './ReadyContext'
 import { OnCrashContext } from './OnCrashContext'
+import { getErrorMessage } from './util/ts-interface-checker'
 
 export interface NormalizedCompositeServiceConfig {
   logLevel: LogLevel
@@ -20,239 +22,119 @@ export interface NormalizedServiceConfig {
   minimumRestartDelay: number
 }
 
-type AssertFunction = (truthy: any, message: string) => void
-type GetAssertFunction = (path: string) => AssertFunction
-
-/**
- * Validates and normalizes `config` in one pass.
- *
- * Does a lot of validation since most script,
- * since most scripts to implement composite server will NOT use TypeScript
- *
- * @param errors - Array to be populated with validation errors
- * @param config
- */
 export function validateAndNormalizeConfig(
-  errors: string[],
   config: CompositeServiceConfig,
-): NormalizedCompositeServiceConfig {
-  return process(
-    path => (truthy, message) => {
-      if (!truthy) {
-        errors.push(`config${path} ${message}`)
+): [string] | [undefined, NormalizedCompositeServiceConfig] {
+  const checker = getCheckers('./CompositeServiceConfig.ts', {
+    ignoreIndexSignature: true,
+  }).CompositeServiceConfig
+  checker.setReportedPath('config')
+  const error = checker.validate(config)
+  if (error) {
+    return [getErrorMessage(error)]
+  }
+
+  const { logLevel = 'info' } = config
+
+  const truthyServiceEntries = Object.entries(config.services).filter(
+    ([, value]) => value,
+  ) as [string, ServiceConfig][]
+  if (truthyServiceEntries.length === 0) {
+    return ['`config.services` has no entries']
+  }
+  const services: { [id: string]: NormalizedServiceConfig } = {}
+  for (const [id, config] of truthyServiceEntries) {
+    if (config) {
+      const [error, normalized] = validateServiceConfig(id, config)
+      if (error) {
+        return [error]
       }
-    },
-    config,
-  )
+      services[id] = normalized!
+    }
+  }
+  const cyclicDepError = checkServicesForCyclicDeps(services)
+  if (cyclicDepError) {
+    return [cyclicDepError]
+  }
+
+  return [undefined, { logLevel, services }]
 }
 
-function process(
-  getAssert: GetAssertFunction,
-  config: CompositeServiceConfig,
-): NormalizedCompositeServiceConfig {
-  const result = {
-    logLevel: processLogLevel(
-      path => getAssert(`.logLevel${path}`),
-      config.logLevel,
-    ),
-    services: processServices(
-      path => getAssert(`.services${path}`),
-      config.services,
-    ),
-  }
-  checkUnknownProperties(getAssert, config, result)
-  return result
-}
-
-function processLogLevel(
-  getAssert: GetAssertFunction,
-  logLevel: CompositeServiceConfig['logLevel'] = 'info',
-): NormalizedCompositeServiceConfig['logLevel'] {
-  const levelsText = orderedLogLevels.map(s => `'${s}'`).join(', ')
-  const isValid = orderedLogLevels.includes(logLevel)
-  getAssert('')(isValid, `is not one of ${levelsText}`)
-  return isValid ? logLevel : 'info'
-}
-
-function processServices(
-  getAssert: GetAssertFunction,
-  services: CompositeServiceConfig['services'],
-): NormalizedCompositeServiceConfig['services'] {
-  const isDefined = typeof services !== 'undefined'
-  getAssert('')(isDefined, 'is not defined')
-  if (!isDefined) {
-    return {}
-  }
-  const isObject = typeof services === 'object' && services !== null
-  getAssert('')(isObject, 'is not an object')
-  if (!isObject) {
-    return {}
-  }
-  let filtered = Object.entries(services).filter(([, value]) => value) as [
-    string,
-    ServiceConfig,
-  ][]
-  getAssert('')(filtered.length > 0, 'has no actual entries')
-  for (const [id, service] of filtered) {
-    getAssert(`.${id}`)(typeof service === 'object', 'is not an object')
-  }
-  const serviceIds = filtered.map(([id]) => id)
-  const result = Object.fromEntries(
-    filtered
-      // filter non-objects so we don't try to walk them in checkServicesForCyclicDeps
-      .filter(([, service]) => typeof service === 'object')
-      .map(([id, service]) => [
-        id,
-        processService(path => getAssert(`.${id}${path}`), service, serviceIds),
-      ]),
-  )
-  checkServicesForCyclicDeps(getAssert, result)
-  return result
-}
-
-function processService(
-  getAssert: GetAssertFunction,
+function validateServiceConfig(
+  id: string,
   config: ServiceConfig,
-  serviceIds: string[],
-): NormalizedServiceConfig {
+): [string] | [undefined, NormalizedServiceConfig] {
+  const checker = getCheckers('./ServiceConfig.ts', {
+    ignoreIndexSignature: true,
+  }).ServiceConfig
+  checker.setReportedPath(`config.services.${id}`)
+  const error = checker.validate(config)
+  if (error) {
+    return [getErrorMessage(error)]
+  }
+
+  if (
+    typeof config.command !== 'undefined' &&
+    (Array.isArray(config.command)
+      ? !config.command.length || !config.command[0].trim()
+      : !config.command.trim())
+  ) {
+    return [`\`config.services.${id}.command\` is empty`]
+  }
+
+  // normalize
+  const { dependencies = [] } = config
   const { cwd = '.' } = config
-  getAssert('.cwd')(typeof cwd === 'string', 'is not a string')
+  const command =
+    typeof config.command === 'string'
+      ? config.command.split(/\s+/).filter(Boolean)
+      : config.command
+  const env = Object.fromEntries(
+    Object.entries(config.env || {})
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => [key, String(value)]),
+  )
   const { ready = () => Promise.resolve() } = config
-  getAssert('.ready')(typeof ready === 'function', 'is not a function')
   const { onCrash = () => {} } = config
-  getAssert('.onCrash')(typeof onCrash === 'function', 'is not a function')
   const { logTailLength = 0 } = config
-  getAssert('.logTailLength')(
-    typeof logTailLength === 'number',
-    'is not a number',
-  )
   const { minimumRestartDelay = 1000 } = config
-  getAssert('.minimumRestartDelay')(
-    typeof minimumRestartDelay === 'number',
-    'is not a number',
-  )
-  const result = {
-    dependencies: processDependencies(
-      path => getAssert(`.dependencies${path}`),
-      config.dependencies,
-      serviceIds,
-    ),
+  const output: NormalizedServiceConfig = {
+    dependencies,
     cwd,
-    command: processCommand(
-      path => getAssert(`.command${path}`),
-      config.command,
-    ),
-    env: processEnv(path => getAssert(`.env${path}`), config.env),
+    command,
+    env,
     ready,
     onCrash,
     logTailLength,
     minimumRestartDelay,
   }
-  checkUnknownProperties(getAssert, config, result)
-  return result
+
+  return [undefined, output]
 }
 
-function processDependencies(
-  getAssert: GetAssertFunction,
-  dependencies: ServiceConfig['dependencies'] = [],
-  serviceIds: string[],
-): NormalizedServiceConfig['dependencies'] {
-  const isArrayOfStrings =
-    Array.isArray(dependencies) &&
-    dependencies.every(dependency => typeof dependency === 'string')
-  getAssert('')(isArrayOfStrings, 'is not an array of strings')
-  if (!isArrayOfStrings) {
-    return []
+function checkServicesForCyclicDeps(services: {
+  [id: string]: NormalizedServiceConfig
+}): string | null {
+  for (const serviceId of Object.keys(services)) {
+    const error = checkForCyclicDeps(serviceId, [])
+    if (error) return error
   }
-  for (const dependency of dependencies) {
-    getAssert('')(
-      serviceIds.includes(dependency),
-      `contains invalid service id '${dependency}'`,
-    )
-  }
-  // filter invalid dependencies so we don't try to walk them in checkServicesForCyclicDeps
-  return dependencies.filter(dependency => serviceIds.includes(dependency))
-}
-
-function processCommand(
-  getAssert: GetAssertFunction,
-  command: ServiceConfig['command'],
-): NormalizedServiceConfig['command'] {
-  const isDefined = typeof command !== 'undefined'
-  getAssert('')(isDefined, 'is not defined')
-  if (!isDefined) {
-    return []
-  }
-  getAssert('')(
-    typeof command === 'string' ||
-      (Array.isArray(command) &&
-        command.every(element => typeof element === 'string')),
-    'is not a string or an array of strings',
-  )
-  const result =
-    typeof command === 'string' ? command.split(/\s+/).filter(Boolean) : command
-  getAssert('')(result.length > 0, 'is empty')
-  return result
-}
-
-function processEnv(
-  getAssert: GetAssertFunction,
-  env: ServiceConfig['env'] = {},
-): NormalizedServiceConfig['env'] {
-  const isObject = typeof env === 'object' && env !== null
-  getAssert('')(isObject, 'is not an object')
-  if (!isObject) {
-    return {}
-  }
-  for (const [key, value] of Object.entries(env)) {
-    getAssert(`.${key}`)(
-      ['string', 'number', 'undefined'].includes(typeof value),
-      'is not a string, number, or undefined',
-    )
-  }
-  return Object.fromEntries(
-    Object.entries(env)
-      .filter(([, value]) => typeof value !== 'undefined')
-      .map(([key, value]) => [key, String(value)]),
-  )
-}
-
-function checkServicesForCyclicDeps(
-  getAssert: GetAssertFunction,
-  services: {
-    [id: string]: NormalizedServiceConfig
-  },
-): void {
-  Object.keys(services).forEach(serviceId => checkForCyclicDeps(serviceId))
-  function checkForCyclicDeps(serviceId: string, path: string[] = []) {
+  return null
+  function checkForCyclicDeps(
+    serviceId: string,
+    path: string[],
+  ): string | null {
     const isLooped = path.includes(serviceId)
     if (isLooped) {
-      getAssert(`.${serviceId}`)(
-        false,
-        `has cyclic dependency ${path
-          .slice(path.indexOf(serviceId))
-          .concat(serviceId)
-          .join(' -> ')}`,
-      )
-    } else {
-      for (const dep of services[serviceId].dependencies) {
-        checkForCyclicDeps(dep, [...path, serviceId])
-      }
+      return `Service "${serviceId}" has cyclic dependency ${path
+        .slice(path.indexOf(serviceId))
+        .concat(serviceId)
+        .join(' -> ')}`
     }
-  }
-}
-
-function checkUnknownProperties(
-  getAssert: GetAssertFunction,
-  object: { [key: string]: any },
-  model: { [key: string]: any },
-) {
-  const modelKeys = Object.keys(model)
-  const unknownKeys = Object.keys(object).filter(
-    key => !modelKeys.includes(key),
-  )
-  const error = getAssert('').bind(null, false)
-  for (const key of unknownKeys) {
-    error(`has unknown property '${key}'`)
+    for (const dep of services[serviceId].dependencies) {
+      const error = checkForCyclicDeps(dep, [...path, serviceId])
+      if (error) return error
+    }
+    return null
   }
 }

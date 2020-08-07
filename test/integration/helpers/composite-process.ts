@@ -71,5 +71,6 @@ export class CompositeProcessCrashError extends Error {
         '--------------\n',
       ].join('\n'),
     )
+    // Object.setPrototypeOf(this, CompositeProcessCrashError.prototype)
   }
 }

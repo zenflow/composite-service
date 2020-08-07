@@ -10,6 +10,12 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 
 1. service config `stopWith: 'ctrl+c' | 'SIGINT' | 'SIGTERM' | ...`
 2. colors in console output to make it more readable
+https://www.npmjs.com/package/colorette
+or
+https://www.npmjs.com/package/chalk
+or
+https://www.npmjs.com/package/supports-color + https://github.com/chalk/ansi-styles
+3. interactive mode for TTY outputs
 
 *(in no particular order)*
 
@@ -21,7 +27,8 @@ using [GitHub Issues](https://github.com/zenflow/composite-service/issues).
 4. service config `readyTimeout`: milliseconds to wait for service to be "ready" before giving up and erroring
 5. service config `forceKillTimeout`: milliseconds to wait before sending SIGKILL
 6. http gateway
-    - logging
+    - Express -> Polka (smaller & faster)
+    - logging with Pino
     - stop accepting new requests, but finish pending requests, when SIGTERM received
     - support making calls over a Unix domain socket, e.g. `unix:/path/to/socket.sock` instead of host & port
 7. service configurator `configureNodeCluster({script: 'path/to/script.js', scale: 4})` which uses same node binary that main process was started with

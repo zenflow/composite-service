@@ -26,21 +26,17 @@ export class CompositeService {
         space: 2,
         unsafe: true,
       })
-
-    const validationErrors: string[] = []
-    this.config = validateAndNormalizeConfig(validationErrors, config)
-
-    this.logger = new Logger(this.config.logLevel)
+    const [error, normalizedConfig] = validateAndNormalizeConfig(config)
+    this.logger = new Logger(
+      normalizedConfig ? normalizedConfig.logLevel : 'error',
+    )
     outputStream.add(this.logger.output)
-
-    if (validationErrors.length) {
-      const message = 'Errors validating composite service config'
-      const errorsText = validationErrors.map(s => `  ${s}`).join('\n')
-      this.logger.error(`${message}:\n${errorsText}\n${configDump}`)
+    if (error) {
+      this.logger.error(`Error validating config: ${error}\n${configDump}`)
       process.exit(1)
     }
-
     this.logger.debug(configDump)
+    this.config = normalizedConfig!
 
     for (const signal of ['SIGINT', 'SIGTERM']) {
       process.on(signal, () => {
