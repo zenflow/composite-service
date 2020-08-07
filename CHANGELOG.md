@@ -1,3 +1,11 @@
+## [0.3.1](https://github.com/zenflow/composite-service/compare/v0.3.0...v0.3.1) (2020-08-07)
+
+
+### Bug Fixes
+
+* **http-gateway:** Bump http-proxy-middleware patch version ([5a32447](https://github.com/zenflow/composite-service/commit/5a3244787e2b263b94fda976d571894949cab86b))
+* **onceTcpPortUsed:** Handle ETIMEDOUT errors ([394d43f](https://github.com/zenflow/composite-service/commit/394d43f58d3d43d82dbf647ecb3b86f7d2f65d60))
+
 # [0.3.0](https://github.com/zenflow/composite-service/compare/v0.2.2...v0.3.0) (2020-07-21)
 
 
