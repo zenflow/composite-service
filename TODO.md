@@ -11,7 +11,6 @@
         - MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 unpipe listeners added to [PassThrough]. Use emitter.setMaxListeners() to increase limit
     - HttpGatewayConfig validation
     - packages `require`d in HttpProxyOptions.onOpen, HttpProxyOptions.onClose, etc. may be wrong version due to cwd
-- `npm it` should work!
 - tests
     - make sure ports are free!
     - crashing.test.ts: check value of OnCrashContext.isServiceReady

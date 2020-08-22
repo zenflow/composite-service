@@ -101,7 +101,7 @@ jobs:
           name: dist
           path: dist/
       - run: yarn install --frozen-lockfile
-      - run: yarn test
+      - run: yarn test-only
   release:
     needs: [lint, build, check-api, test]
     runs-on: ubuntu-latest
