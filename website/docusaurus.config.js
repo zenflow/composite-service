@@ -13,7 +13,7 @@ module.exports = {
         alt: 'composite-service logo',
         src: 'img/logo.svg',
       },
-      links: [
+      items: [
         {
           to: 'docs/intro',
           label: 'Intro',

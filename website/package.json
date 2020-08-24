@@ -8,8 +8,8 @@
     "serve": "serve -l 3000 --no-clipboard"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.0.0-alpha.58",
-    "@docusaurus/preset-classic": "^2.0.0-alpha.58",
+    "@docusaurus/core": "^2.0.0-alpha.61",
+    "@docusaurus/preset-classic": "^2.0.0-alpha.61",
     "clsx": "^1.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
