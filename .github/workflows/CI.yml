@@ -129,6 +129,8 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: 'refs/heads/master'
       - uses: actions/setup-node@v1
       - uses: actions/cache@v1
         with:
@@ -140,7 +142,8 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: yarn build-website
+      - run: yarn document-api
+      - run: cd website && yarn && yarn build
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -4,7 +4,6 @@
 - does windows need env var COMSPEC?
 - issues
     - Services are sometimes restarted *after* starting to shut down
-    - unknown property validation should just be a warning
     - http gateway: fix broken `/fooz` matching `/foo` context
     - after enough of crashes:
         - doesn't seem to restart
@@ -26,14 +25,12 @@
         1. https://github.com/docker/compose
         2. https://github.com/Unitech/pm2
         3. https://github.com/godaddy/node-cluster-service
-- CI: when building website after release, use tagged release commit instead of previous commit
 - community
     - https://github.com/zenflow/composite-service/community
     - Gitter vs Spectrum
         - https://news.ycombinator.com/item?id=18571041
         - https://stackshare.io/stackups/gitter-vs-spectrum#:~:text=According%20to%20the%20StackShare%20community,stacks%20and%206%20developer%20stacks.
 - website
-    - integrate CHANGELOG.md
     - nicer theme
     - codesandbox example /w node/nodemon microservice + parcel app + http gateway
     - github stars somwhere on website to encourage starring

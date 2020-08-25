@@ -31,22 +31,18 @@
     "src"
   ],
   "scripts": {
+    "lint": "tsdx lint scripts src test website",
+    "lint-fix": "yarn lint --fix",
     "_build": "tsdx --target node --format cjs --entry src/index.ts --entry src/http-gateway/server.ts",
     "build": "yarn _build build",
     "build-watch": "yarn _build watch",
+    "extract-api": "api-extractor run --local",
+    "check-api": "api-extractor run",
     "_test": "tsdx test --runInBand",
     "test-only": "yarn _test --ci",
     "test-watch": "yarn _test --watch",
-    "lint": "tsdx lint scripts src test website",
-    "lint-fix": "yarn lint --fix",
-    "test": "yarn build && yarn test-only",
-    "extract-api": "api-extractor run --local",
-    "check-api": "api-extractor run",
-    "document-api": "node scripts/document-api.js",
-    "_website": "yarn document-api && cd website && yarn && yarn",
-    "start-website": "yarn _website start",
-    "build-website": "yarn _website build",
-    "serve-website": "yarn _website serve"
+    "test": "yarn lint && yarn build && yarn check-api && yarn test-only",
+    "document-api": "node scripts/document-api.js"
   },
   "dependencies": {
     "cloneable-readable": "^2.0.1",

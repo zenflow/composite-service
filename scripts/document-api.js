@@ -1,14 +1,7 @@
 const { execSync } = require('child_process')
 const { parse, join } = require('path')
-const { promisify } = require('util')
-const fs = require('fs')
+const { readdir, readFile, writeFile, unlink } = require('fs').promises
 const pkg = require('../package.json')
-const [readdir, readFile, writeFile, unlink] = [
-  fs.readdir,
-  fs.readFile,
-  fs.writeFile,
-  fs.unlink,
-].map(fn => promisify(fn))
 
 main().catch(error => {
   console.error(error)
