@@ -1,6 +1,6 @@
 import { promisify } from 'util'
 import { once } from 'events'
-import { Readable } from 'stream'
+import { Readable, pipeline } from 'stream'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import mergeStream from 'merge-stream'
 import splitStream from 'split'
@@ -70,16 +70,12 @@ function getProcessOutput(proc: ChildProcessWithoutNullStreams) {
     [proc.stdout, proc.stderr]
       .map(stream => stream.setEncoding('utf8'))
       .map(stream =>
-        /* We don't need `stream.pipeline` because we are not:
-            1. using streams to propagate/handle errors, *nor*
-            2. using streams to cancel upstream work when downstream closes
-          The resulting stream just doesn't
-            1. propagate destination stream errors to the source stream (not necessary)
-            2. can not be cancelled (also not necessary)
-        */
-        stream
-          .pipe(splitStream((line: string) => `${line}\n`))
-          .pipe(filterBlankLastLine('\n')),
+        pipeline(
+          stream,
+          splitStream((line: string) => `${line}\n`),
+          filterBlankLastLine('\n'),
+          () => {},
+        ),
       ),
   ) as unknown) as Readable
 }
