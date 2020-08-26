@@ -16,7 +16,8 @@ type StackTrace = {
   start: number
   length: number
 }
-const isStackTraceLine = (line: string) => line.startsWith('error:     at ')
+const isStackTraceLine = (line: string) =>
+  line.startsWith('error:     at ') || line.startsWith('    at ')
 function findStackTrace(lines: string[]): StackTrace | false {
   const start = lines.findIndex(isStackTraceLine)
   if (start === -1) {

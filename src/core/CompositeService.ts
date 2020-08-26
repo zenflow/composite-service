@@ -1,10 +1,10 @@
 import { Service } from './Service'
 import serializeJavascript from 'serialize-javascript'
+import mergeStream from 'merge-stream'
 import {
   NormalizedCompositeServiceConfig,
   validateAndNormalizeConfig,
 } from './validateAndNormalizeConfig'
-import mergeStream from 'merge-stream'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
 import { Logger } from './Logger'
 import { mapStreamLines } from './util/stream'
@@ -17,26 +17,20 @@ export class CompositeService {
   private logger: Logger
 
   constructor(config: CompositeServiceConfig) {
+    this.config = validateAndNormalizeConfig(config)
+
     const outputStream = mergeStream()
     outputStream.pipe(process.stdout)
 
-    const configDump =
-      'Config: ' +
-      serializeJavascript(config, {
-        space: 2,
-        unsafe: true,
-      })
-    const [error, normalizedConfig] = validateAndNormalizeConfig(config)
-    this.logger = new Logger(
-      normalizedConfig ? normalizedConfig.logLevel : 'error',
-    )
+    this.logger = new Logger(this.config.logLevel)
     outputStream.add(this.logger.output)
-    if (error) {
-      this.logger.error(`Error validating config: ${error}\n${configDump}`)
-      process.exit(1)
-    }
-    this.logger.debug(configDump)
-    this.config = normalizedConfig!
+    this.logger.debug(
+      'Config: ' +
+        serializeJavascript(config, {
+          space: 2,
+          unsafe: true,
+        }),
+    )
 
     for (const signal of ['SIGINT', 'SIGTERM']) {
       process.on(signal, () => {

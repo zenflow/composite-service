@@ -46,24 +46,9 @@ async function fetchCrash() {
   })
 }
 
-function filterGatewayErrorLines(lines: string[], count: number) {
+function filterGatewayErrorLines(lines: string[]) {
   const isGatewayErrorLine = (line: string) =>
     line.startsWith('gateway | [HPM] Error ')
-
-  void count
-  /*
-    TODO: commented-out assertion fails only on ubuntu + node v10 ?
-        https://github.com/zenflow/composite-service/actions/runs/165147632
-        https://github.com/zenflow/composite-service/actions/runs/165137341
-    When this function is called in "crashes gracefully on error from onCrash *after* starting up"
-      lines.filter(isGatewayErrorLine) is empty array.
-  */
-  /* const expectedLine =
-    'gateway | [HPM] Error occurred while trying to proxy request /?crash from localhost:8080 to http://localhost:8001 (ECONNRESET) (https://nodejs.org/api/errors.html#errors_common_system_errors)'
-  expect(lines.filter(isGatewayErrorLine)).toStrictEqual(
-    Array.from({ length: count }, () => expectedLine)
-  ) */
-
   return lines.filter(line => !isGatewayErrorLine(line))
 }
 
@@ -77,17 +62,18 @@ describe('crashing', () => {
     const script = `
       const { startCompositeService } = require('.');
       startCompositeService({
-        logLevel: 'oops',
+        services: {},
       });
     `
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(proc.flushOutput()).toMatchInlineSnapshot(`
+    expect(redactStackTraces(proc.flushOutput().slice(4)))
+      .toMatchInlineSnapshot(`
       Array [
-        "error: Error validating config: \`config.logLevel\` is none of \\"debug\\", \\"info\\", \\"error\\"",
-        "error: Config: {",
-        "error:   \\"logLevel\\": \\"oops\\"",
-        "error: }",
+        "ConfigValidationError: \`config.services\` has no entries",
+        "<stack trace>",
+        "  name: 'ConfigValidationError'",
+        "}",
         "",
         "",
       ]
@@ -185,7 +171,7 @@ describe('crashing', () => {
     await fetchCrash()
     await proc.ended
     let output = redactStackTraces(proc.flushOutput())
-    output = filterGatewayErrorLines(output, 1)
+    output = filterGatewayErrorLines(output)
     expect(output).toMatchInlineSnapshot(`
       Array [
         "web     | Crashing",
@@ -240,8 +226,7 @@ describe('crashing', () => {
     // make sure it restarted
     expect(await fetchText('http://localhost:8080/')).toBe('web')
     // correct output for 1st crash
-    expect(filterGatewayErrorLines(proc.flushOutput(), 1))
-      .toMatchInlineSnapshot(`
+    expect(filterGatewayErrorLines(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "web     | Crashing",
         "info: Service 'web' crashed",
@@ -261,8 +246,7 @@ describe('crashing', () => {
     // make sure it restarted again
     expect(await fetchText('http://localhost:8080/')).toBe('web')
     // correct output for 2nd crash
-    expect(filterGatewayErrorLines(proc.flushOutput(), 1))
-      .toMatchInlineSnapshot(`
+    expect(filterGatewayErrorLines(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "web     | Crashing",
         "info: Service 'web' crashed",

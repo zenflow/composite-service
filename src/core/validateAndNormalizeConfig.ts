@@ -1,10 +1,10 @@
 import { getCheckers } from '@zen_flow/ts-interface-builder/macro'
+import { Checker, IErrorDetail } from 'ts-interface-checker'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
 import { ServiceConfig } from './ServiceConfig'
 import { LogLevel } from './Logger'
 import { ReadyContext } from './ReadyContext'
 import { OnCrashContext } from './OnCrashContext'
-import { getErrorMessage } from './util/ts-interface-checker'
 
 export interface NormalizedCompositeServiceConfig {
   logLevel: LogLevel
@@ -24,15 +24,11 @@ export interface NormalizedServiceConfig {
 
 export function validateAndNormalizeConfig(
   config: CompositeServiceConfig,
-): [string] | [undefined, NormalizedCompositeServiceConfig] {
+): NormalizedCompositeServiceConfig {
   const checker = getCheckers('./CompositeServiceConfig.ts', {
     ignoreIndexSignature: true,
   }).CompositeServiceConfig
-  checker.setReportedPath('config')
-  const error = checker.validate(config)
-  if (error) {
-    return [getErrorMessage(error)]
-  }
+  validateType(checker, 'config', config)
 
   const { logLevel = 'info' } = config
 
@@ -40,38 +36,25 @@ export function validateAndNormalizeConfig(
     ([, value]) => value,
   ) as [string, ServiceConfig][]
   if (truthyServiceEntries.length === 0) {
-    return ['`config.services` has no entries']
+    throw new ConfigValidationError('`config.services` has no entries')
   }
   const services: { [id: string]: NormalizedServiceConfig } = {}
   for (const [id, config] of truthyServiceEntries) {
-    if (config) {
-      const [error, normalized] = validateServiceConfig(id, config)
-      if (error) {
-        return [error]
-      }
-      services[id] = normalized!
-    }
+    services[id] = validateServiceConfig(id, config)
   }
-  const cyclicDepError = checkServicesForCyclicDeps(services)
-  if (cyclicDepError) {
-    return [cyclicDepError]
-  }
+  validateDependencyTree(services)
 
-  return [undefined, { logLevel, services }]
+  return { logLevel, services }
 }
 
 function validateServiceConfig(
   id: string,
   config: ServiceConfig,
-): [string] | [undefined, NormalizedServiceConfig] {
+): NormalizedServiceConfig {
   const checker = getCheckers('./ServiceConfig.ts', {
     ignoreIndexSignature: true,
   }).ServiceConfig
-  checker.setReportedPath(`config.services.${id}`)
-  const error = checker.validate(config)
-  if (error) {
-    return [getErrorMessage(error)]
-  }
+  validateType(checker, `config.services.${id}`, config)
 
   if (
     typeof config.command !== 'undefined' &&
@@ -79,7 +62,9 @@ function validateServiceConfig(
       ? !config.command.length || !config.command[0].trim()
       : !config.command.trim())
   ) {
-    return [`\`config.services.${id}.command\` is empty`]
+    throw new ConfigValidationError(
+      `\`config.services.${id}.command\` is empty`,
+    )
   }
 
   // normalize
@@ -98,7 +83,7 @@ function validateServiceConfig(
   const { onCrash = () => {} } = config
   const { logTailLength = 0 } = config
   const { minimumRestartDelay = 1000 } = config
-  const output: NormalizedServiceConfig = {
+  return {
     dependencies,
     cwd,
     command,
@@ -108,33 +93,64 @@ function validateServiceConfig(
     logTailLength,
     minimumRestartDelay,
   }
-
-  return [undefined, output]
 }
 
-function checkServicesForCyclicDeps(services: {
+function validateDependencyTree(services: {
   [id: string]: NormalizedServiceConfig
-}): string | null {
-  for (const serviceId of Object.keys(services)) {
-    const error = checkForCyclicDeps(serviceId, [])
-    if (error) return error
+}): void {
+  const serviceIds = Object.keys(services)
+  for (const [serviceId, { dependencies }] of Object.entries(services)) {
+    for (const dependency of dependencies) {
+      if (!serviceIds.includes(dependency)) {
+        throw new ConfigValidationError(
+          `Service "${serviceId}" has dependency on unknown service "${dependency}"`,
+        )
+      }
+    }
   }
-  return null
-  function checkForCyclicDeps(
-    serviceId: string,
-    path: string[],
-  ): string | null {
+
+  for (const serviceId of serviceIds) {
+    validateNoCyclicDeps(serviceId, [])
+  }
+  function validateNoCyclicDeps(serviceId: string, path: string[]) {
     const isLooped = path.includes(serviceId)
     if (isLooped) {
-      return `Service "${serviceId}" has cyclic dependency ${path
-        .slice(path.indexOf(serviceId))
-        .concat(serviceId)
-        .join(' -> ')}`
+      throw new ConfigValidationError(
+        `Service "${serviceId}" has cyclic dependency ${path
+          .slice(path.indexOf(serviceId))
+          .concat(serviceId)
+          .join(' -> ')}`,
+      )
     }
     for (const dep of services[serviceId].dependencies) {
-      const error = checkForCyclicDeps(dep, [...path, serviceId])
-      if (error) return error
+      validateNoCyclicDeps(dep, [...path, serviceId])
     }
     return null
   }
+}
+
+export class ConfigValidationError extends Error {
+  name = 'ConfigValidationError'
+}
+
+function validateType(checker: Checker, reportedPath: string, value: any) {
+  checker.setReportedPath(reportedPath)
+  const error = checker.validate(value)
+  if (error) {
+    throw new ConfigValidationError(getErrorMessage(error))
+  }
+}
+
+function getErrorMessage(error: IErrorDetail): string {
+  return getErrorMessageLines(error).join('\n')
+}
+
+function getErrorMessageLines(error: IErrorDetail): string[] {
+  let result = [`\`${error.path}\` ${error.message}`]
+  if (error.nested) {
+    for (const nested of error.nested) {
+      result = result.concat(getErrorMessageLines(nested).map(s => `    ${s}`))
+    }
+  }
+  return result
 }

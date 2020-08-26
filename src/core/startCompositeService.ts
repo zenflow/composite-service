@@ -34,6 +34,6 @@ export function startCompositeService(config: CompositeServiceConfig) {
   if (started) {
     throw new Error('Already started a composite service in this process')
   }
-  started = true
   new CompositeService(config)
+  started = true
 }
