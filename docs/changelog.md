@@ -1,3 +1,14 @@
+---
+title: Changelog
+---
+
+## [0.3.3](https://github.com/zenflow/composite-service/compare/v0.3.2...v0.3.3) (2020-09-10)
+
+
+### Bug Fixes
+
+* **core:** Set prototype & name for custom errors ([99601be](https://github.com/zenflow/composite-service/commit/99601be4308ff6d9d31bcf6a3e72f4dd35232b45))
+
 ## [0.3.2](https://github.com/zenflow/composite-service/compare/v0.3.1...v0.3.2) (2020-08-07)
 
 
