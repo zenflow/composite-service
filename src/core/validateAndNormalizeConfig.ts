@@ -130,8 +130,12 @@ function validateDependencyTree(services: {
 }
 
 export class ConfigValidationError extends Error {
-  name = 'ConfigValidationError'
+  constructor(message: string) {
+    super(message)
+    Object.setPrototypeOf(this, ConfigValidationError.prototype)
+  }
 }
+ConfigValidationError.prototype.name = ConfigValidationError.name
 
 function validateType(checker: Checker, reportedPath: string, value: any) {
   checker.setReportedPath(reportedPath)

@@ -4,6 +4,7 @@ const genericMessage =
 export class InternalError extends Error {
   constructor(message: string) {
     super(`${message}. ${genericMessage}`)
-    // Object.setPrototypeOf(this, InternalError.prototype)
+    Object.setPrototypeOf(this, InternalError.prototype)
   }
 }
+InternalError.prototype.name = InternalError.name

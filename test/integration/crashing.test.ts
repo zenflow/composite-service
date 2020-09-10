@@ -67,13 +67,15 @@ describe('crashing', () => {
     `
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTraces(proc.flushOutput().slice(4)))
-      .toMatchInlineSnapshot(`
+    const output = redactStackTraces(proc.flushOutput())
+    output.shift() // ignore first line like "<file path>:<line number>"
+    expect(output).toMatchInlineSnapshot(`
       Array [
+        "    throw new ConfigValidationError('\`config.services\` has no entries');",
+        "    ^",
+        "",
         "ConfigValidationError: \`config.services\` has no entries",
         "<stack trace>",
-        "  name: 'ConfigValidationError'",
-        "}",
         "",
         "",
       ]

@@ -1,8 +1,6 @@
 /* This file contains helpers to redact bits of text from console `lines`
     so that we have something consistent that we can snapshot. */
 
-import path from 'path'
-
 export function redactStackTraces(lines: string[]) {
   const output = [...lines]
   let stackTrace: StackTrace | false = false
@@ -30,13 +28,12 @@ function findStackTrace(lines: string[]): StackTrace | false {
   return { start, length }
 }
 
-export function redactEscapedCwdInstances(lines: string[]) {
-  const cwd = path.join(process.cwd(), path.sep)
-  const escapedCwd = JSON.stringify(cwd).slice(1, -1)
+export function redactCwd(lines: string[]) {
+  const cwd = process.cwd()
   return lines.map(line => {
     let result = line
-    while (result.includes(escapedCwd)) {
-      result = result.replace(escapedCwd, '<cwd>')
+    while (result.includes(cwd)) {
+      result = result.replace(cwd, '<cwd>')
     }
     return result
   })
