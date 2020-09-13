@@ -2,6 +2,13 @@
 title: Changelog
 ---
 
+# [0.4.0](https://github.com/zenflow/composite-service/compare/v0.3.3...v0.4.0) (2020-09-13)
+
+
+### Features
+
+* **core:** Make "graceful shutdown" opt-in & handle exit signals better ([ac5539c](https://github.com/zenflow/composite-service/commit/ac5539ce2daa344b6be247361296346027326ec2))
+
 ## [0.3.3](https://github.com/zenflow/composite-service/compare/v0.3.2...v0.3.3) (2020-09-10)
 
 
