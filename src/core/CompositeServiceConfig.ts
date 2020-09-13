@@ -13,6 +13,13 @@ export interface CompositeServiceConfig {
   logLevel?: 'debug' | 'info' | 'error'
 
   /**
+   * If `true` then when shutting down,
+   * each service will be stopped *only after* all services that depend on it have been stopped.
+   * Defaults to `false`.
+   */
+  gracefulShutdown?: boolean
+
+  /**
    * Configuration for each service to be composed.
    *
    * @remarks

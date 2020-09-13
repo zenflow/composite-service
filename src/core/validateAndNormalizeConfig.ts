@@ -8,6 +8,7 @@ import { OnCrashContext } from './OnCrashContext'
 
 export interface NormalizedCompositeServiceConfig {
   logLevel: LogLevel
+  gracefulShutdown: boolean
   services: { [id: string]: NormalizedServiceConfig }
 }
 
@@ -31,6 +32,7 @@ export function validateAndNormalizeConfig(
   validateType(checker, 'config', config)
 
   const { logLevel = 'info' } = config
+  const { gracefulShutdown = false } = config
 
   const truthyServiceEntries = Object.entries(config.services).filter(
     ([, value]) => value,
@@ -44,7 +46,7 @@ export function validateAndNormalizeConfig(
   }
   validateDependencyTree(services)
 
-  return { logLevel, services }
+  return { logLevel, gracefulShutdown, services }
 }
 
 function validateServiceConfig(
@@ -112,6 +114,7 @@ function validateDependencyTree(services: {
   for (const serviceId of serviceIds) {
     validateNoCyclicDeps(serviceId, [])
   }
+
   function validateNoCyclicDeps(serviceId: string, path: string[]) {
     const isLooped = path.includes(serviceId)
     if (isLooped) {
@@ -135,6 +138,7 @@ export class ConfigValidationError extends Error {
     Object.setPrototypeOf(this, ConfigValidationError.prototype)
   }
 }
+
 ConfigValidationError.prototype.name = ConfigValidationError.name
 
 function validateType(checker: Checker, reportedPath: string, value: any) {

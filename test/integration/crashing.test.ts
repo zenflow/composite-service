@@ -10,6 +10,7 @@ function getScript(customCode = '') {
   return `
     const { onceOutputLineIs, configureHttpGateway, startCompositeService } = require('.');
     const config = {
+      gracefulShutdown: true,
       services: {
         api: {
           command: 'node test/integration/fixtures/http-service.js',

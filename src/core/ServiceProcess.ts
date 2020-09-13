@@ -14,13 +14,15 @@ export class ServiceProcess {
   public readonly output: Readable
   public readonly started: Promise<void>
   public logTail: string[] = []
+  private readonly config: NormalizedServiceConfig
   private readonly process: ChildProcessWithoutNullStreams
   private didError = false
   private didEnd = false
   private readonly ended: Promise<void>
   private wasEndCalled = false
   constructor(config: NormalizedServiceConfig, onCrash: () => void) {
-    this.process = spawnProcess(config)
+    this.config = config
+    this.process = spawnProcess(this.config)
     this.started = Promise.race([once(this.process, 'error'), delay(100)]).then(
       result => {
         if (result && result[0]) {
@@ -30,11 +32,11 @@ export class ServiceProcess {
       },
     )
     this.output = getProcessOutput(this.process)
-    if (config.logTailLength > 0) {
+    if (this.config.logTailLength > 0) {
       this.output = this.output.pipe(
         tapStreamLines(line => {
           this.logTail.push(line)
-          if (this.logTail.length > config.logTailLength) {
+          if (this.logTail.length > this.config.logTailLength) {
             this.logTail.shift()
           }
         }),

@@ -10,6 +10,7 @@ import stream from 'stream';
 
 // @public
 export interface CompositeServiceConfig {
+    gracefulShutdown?: boolean;
     logLevel?: 'debug' | 'info' | 'error';
     services: {
         [id: string]: ServiceConfig | false | null | undefined | 0 | '';

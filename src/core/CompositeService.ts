@@ -32,15 +32,18 @@ export class CompositeService {
         }),
     )
 
-    for (const signal of ['SIGINT', 'SIGTERM']) {
-      process.on(signal, () => {
-        this.die(`Received shutdown signal '${signal}'`)
-      })
-    }
+    process.on('SIGINT', () =>
+      this.die(130, "Received shutdown signal 'SIGINT'"),
+    )
+    process.on('SIGTERM', () =>
+      this.die(143, "Received shutdown signal 'SIGTERM'"),
+    )
 
     this.services = Object.entries(this.config.services).map(
       ([id, config]) =>
-        new Service(id, config, this.logger, this.die.bind(this)),
+        new Service(id, config, this.logger, message =>
+          this.handleError(`Error in '${id}': ${message}`),
+        ),
     )
     this.serviceMap = new Map(
       this.services.map(service => [service.id, service]),
@@ -76,10 +79,15 @@ export class CompositeService {
     await service.start()
   }
 
-  private die(message: string): Promise<never> {
+  private handleError(message: string) {
+    return this.die(1, message)
+  }
+
+  private die(exitCode: number, message: string): Promise<never> {
     if (!this.stopping) {
       this.stopping = true
-      this.logger.error(message)
+      const isSignalExit = exitCode > 128 // we have either a signal exit or an error exit
+      this.logger[isSignalExit ? 'info' : 'error'](message)
       this.logger.info('Stopping composite service...')
       Promise.all(this.services.map(service => this.stopService(service)))
         .then(() => this.logger.info('Stopped composite service'))
@@ -91,10 +99,13 @@ export class CompositeService {
   }
 
   private async stopService(service: Service) {
-    const dependents = this.services.filter(({ config }) =>
-      config.dependencies.includes(service.id),
-    )
-    await Promise.all(dependents.map(service => this.stopService(service)))
+    if (this.config.gracefulShutdown) {
+      await Promise.all(
+        this.services
+          .filter(({ config }) => config.dependencies.includes(service.id))
+          .map(service => this.stopService(service)),
+      )
+    }
     await service.stop()
   }
 }

@@ -17,7 +17,7 @@ export class Service {
   public readonly output = cloneable(new PassThrough({ objectMode: true }))
   private readonly outputClone = this.output.clone()
   private readonly logger: Logger
-  private readonly die: (message: string) => Promise<never>
+  private readonly handleError: (message: string) => Promise<never>
   private ready: Promise<void> | undefined
   private process: ServiceProcess | undefined
   private startResult: Promise<void> | undefined
@@ -27,12 +27,12 @@ export class Service {
     id: string,
     config: NormalizedServiceConfig,
     logger: Logger,
-    die: (message: string) => Promise<never>,
+    handleError: (message: string) => Promise<never>,
   ) {
     this.id = id
     this.config = config
     this.logger = logger
-    this.die = message => die(`Error in '${id}': ${message}`)
+    this.handleError = handleError
   }
   public start() {
     if (this.stopResult) {
@@ -56,7 +56,7 @@ export class Service {
     }
     this.ready = promiseTry(() => this.config.ready(ctx))
       .catch(error =>
-        this.die(`Error from ready function: ${maybeErrorText(error)}`),
+        this.handleError(`Error from ready function: ${maybeErrorText(error)}`),
       )
       .then(() => {
         this.outputClone.destroy()
@@ -72,7 +72,7 @@ export class Service {
     try {
       await this.process.started
     } catch (error) {
-      await this.die(`Error starting process: ${error}`)
+      await this.handleError(`Error starting process: ${error}`)
     }
   }
   private async handleCrash(proc: ServiceProcess) {
@@ -99,7 +99,9 @@ export class Service {
     try {
       await this.config.onCrash(ctx)
     } catch (error) {
-      await this.die(`Error from onCrash function: ${maybeErrorText(error)}`)
+      await this.handleError(
+        `Error from onCrash function: ${maybeErrorText(error)}`,
+      )
     }
     if (this.stopResult) {
       return

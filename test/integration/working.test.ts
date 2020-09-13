@@ -5,6 +5,7 @@ function getScript() {
   return `
     const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
     const config = {
+      gracefulShutdown: true,
       services: {
         api: {
           command: 'node test/integration/fixtures/http-service.js',
@@ -68,7 +69,7 @@ describe('working', () => {
     } else {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
-          "error: Received shutdown signal 'SIGINT'",
+          "info: Received shutdown signal 'SIGINT'",
           "info: Stopping composite service...",
           "info: Stopping service 'gateway'...",
           "info: Stopped service 'gateway'",
