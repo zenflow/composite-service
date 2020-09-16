@@ -2,6 +2,14 @@
 title: Changelog
 ---
 
+# [0.5.0](https://github.com/zenflow/composite-service/compare/v0.4.0...v0.5.0) (2020-09-16)
+
+
+### Features
+
+* **core:** Handle ctrl+c keystrokes properly & add windowsCtrlCShutdown ([690851f](https://github.com/zenflow/composite-service/commit/690851fb89b37f40309dae0afc6b98d63ef33b09))
+* **http-gateway:** Upgrade 'serialize-javascript' to version 5 ([176f54b](https://github.com/zenflow/composite-service/commit/176f54b4800c497d212c2ba2ebf53b1a56dcdf6d))
+
 # [0.4.0](https://github.com/zenflow/composite-service/compare/v0.3.3...v0.4.0) (2020-09-13)
 
 
