@@ -13,12 +13,12 @@ const delay = promisify(setTimeout)
 export class ServiceProcess {
   public readonly output: Readable
   public readonly started: Promise<void>
+  public readonly ended: Promise<void>
   public logTail: string[] = []
   private readonly config: NormalizedServiceConfig
   private readonly process: ChildProcessWithoutNullStreams
   private didError = false
   private didEnd = false
-  private readonly ended: Promise<void>
   private wasEndCalled = false
   constructor(config: NormalizedServiceConfig, onCrash: () => void) {
     this.config = config

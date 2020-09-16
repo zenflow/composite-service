@@ -56,6 +56,9 @@
     "ts-interface-checker": "^0.1.13",
     "which": "^2.0.2"
   },
+  "optionalDependencies": {
+    "generate-ctrl-c-event": "^1.0.0"
+  },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.8.21",
     "@microsoft/api-extractor": "^7.9.2",

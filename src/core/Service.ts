@@ -23,6 +23,7 @@ export class Service {
   private startResult: Promise<void> | undefined
   private stopResult: Promise<void> | undefined
   private crashes: ServiceCrash[] = []
+
   constructor(
     id: string,
     config: NormalizedServiceConfig,
@@ -34,6 +35,7 @@ export class Service {
     this.logger = logger
     this.handleError = handleError
   }
+
   public start() {
     if (this.stopResult) {
       this.logger.error(new InternalError('Cannot start after stopping').stack!)
@@ -45,11 +47,12 @@ export class Service {
       this.startResult = this.startProcess()
         .then(() => this.ready)
         .then(() => {
-          this.logger.info(`Started service '${this.id}'`)
+          this.logger.info(`Done starting service '${this.id}'`)
         })
     }
     return this.startResult
   }
+
   private defineReady() {
     const ctx: ReadyContext = {
       output: this.outputClone,
@@ -62,10 +65,13 @@ export class Service {
         this.outputClone.destroy()
       })
   }
+
   private async startProcess() {
     const proc = new ServiceProcess(this.config, () => {
       proc.output.unpipe()
-      this.handleCrash(proc)
+      if (!this.stopResult) {
+        this.handleCrash(proc)
+      }
     })
     this.process = proc
     proc.output.pipe(this.output, { end: false })
@@ -75,14 +81,8 @@ export class Service {
       await this.handleError(`Error starting process: ${error}`)
     }
   }
+
   private async handleCrash(proc: ServiceProcess) {
-    if (this.stopResult) {
-      this.logger.error(
-        new InternalError('Not expecting handleCrash called when stopping')
-          .stack!,
-      )
-      return
-    }
     this.logger.info(`Service '${this.id}' crashed`)
     const delayPromise = delay(this.config.minimumRestartDelay)
     const crash: ServiceCrash = {
@@ -113,14 +113,20 @@ export class Service {
     this.logger.info(`Restarting service '${this.id}'`)
     await this.startProcess()
   }
-  public stop() {
+
+  public stop(isCtrlCShutdown: boolean) {
     if (!this.stopResult) {
       if (!this.process || !this.process.isRunning()) {
         this.stopResult = Promise.resolve()
+      } else if (isCtrlCShutdown) {
+        this.logger.info(`Waiting for service '${this.id} to exit...`)
+        this.stopResult = this.process.ended.then(() => {
+          this.logger.info(`Service '${this.id}' exited`)
+        })
       } else {
         this.logger.info(`Stopping service '${this.id}'...`)
         this.stopResult = this.process.end().then(() => {
-          this.logger.info(`Stopped service '${this.id}'`)
+          this.logger.info(`Done stopping service '${this.id}'`)
         })
       }
     }

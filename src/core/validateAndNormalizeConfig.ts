@@ -9,6 +9,7 @@ import { OnCrashContext } from './OnCrashContext'
 export interface NormalizedCompositeServiceConfig {
   logLevel: LogLevel
   gracefulShutdown: boolean
+  windowsCtrlCShutdown: boolean
   services: { [id: string]: NormalizedServiceConfig }
 }
 
@@ -33,6 +34,7 @@ export function validateAndNormalizeConfig(
 
   const { logLevel = 'info' } = config
   const { gracefulShutdown = false } = config
+  const { windowsCtrlCShutdown = false } = config
 
   const truthyServiceEntries = Object.entries(config.services).filter(
     ([, value]) => value,
@@ -46,7 +48,12 @@ export function validateAndNormalizeConfig(
   }
   validateDependencyTree(services)
 
-  return { logLevel, gracefulShutdown, services }
+  return {
+    logLevel,
+    gracefulShutdown,
+    windowsCtrlCShutdown,
+    services,
+  }
 }
 
 function validateServiceConfig(

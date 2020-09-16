@@ -15,6 +15,7 @@ export interface CompositeServiceConfig {
     services: {
         [id: string]: ServiceConfig | false | null | undefined | 0 | '';
     };
+    windowsCtrlCShutdown?: boolean;
 }
 
 // @public
