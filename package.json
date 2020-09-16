@@ -51,7 +51,7 @@
     "merge-stream": "^2.0.0",
     "npm-run-path": "^4.0.1",
     "path-key": "^3.1.1",
-    "serialize-javascript": "^4.0.0",
+    "serialize-javascript": "^5.0.1",
     "split": "^1.0.1",
     "ts-interface-checker": "^0.1.13",
     "which": "^2.0.2"
