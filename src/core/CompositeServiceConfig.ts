@@ -48,7 +48,13 @@ export interface CompositeServiceConfig {
   windowsCtrlCShutdown?: boolean
 
   /**
-   * Configuration for each service to be composed.
+   * Configuration to use as defaults for every service.
+   * Defaults to `{}`.
+   */
+  serviceDefaults?: ServiceConfig
+
+  /**
+   * Configuration for each specific service.
    *
    * @remarks
    *

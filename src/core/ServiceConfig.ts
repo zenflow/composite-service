@@ -30,17 +30,18 @@ export interface ServiceConfig {
   cwd?: string
 
   /**
-   * Command used to run the service
+   * Command used to run the service.
+   * No default.
    *
    * @remarks
    *
-   * If it's a single string, it will be parsed into binary and arguments.
-   * Otherwise it must be an array of strings
-   * where the first element is the binary, and the remaining elements are the arguments.
+   * If it's an array of strings, the first element is the binary, and the remaining elements are the arguments.
+   * If it's a single string, it will be parsed into the format described above
+   * with a simple `command.split(/\s+/).filter(Boolean)`.
    *
    * The binary part can be the name (path & extension not required) of a Node.js CLI program.
    */
-  command: string | string[]
+  command?: string | string[]
 
   /**
    * Environment variables to pass to the service.

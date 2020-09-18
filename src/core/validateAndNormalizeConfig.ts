@@ -1,5 +1,5 @@
-import { getCheckers } from '@zen_flow/ts-interface-builder/macro'
-import { Checker, IErrorDetail } from 'ts-interface-checker'
+import { getTypeSuite } from '@zen_flow/ts-interface-builder/macro'
+import { createCheckers, IErrorDetail } from 'ts-interface-checker'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
 import { ServiceConfig } from './ServiceConfig'
 import { LogLevel } from './Logger'
@@ -27,14 +27,13 @@ export interface NormalizedServiceConfig {
 export function validateAndNormalizeConfig(
   config: CompositeServiceConfig,
 ): NormalizedCompositeServiceConfig {
-  const checker = getCheckers('./CompositeServiceConfig.ts', {
-    ignoreIndexSignature: true,
-  }).CompositeServiceConfig
-  validateType(checker, 'config', config)
+  validateType('CompositeServiceConfig', 'config', config)
 
   const { logLevel = 'info' } = config
   const { gracefulShutdown = false } = config
   const { windowsCtrlCShutdown = false } = config
+  const { serviceDefaults = {} } = config
+  doExtraServiceConfigChecks('config.serviceDefaults', serviceDefaults)
 
   const truthyServiceEntries = Object.entries(config.services).filter(
     ([, value]) => value,
@@ -44,7 +43,7 @@ export function validateAndNormalizeConfig(
   }
   const services: { [id: string]: NormalizedServiceConfig } = {}
   for (const [id, config] of truthyServiceEntries) {
-    services[id] = validateServiceConfig(id, config)
+    services[id] = processServiceConfig(id, config, serviceDefaults)
   }
   validateDependencyTree(services)
 
@@ -56,52 +55,71 @@ export function validateAndNormalizeConfig(
   }
 }
 
-function validateServiceConfig(
-  id: string,
-  config: ServiceConfig,
-): NormalizedServiceConfig {
-  const checker = getCheckers('./ServiceConfig.ts', {
-    ignoreIndexSignature: true,
-  }).ServiceConfig
-  validateType(checker, `config.services.${id}`, config)
-
+function doExtraServiceConfigChecks(path: string, config: ServiceConfig) {
   if (
     typeof config.command !== 'undefined' &&
     (Array.isArray(config.command)
       ? !config.command.length || !config.command[0].trim()
       : !config.command.trim())
   ) {
-    throw new ConfigValidationError(
-      `\`config.services.${id}.command\` is empty`,
-    )
+    throw new ConfigValidationError(`\`${path}.command\` has no binary part`)
   }
+}
 
-  // normalize
-  const { dependencies = [] } = config
-  const { cwd = '.' } = config
-  const command =
-    typeof config.command === 'string'
-      ? config.command.split(/\s+/).filter(Boolean)
-      : config.command
-  const env = Object.fromEntries(
-    Object.entries(config.env || {})
+function processServiceConfig(
+  id: string,
+  config: ServiceConfig,
+  defaults: ServiceConfig,
+): NormalizedServiceConfig {
+  const path = `config.services.${id}`
+  validateType('ServiceConfig', path, config)
+  doExtraServiceConfigChecks(path, config)
+  const merged = {
+    dependencies: [],
+    cwd: '.',
+    // no default command
+    env: {},
+    ready: () => Promise.resolve(),
+    onCrash: () => {},
+    logTailLength: 0,
+    minimumRestartDelay: 1000,
+    ...removeUndefinedProperties(defaults),
+    ...removeUndefinedProperties(config),
+  }
+  if (merged.command === undefined) {
+    throw new ConfigValidationError(`\`${path}.command\` is not defined`)
+  }
+  return {
+    ...merged,
+    command: normalizeCommand(merged.command),
+    env: normalizeEnv(merged.env),
+  }
+}
+
+function removeUndefinedProperties<T extends { [key: string]: any }>(
+  object: T,
+): T {
+  const result = { ...object }
+  for (const [key, value] of Object.entries(result)) {
+    if (value === undefined) {
+      delete result[key]
+    }
+  }
+  return result
+}
+
+function normalizeCommand(command: string | string[]): string[] {
+  return Array.isArray(command) ? command : command.split(/\s+/).filter(Boolean)
+}
+
+function normalizeEnv(env: {
+  [p: string]: string | number | undefined
+}): { [p: string]: string } {
+  return Object.fromEntries(
+    Object.entries(env)
       .filter(([, value]) => value !== undefined)
       .map(([key, value]) => [key, String(value)]),
   )
-  const { ready = () => Promise.resolve() } = config
-  const { onCrash = () => {} } = config
-  const { logTailLength = 0 } = config
-  const { minimumRestartDelay = 1000 } = config
-  return {
-    dependencies,
-    cwd,
-    command,
-    env,
-    ready,
-    onCrash,
-    logTailLength,
-    minimumRestartDelay,
-  }
 }
 
 function validateDependencyTree(services: {
@@ -148,7 +166,14 @@ export class ConfigValidationError extends Error {
 
 ConfigValidationError.prototype.name = ConfigValidationError.name
 
-function validateType(checker: Checker, reportedPath: string, value: any) {
+const tsInterfaceBuilderOptions = { ignoreIndexSignature: true }
+const checkers = createCheckers({
+  ...getTypeSuite('./CompositeServiceConfig.ts', tsInterfaceBuilderOptions),
+  ...getTypeSuite('./ServiceConfig.ts', tsInterfaceBuilderOptions),
+})
+
+function validateType(typeName: string, reportedPath: string, value: any) {
+  const checker = checkers[typeName]
   checker.setReportedPath(reportedPath)
   const error = checker.validate(value)
   if (error) {

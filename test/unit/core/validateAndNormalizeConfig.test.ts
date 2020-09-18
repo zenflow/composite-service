@@ -19,7 +19,7 @@ const _vs = (serviceConfig: any) => {
 
 describe('core/validateAndNormalizeConfig', () => {
   describe('CompositeServiceConfig', () => {
-    it('services property', () => {
+    it('essential', () => {
       expect(_v(undefined)).toMatchInlineSnapshot(
         `"ConfigValidationError: \`config\` is not an object"`,
       )
@@ -39,9 +39,11 @@ describe('core/validateAndNormalizeConfig', () => {
         `"ConfigValidationError: \`config.services.foo\` is not an object"`,
       )
       expect(_v({ services: { foo: {} } })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is missing"`,
+        `"ConfigValidationError: \`config.services.foo.command\` is not defined"`,
       )
       expect(_v(minValid)).toBeUndefined()
+    })
+    it('service dependency tree', () => {
       expect(
         _v({
           services: {
@@ -76,6 +78,21 @@ describe('core/validateAndNormalizeConfig', () => {
       )
       expect(_v({ ...minValid, logLevel: 'debug' })).toBeUndefined()
     })
+    it('serviceDefaults property', () => {
+      expect(_v({ serviceDefaults: { command: false }, services: { foo: {} } }))
+        .toMatchInlineSnapshot(`
+        "ConfigValidationError: \`config.serviceDefaults\` is not a ServiceConfig
+            \`config.serviceDefaults.command\` is none of string, 1 more"
+      `)
+      expect(
+        _v({ serviceDefaults: { command: '' }, services: { foo: {} } }),
+      ).toMatchInlineSnapshot(
+        `"ConfigValidationError: \`config.serviceDefaults.command\` has no binary part"`,
+      )
+      expect(
+        _v({ serviceDefaults: { command: 'foo' }, services: { foo: {} } }),
+      ).toBeUndefined()
+    })
   })
   describe('ServiceConfig', () => {
     it('dependencies property', () => {
@@ -92,14 +109,14 @@ describe('core/validateAndNormalizeConfig', () => {
         `"ConfigValidationError: \`config.services.foo.command\` is none of string, 1 more"`,
       )
       expect(_vs({ command: '' })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is empty"`,
+        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
       )
       expect(_vs({ command: 'foo' })).toBeUndefined()
       expect(_vs({ command: [] })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is empty"`,
+        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
       )
       expect(_vs({ command: [''] })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is empty"`,
+        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
       )
       expect(_vs({ command: ['foo'] })).toBeUndefined()
       expect(_vs({ command: ['foo', false] })).toMatchInlineSnapshot(`

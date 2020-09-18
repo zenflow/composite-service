@@ -12,6 +12,7 @@ import stream from 'stream';
 export interface CompositeServiceConfig {
     gracefulShutdown?: boolean;
     logLevel?: 'debug' | 'info' | 'error';
+    serviceDefaults?: ServiceConfig;
     services: {
         [id: string]: ServiceConfig | false | null | undefined | 0 | '';
     };
@@ -62,7 +63,7 @@ export interface ReadyContext {
 
 // @public
 export interface ServiceConfig {
-    command: string | string[];
+    command?: string | string[];
     cwd?: string;
     dependencies?: string[];
     env?: {

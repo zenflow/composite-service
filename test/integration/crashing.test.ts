@@ -11,17 +11,18 @@ function getScript(customCode = '') {
     const { onceOutputLineIs, configureHttpGateway, startCompositeService } = require('.');
     const config = {
       gracefulShutdown: true,
+      serviceDefaults: {
+        ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
+      },
       services: {
         api: {
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8000, RESPONSE_TEXT: 'api' },
-          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },
         web: {
           dependencies: ['api'],
           command: ['node', 'test/integration/fixtures/http-service.js'],
           env: { PORT: 8001, RESPONSE_TEXT: 'web' },
-          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },
         gateway: configureHttpGateway({
           dependencies: ['api', 'web'],
