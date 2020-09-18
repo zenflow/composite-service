@@ -85,6 +85,9 @@ export class CompositeService {
       await never()
     }
     await service.start()
+    if (this.stopping) {
+      await never()
+    }
   }
 
   private handleError(message: string) {
