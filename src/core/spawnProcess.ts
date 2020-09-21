@@ -1,10 +1,10 @@
 import { spawn } from 'child_process'
 import { resolve, normalize } from 'path'
 import npmRunPath from 'npm-run-path'
-import getPathKey from 'path-key'
 import which from 'which'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 
+// Match the isWindows definition from `node-which`
 // https://github.com/npm/node-which/blob/6a822d836de79f92fb3170f685a6e283fbfeff87/which.js#L1-L3
 const isWindows =
   process.platform === 'win32' ||
@@ -16,18 +16,15 @@ export function spawnProcess(config: NormalizedServiceConfig) {
   let [binary, ...args] = config.command
   let env = { ...config.env }
 
-  // Use uppercase PATH key regardless of OS or original key
-  env.PATH = filterBlankParts(
-    npmRunPath({
-      cwd,
-      path: config.env[getPathKey({ env: config.env })] || '',
-    }),
-  )
+  let path = readEnvCaseInsensitive(env, 'PATH') || ''
+  path = filterBlankParts(npmRunPath({ cwd, path }))
+  env = writeEnvCaseNormalized(env, 'PATH', path)
 
   if (isWindows) {
-    env.PATHEXT =
-      config.env.PATHEXT || '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH'
-
+    const pathExt =
+      readEnvCaseInsensitive(env, 'PATHEXT') ||
+      '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH'
+    env = writeEnvCaseNormalized(env, 'PATHEXT', pathExt)
     /*
       Work around issue (same issue):
         - https://github.com/nodejs/node-v0.x-archive/issues/2318
@@ -39,10 +36,35 @@ export function spawnProcess(config: NormalizedServiceConfig) {
 
       Instead just replace `binary` with a fully-qualified version.
      */
-    binary = normalize(myWhich(cwd, binary, env.PATH, env.PATHEXT) || binary)
+    binary = normalize(myWhich(cwd, binary, path, pathExt) || binary)
   }
 
   return spawn(binary, args, { cwd, env })
+}
+
+function readEnvCaseInsensitive(
+  env: { [key: string]: string },
+  key: string,
+): string | undefined {
+  const upperCaseKey = key.toUpperCase()
+  const caseInsensitiveKey = Object.keys(env)
+    .reverse()
+    .find(key => key.toUpperCase() === upperCaseKey)
+  return caseInsensitiveKey === undefined ? undefined : env[caseInsensitiveKey]
+}
+
+function writeEnvCaseNormalized(
+  env: { [key: string]: string },
+  key: string,
+  value: string,
+): { [key: string]: string } {
+  const upperCaseKey = key.toUpperCase()
+  return {
+    ...Object.fromEntries(
+      Object.entries(env).filter(([key]) => key.toUpperCase() !== upperCaseKey),
+    ),
+    [upperCaseKey]: value,
+  }
 }
 
 function filterBlankParts(string: string) {
