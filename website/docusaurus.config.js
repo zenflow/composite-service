@@ -7,6 +7,17 @@ module.exports = {
   organizationName: 'zenflow',
   projectName: 'composite-service',
   themeConfig: {
+    announcementBar: {
+      id: 'major_version_zero',
+      content:
+        '<strong>Warning</strong>: ' +
+        'This library is still at <a target="_blank" href="https://semver.org/#spec-item-4">major version zero</a>, ' +
+        'meaning the public API is still not stable. ' +
+        'There may be breaking changes between releases, so check the changelog when upgrading.',
+      backgroundColor: '#eee',
+      textColor: '#222',
+      isCloseable: false,
+    },
     navbar: {
       title: 'composite-service',
       logo: {
