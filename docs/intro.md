@@ -57,8 +57,6 @@ However, if any fatal error occurs, the composite service will shut down any run
 3. Includes fluently configurable [HTTP Gateway](guides/http-gateway.md)
 4. Supports executing Node.js CLI programs by name in [ServiceConfig.command](api/composite-service.serviceconfig.command.md)
 
-...and more to come. See [Roadmap](roadmap.md).
-
 ## Motivation
 
 ### Reusing Services

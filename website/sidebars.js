@@ -20,7 +20,6 @@ module.exports = {
     },
     'changelog',
     'contributing',
-    'roadmap',
   ],
 }
 
