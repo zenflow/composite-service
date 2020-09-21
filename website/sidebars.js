@@ -19,6 +19,7 @@ module.exports = {
       'API Reference': getApiItems(),
     },
     'changelog',
+    'contributing',
     'roadmap',
   ],
 }
