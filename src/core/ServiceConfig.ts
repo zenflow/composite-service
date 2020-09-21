@@ -51,6 +51,7 @@ export interface ServiceConfig {
    *
    * The composed service does *not* inherit environment variables from the composite service,
    * unless passed explicitly through this value.
+   * This applies even to the `PATH` variable.
    *
    * Entries with value `undefined` are ignored, so it's safe to include entries conditionally,
    * e.g. `env: { DEBUG: isDev ? 'true' : undefined }`.
