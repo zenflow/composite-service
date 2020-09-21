@@ -9,6 +9,7 @@ const apiDocFiles = fs
 module.exports = {
   docs: [
     'intro',
+    'motivation',
     {
       Guides: [
         'guides/getting-started',
