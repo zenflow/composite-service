@@ -45,25 +45,15 @@ export interface ServiceConfig {
 
   /**
    * Environment variables to pass to the service.
-   * Defaults to `{}`.
+   * Defaults to `process.env`.
    *
    * @remarks
    *
-   * Entries with value `undefined` are discarded.
+   * The composed service does *not* inherit environment variables from the composite service,
+   * unless passed explicitly through this value.
    *
-   * No additional variables will be passed to the service, except
-   * (1) `PATH`
-   * (2) on Windows only, `PATHEXT`, and
-   * (3) Some others depending on your OS.
-   * For example, on Ubuntu 18.04, service processes will have only `PATH` if no other variables are defined,
-   * while on Windows 10, child processes always have `PATH`, `SYSTEMDRIVE`, `SYSTEMROOT`, `TEMP`, etc.
-   *
-   * The final value used for `PATH` is, if defined, the `PATH` value defined here
-   * *appended with paths to locally installed package binaries*.
-   * This allows you to execute Node.js CLI programs by name in {@link ServiceConfig.command}.
-   *
-   * On Windows, the final value used for `PATHEXT` is, if defined, the `PATHEXT` value provided here,
-   * or if not defined, the Windows default.
+   * Entries with value `undefined` are ignored, so it's safe to include entries conditionally,
+   * e.g. `env: { DEBUG: isDev ? 'true' : undefined }`.
    */
   env?: { [key: string]: string | number | undefined }
 

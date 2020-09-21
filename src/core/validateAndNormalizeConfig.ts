@@ -81,7 +81,7 @@ function processServiceConfig(
     dependencies: [],
     cwd: '.',
     // no default command
-    env: {},
+    env: process.env,
     ready: () => Promise.resolve(),
     forceKillTimeout: 5000,
     onCrash: () => {},

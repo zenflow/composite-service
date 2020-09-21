@@ -23,6 +23,7 @@ describe('process', () => {
           services: {
             only: {
               command: 'shx --version',
+              env: {},
               onCrash: () => Promise.reject(),
             },
           },
@@ -42,6 +43,7 @@ describe('process', () => {
             only: {
               cwd: './test/integration/fixtures/package',
               command: 'shx --version',
+              env: {},
               onCrash: () => Promise.reject(),
             },
           },
@@ -61,6 +63,7 @@ describe('process', () => {
             only: {
               cwd: ${JSON.stringify(`${__dirname}/fixtures/package`)},
               command: 'shx --version',
+              env: {},
               onCrash: () => Promise.reject(),
             },
           },
