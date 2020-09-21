@@ -13,9 +13,11 @@ export interface ServiceConfig {
    *
    * @remarks
    *
-   * The service will not be started until all dependencies are started and ready
+   * The service will not be started until all its dependencies have started and become ready
    * (as determined by their {@link ServiceConfig.ready} functions),
-   * and no dependencies will be stopped until the service has stopped.
+   *
+   * If {@link CompositeServiceConfig.gracefulShutdown} is `true`,
+   * the service's dependencies will not be stopped until the service has been stopped.
    */
   dependencies?: string[]
 

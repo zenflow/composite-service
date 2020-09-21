@@ -14,7 +14,7 @@ let started = false
  * The stdout & stderr from each service is piped to stdout,
  * each line prepended with the service ID.
  *
- * Each service is told to shut down with `SIGINT`
+ * Each service is told to shut down
  * when the composite service is itself told to shut down
  * (with `ctrl+c`, `SIGINT`, or `SIGTERM`),
  * or when a fatal error occurs.
