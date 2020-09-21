@@ -2,6 +2,19 @@
 title: Changelog
 ---
 
+# [0.6.0](https://github.com/zenflow/composite-service/compare/v0.5.0...v0.6.0) (2020-09-21)
+
+
+### Bug Fixes
+
+* **core:** Don't report "Started composite service" when shutting down ([92d1952](https://github.com/zenflow/composite-service/commit/92d195226db08fbeaed5c9664a02732ab0f0f42b))
+
+
+### Features
+
+* **core:** Add serviceDefaults config ([701b47c](https://github.com/zenflow/composite-service/commit/701b47cf51446df00260bf50562fac0b06981449))
+* **core:** Force kill each service after forceKillTimeout milliseconds ([645a5df](https://github.com/zenflow/composite-service/commit/645a5dfeb2fdd80ff0746a92b05b372528d55ce7))
+
 # [0.5.0](https://github.com/zenflow/composite-service/compare/v0.4.0...v0.5.0) (2020-09-16)
 
 
