@@ -90,7 +90,7 @@ module.exports = {
           // homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/zenflow/composite-service/edit/main/website/',
+            'https://github.com/zenflow/composite-service/edit/master/website/',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
         },
