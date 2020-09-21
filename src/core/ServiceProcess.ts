@@ -6,6 +6,7 @@ import mergeStream from 'merge-stream'
 import splitStream from 'split'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
+import { Logger } from './Logger'
 import { filterBlankLastLine, tapStreamLines } from './util/stream'
 
 const delay = promisify(setTimeout)
@@ -13,16 +14,25 @@ const delay = promisify(setTimeout)
 export class ServiceProcess {
   public readonly output: Readable
   public readonly started: Promise<void>
-  public readonly ended: Promise<void>
   public logTail: string[] = []
-  private readonly config: NormalizedServiceConfig
+  private readonly serviceId: string
+  private readonly serviceConfig: NormalizedServiceConfig
+  private readonly logger: Logger
   private readonly process: ChildProcessWithoutNullStreams
   private didError = false
   private didEnd = false
+  private readonly ended: Promise<void>
   private wasEndCalled = false
-  constructor(config: NormalizedServiceConfig, onCrash: () => void) {
-    this.config = config
-    this.process = spawnProcess(this.config)
+  constructor(
+    serviceId: string,
+    serviceConfig: NormalizedServiceConfig,
+    logger: Logger,
+    onCrash: () => void,
+  ) {
+    this.serviceId = serviceId
+    this.serviceConfig = serviceConfig
+    this.logger = logger
+    this.process = spawnProcess(this.serviceConfig)
     this.started = Promise.race([once(this.process, 'error'), delay(100)]).then(
       result => {
         if (result && result[0]) {
@@ -32,11 +42,11 @@ export class ServiceProcess {
       },
     )
     this.output = getProcessOutput(this.process)
-    if (this.config.logTailLength > 0) {
+    if (this.serviceConfig.logTailLength > 0) {
       this.output = this.output.pipe(
         tapStreamLines(line => {
           this.logTail.push(line)
-          if (this.logTail.length > this.config.logTailLength) {
+          if (this.logTail.length > this.serviceConfig.logTailLength) {
             this.logTail.shift()
           }
         }),
@@ -56,14 +66,34 @@ export class ServiceProcess {
   public isRunning() {
     return !this.didError && !this.didEnd
   }
-  public end() {
+  public end(windowsCtrlCShutdown: boolean) {
     if (!this.wasEndCalled) {
       this.wasEndCalled = true
       if (this.isRunning()) {
-        this.process.kill('SIGINT')
+        if (windowsCtrlCShutdown) {
+          // Don't call this.process.kill(); ctrl+c was already sent to all services
+          this.forceKillAfterTimeout()
+        } else if (process.platform === 'win32') {
+          this.process.kill()
+          // Don't call this.forceKillAfterTimeout(); On Windows we don't have SIGINT vs SIGKILL
+        } else {
+          this.process.kill('SIGINT')
+          this.forceKillAfterTimeout()
+        }
       }
     }
     return this.ended
+  }
+  private forceKillAfterTimeout() {
+    if (this.serviceConfig.forceKillTimeout === Infinity) {
+      return
+    }
+    setTimeout(() => {
+      if (this.isRunning()) {
+        this.logger.info(`Force killing service '${this.serviceId}'`)
+        this.process.kill('SIGKILL')
+      }
+    }, this.serviceConfig.forceKillTimeout)
   }
 }
 

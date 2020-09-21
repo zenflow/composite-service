@@ -84,6 +84,12 @@ export interface ServiceConfig {
   ready?: (ctx: ReadyContext) => Promise<any>
 
   /**
+   * Amount of time in milliseconds to wait for the service to exit before force killing it.
+   * Defaults to `5000`.
+   */
+  forceKillTimeout?: number
+
+  /**
    * A function to be executed each time the service crashes.
    * Defaults to `() => {}`.
    *

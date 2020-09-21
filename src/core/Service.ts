@@ -47,7 +47,7 @@ export class Service {
       this.startResult = this.startProcess()
         .then(() => this.ready)
         .then(() => {
-          this.logger.info(`Done starting service '${this.id}'`)
+          this.logger.info(`Started service '${this.id}'`)
         })
     }
     return this.startResult
@@ -67,7 +67,7 @@ export class Service {
   }
 
   private async startProcess() {
-    const proc = new ServiceProcess(this.config, () => {
+    const proc = new ServiceProcess(this.id, this.config, this.logger, () => {
       proc.output.unpipe()
       if (!this.stopResult) {
         this.handleCrash(proc)
@@ -114,19 +114,14 @@ export class Service {
     await this.startProcess()
   }
 
-  public stop(isCtrlCShutdown: boolean) {
+  public stop(windowsCtrlCShutdown: boolean) {
     if (!this.stopResult) {
       if (!this.process || !this.process.isRunning()) {
         this.stopResult = Promise.resolve()
-      } else if (isCtrlCShutdown) {
-        this.logger.info(`Waiting for service '${this.id} to exit...`)
-        this.stopResult = this.process.ended.then(() => {
-          this.logger.info(`Service '${this.id}' exited`)
-        })
       } else {
         this.logger.info(`Stopping service '${this.id}'...`)
-        this.stopResult = this.process.end().then(() => {
-          this.logger.info(`Done stopping service '${this.id}'`)
+        this.stopResult = this.process.end(windowsCtrlCShutdown).then(() => {
+          this.logger.info(`Stopped service '${this.id}'`)
         })
       }
     }

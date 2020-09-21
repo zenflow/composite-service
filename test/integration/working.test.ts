@@ -42,19 +42,19 @@ describe('working', () => {
     proc = await new CompositeProcess(getScript()).start()
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
-        "info: Starting up...",
+        "info: Starting composite service...",
         "info: Starting service 'api'...",
         "info: Starting service 'web'...",
         "web     | Started 🚀",
-        "info: Done starting service 'web'",
+        "info: Started service 'web'",
         "api     | Started 🚀",
-        "info: Done starting service 'api'",
+        "info: Started service 'api'",
         "info: Starting service 'gateway'...",
         "gateway | [HPM] Proxy created: /api  -> http://localhost:8000",
         "gateway | [HPM] Proxy created: /  -> http://localhost:8001",
         "gateway | Listening @ http://0.0.0.0:8080",
-        "info: Done starting service 'gateway'",
-        "info: Done starting up",
+        "info: Started service 'gateway'",
+        "info: Started composite service",
       ]
     `)
     expect(await fetchText('http://localhost:8080/api')).toBe('api')
@@ -70,14 +70,14 @@ describe('working', () => {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
           "info: Received 'SIGINT' signal",
-          "info: Shutting down gracefully...",
+          "info: Stopping composite service...",
           "info: Stopping service 'gateway'...",
-          "info: Done stopping service 'gateway'",
+          "info: Stopped service 'gateway'",
           "info: Stopping service 'api'...",
           "info: Stopping service 'web'...",
-          "info: Done stopping service 'web'",
-          "info: Done stopping service 'api'",
-          "info: Done shutting down gracefully",
+          "info: Stopped service 'web'",
+          "info: Stopped service 'api'",
+          "info: Stopped composite service",
           "",
           "",
         ]

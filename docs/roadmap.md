@@ -25,7 +25,6 @@ https://www.npmjs.com/package/supports-color + https://github.com/chalk/ansi-sty
 2. port utilities: `assertPortFree(port)` & `findPorts(numberOfPorts, options)` (use it like: `const [apiPort, webPort] = findPorts(2, { exclude: PORT })`)
 3. service configs `beforeStarting`, `afterStarted`, `beforeStopping`, `afterStopped`: event handler or "hook" functions
 4. service config `readyTimeout`: milliseconds to wait for service to be "ready" before giving up and erroring
-5. service config `forceKillTimeout`: milliseconds to wait before sending SIGKILL
 6. http gateway
     - Express -> Polka (smaller & faster)
     - logging with Pino

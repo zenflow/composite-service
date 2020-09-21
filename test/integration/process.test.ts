@@ -15,7 +15,7 @@ describe('process', () => {
   afterEach(async () => {
     if (proc) await proc.end()
   })
-  describe('Uses binaries of locally installed packages', () => {
+  describe('uses binaries of locally installed packages', () => {
     it('with default cwd', async () => {
       proc = new CompositeProcess(`
         const { startCompositeService } = require('.');
@@ -73,4 +73,43 @@ describe('process', () => {
       )
     })
   })
+  ;(process.platform === 'win32' ? it.skip : it)(
+    'force kills service after forceKillTimeout',
+    async () => {
+      proc = new CompositeProcess(`
+        const { startCompositeService, onceOutputLineIs } = require('.');
+        startCompositeService({
+          services: {
+            only: {
+              command: [
+                'node',
+                '-e',
+                'setInterval(() => {}, 1000);'
+                  + 'process.on("SIGINT", () => console.log("got SIGINT"));'
+                  + 'console.log("started");'
+              ],
+              ready: ctx => onceOutputLineIs(ctx.output, 'started\\n'),
+              forceKillTimeout: 500,
+            },
+          },
+        });
+      `)
+      await proc.start()
+      proc.flushOutput()
+      await proc.end()
+      expect(proc.flushOutput()).toMatchInlineSnapshot(`
+        Array [
+          "info: Received 'SIGINT' signal",
+          "info: Stopping composite service...",
+          "info: Stopping service 'only'...",
+          "only | got SIGINT",
+          "info: Force killing service 'only'",
+          "info: Stopped service 'only'",
+          "info: Stopped composite service",
+          "",
+          "",
+        ]
+      `)
+    },
+  )
 })

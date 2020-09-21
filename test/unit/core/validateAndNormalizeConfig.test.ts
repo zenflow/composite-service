@@ -137,11 +137,11 @@ describe('core/validateAndNormalizeConfig', () => {
       expect(_vs({ ready: false })).toMatchInlineSnapshot(
         `"ConfigValidationError: \`config.services.foo.ready\` is not a function"`,
       )
-      expect(
-        _vs({
-          ready: () => {},
-        }),
-      ).toBeUndefined()
+      expect(_vs({ ready: () => {} })).toBeUndefined()
+      expect(_vs({ forceKillTimeout: false })).toMatchInlineSnapshot(
+        `"ConfigValidationError: \`config.services.foo.forceKillTimeout\` is not a number"`,
+      )
+      expect(_vs({ forceKillTimeout: 1 })).toBeUndefined()
       expect(_vs({ onCrash: false })).toMatchInlineSnapshot(
         `"ConfigValidationError: \`config.services.foo.onCrash\` is not a function"`,
       )
@@ -150,14 +150,6 @@ describe('core/validateAndNormalizeConfig', () => {
           onCrash: () => {},
         }),
       ).toBeUndefined()
-      expect(_vs({ logTailLength: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.logTailLength\` is not a number"`,
-      )
-      expect(_vs({ logTailLength: 1 })).toBeUndefined()
-      expect(_vs({ minimumRestartDelay: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.minimumRestartDelay\` is not a number"`,
-      )
-      expect(_vs({ minimumRestartDelay: 1 })).toBeUndefined()
     })
   })
 })

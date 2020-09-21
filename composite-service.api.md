@@ -69,6 +69,7 @@ export interface ServiceConfig {
     env?: {
         [key: string]: string | number | undefined;
     };
+    forceKillTimeout?: number;
     logTailLength?: number;
     minimumRestartDelay?: number;
     onCrash?: (ctx: OnCrashContext) => any;

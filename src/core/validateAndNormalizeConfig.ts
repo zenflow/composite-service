@@ -19,6 +19,7 @@ export interface NormalizedServiceConfig {
   command: string[]
   env: { [key: string]: string }
   ready: (ctx: ReadyContext) => Promise<any>
+  forceKillTimeout: number
   onCrash: (ctx: OnCrashContext) => any
   logTailLength: number
   minimumRestartDelay: number
@@ -30,8 +31,10 @@ export function validateAndNormalizeConfig(
   validateType('CompositeServiceConfig', 'config', config)
 
   const { logLevel = 'info' } = config
-  const { gracefulShutdown = false } = config
-  const { windowsCtrlCShutdown = false } = config
+  const windowsCtrlCShutdown =
+    process.platform === 'win32' && Boolean(config.windowsCtrlCShutdown)
+  const gracefulShutdown =
+    !windowsCtrlCShutdown && Boolean(config.gracefulShutdown)
   const { serviceDefaults = {} } = config
   doExtraServiceConfigChecks('config.serviceDefaults', serviceDefaults)
 
@@ -80,6 +83,7 @@ function processServiceConfig(
     // no default command
     env: {},
     ready: () => Promise.resolve(),
+    forceKillTimeout: 5000,
     onCrash: () => {},
     logTailLength: 0,
     minimumRestartDelay: 1000,

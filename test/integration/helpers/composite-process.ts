@@ -24,7 +24,7 @@ export class CompositeProcess {
     outputStream.on('data', line => this.output.push(line))
     this.ready = new Promise<void>(resolve => {
       const handler = (line: string) => {
-        if (line.includes('Done starting up')) {
+        if (line.includes('Started composite service')) {
           outputStream.off('data', handler)
           resolve()
         }
