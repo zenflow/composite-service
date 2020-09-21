@@ -2,6 +2,18 @@
 title: Changelog
 ---
 
+# [0.7.0](https://github.com/zenflow/composite-service/compare/v0.6.0...v0.7.0) (2020-09-21)
+
+
+### Bug Fixes
+
+* **core:** Read PATH & PATHEXT /w case insensitivity, normalize on write ([c3f8612](https://github.com/zenflow/composite-service/commit/c3f86125b73eb3a6c2d52e9ee4b5773ada4e1287))
+
+
+### Features
+
+* **core:** Use `process.env` as default `env` service config ([64ecf07](https://github.com/zenflow/composite-service/commit/64ecf07fc5e46b8555b4401c996015a548f01f99))
+
 # [0.6.0](https://github.com/zenflow/composite-service/compare/v0.5.0...v0.6.0) (2020-09-21)
 
 
