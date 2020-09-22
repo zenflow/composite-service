@@ -1,108 +1,41 @@
 # TODO
-- put links to documentation pages in validation error messages
-- configureHttpGateway -> withHttpGateway (see final section)
-- does windows need env var COMSPEC?
-- issues
-    - Services are sometimes restarted *after* starting to shut down
-    - http gateway: fix broken `/fooz` matching `/foo` context
-    - after enough of crashes:
-        - doesn't seem to restart
-        - MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 unpipe listeners added to [PassThrough]. Use emitter.setMaxListeners() to increase limit
-    - HttpGatewayConfig validation
+
+- Create Github issues for everything in this document
+    - use labels for features/bugs/tests/docs/website/community/upstream
+- logger
+	- remove the one logger.debug() call
+	- replace starting/stopping calls to logger.info() with logger.debug()
+	- use logger.info() when
+		- restarting crashed service
+		- received shutdown signal
+- improve formatting of output; introduce "$composite" stream prefix
+- ready helpers should be included as 2nd argument in call to `ready` config (adding the imports is annoying)
+- default `ready` should be `(ctx, helpers) => helpers.onceTimeout(1000)` ?
+- default `onCrash` should be `(ctx, helpers) => !ctx.isServiceReady && helpers.propagateCrash()`
+
+---
+
+- bugs
+    - http gateway: not intuitive or desirable that `/fooz` matches `/foo` context
     - packages `require`d in HttpProxyOptions.onOpen, HttpProxyOptions.onClose, etc. may be wrong version due to cwd
+    - without windowsCtrlCShutdown=true, composed service programs like `nodemon` (which have their own child process) cannot be stopped on Windows
+        - should windowsCtrlCShutdown default to `true`?
 - tests
-    - make sure ports are free!
+    - check for memory leaks after many service crashes
     - crashing.test.ts: check value of OnCrashContext.isServiceReady
 - docs
-    - warnings
-        - unstable api
-        - using http gateway for production
-    - Development Mode guide
-    - more examples in guide on configuring http-proxy-middleware
-    - separate motivation
-    - contributing (section & notice soliciting contributions)
-    - "Similar Projects" section
-        1. https://github.com/docker/compose
-        2. https://github.com/Unitech/pm2
-        3. https://github.com/godaddy/node-cluster-service
+    - ServiceConfig "Environment variables to pass to the service" -> "Environment variables to pass to the child process"
+    - http gateway
+        - warnings about using http gateway for production:
+        "http gateway is useful for getting up & running quickly,
+        and does a pretty good job performing it's function,
+        but may not be suitable for serious production deployments.
+        Check out https://github.com/awesome-selfhosted/awesome-selfhosted#proxy"
+        - https://v2.docusaurus.io/docs/markdown-features#line-highlighting
+        - more examples in guide on configuring http-proxy-middleware
 - community
     - https://github.com/zenflow/composite-service/community
     - Gitter vs Spectrum
         - https://news.ycombinator.com/item?id=18571041
         - https://stackshare.io/stackups/gitter-vs-spectrum#:~:text=According%20to%20the%20StackShare%20community,stacks%20and%206%20developer%20stacks.
-- website
-    - nicer theme
-    - codesandbox example /w node/nodemon microservice + parcel app + http gateway
-    - github stars somwhere on website to encourage starring
-    - include README badges & *especially* links on website
-    - frontpage SVG animation
-    - sitemap - docusaurus-plugin-sitemap
-    - social media metadata - https://metatags.io
-    - give landing-page love
-        - https://faastjs.org/
-        - https://repeater.js.org/
-        - https://gqless.dev/
-        - https://uniforms.tools/
-    - search function https://docsearch.algolia.com/
-- dependencies
-    - nodejs
-        - ChildProcess 'started' event
-        - child_process.spawn uses scripts initial process.env, not updated process.env
-    - ts-interface-checker
-        - error message should include *full* description of type instead of "1 more"
-- PR to add composite-service example to https://docs.docker.com/config/containers/multi-service_container/
-
----
-
-```js
-startCompositeService(
-  withHttpGateway({
-    port: process.env.PORT,
-    routes: [
-      [['/foo/bar', ['/foo/baz']], { target: 'foo', ws: true }]
-    ],
-    services: {
-      foo: {
-        env: { PORT: 6969 },
-        command: 'node index.js',
-        url: 'http://localhost:6969',
-      }
-    },
-  })
-)
-startCompositeService(
-  withHttpGateway({
-    port: process.env.PORT,
-    routes: [
-      [['/foo/bar', ['/foo/baz']], { target: 'foo', ws: true }]
-    ],
-  })({
-    services: {
-      foo: {
-        env: { PORT: 6969 },
-        command: 'node index.js',
-        url: 'http://localhost:6969',
-      }
-    },
-  })
-)
-startCompositeService(
-  withHttpGateway(
-    {
-      port: process.env.PORT,
-      routes: [
-        [['/foo/bar', ['/foo/baz']], { target: 'foo', ws: true }]
-      ],
-    },
-    {
-      services: {
-        foo: {
-          env: { PORT: 6969 },
-          command: 'node index.js',
-          url: 'http://localhost:6969',
-        }
-      },
-    }
-  )
-)
-```
+    - PR to add composite-service example to https://docs.docker.com/config/containers/multi-service_container/
