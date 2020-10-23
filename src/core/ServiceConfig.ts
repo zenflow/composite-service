@@ -16,7 +16,7 @@ export interface ServiceConfig {
    * The service will not be started until all its dependencies have started and become ready
    * (as determined by their {@link ServiceConfig.ready} functions),
    *
-   * If {@link CompositeServiceConfig.gracefulShutdown} is `true`,
+   * If {@link CompositeServiceConfig.gracefulShutdown} is enabled,
    * the service's dependencies will not be stopped until the service has been stopped.
    */
   dependencies?: string[]
@@ -101,8 +101,13 @@ export interface ServiceConfig {
   onCrash?: (ctx: OnCrashContext) => any
 
   /**
-   * Maximum number of lines to keep from the tail of the service's log output.
+   * Maximum number of lines to keep from the tail of each child process's log output.
    * Defaults to `0`.
+   *
+   * @remarks
+   *
+   * The log lines for each crashed process can be accessed in your {@link ServiceConfig.onCrash} function,
+   * as `ctx.crash.logTail` or `ctx.crashes[i].logTail`.
    */
   logTailLength?: number
 

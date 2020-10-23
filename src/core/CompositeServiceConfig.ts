@@ -25,7 +25,7 @@ export interface CompositeServiceConfig {
 
   /**
    * If `true` then when shutting down *on Windows*,
-   * all services will be stopped with a single CTRL_C_EVENT.
+   * all services will be signalled to stop with a single CTRL_C_EVENT.
    * Defaults to `false`.
    *
    * @remarks
@@ -33,17 +33,18 @@ export interface CompositeServiceConfig {
    * This is useful for giving services a chance to clean up & exit gracefully *on Windows*,
    * instead of terminated them abruptly.
    *
-   * This method however comes with caveats:
+   * The main limitation of Windows's CTRL_C_EVENT
+   * is that it can only target the current console (& every process attached),
+   * and can not target an individual process.
    *
-   * A CTRL_C_EVENT can only be generated for all processes attached to the console, and not for individual processes.
-   * This makes it inherently incompatible with the behavior enabled by {@link CompositeServiceConfig.gracefulShutdown},
-   * which needs to signal different processes to exit at different times.
-   * Therefore, on Windows, if both `gracefulShutdown` & `windowsCtrlCShutdown` are enabled,
-   * the `gracefulShutdown` option will not be respected.
-   * The `gracefulShutdown` is always respected on other platforms.
+   * Because of this limitation, some caveats apply when the method is used (only when running on Windows):
    *
-   * Another caveat is that any additional parent processes (or any processes at all) attached to the same console
-   * will receive the CTRL_C_EVENT signal, not just the service processes.
+   * 1. The {@link CompositeServiceConfig.gracefulShutdown} option will be ignored since
+   * it requires the ability to signal each process at a different time.
+   *
+   * 2. Any additional parent processes (or any processes at all)
+   * attached to the same console will receive the CTRL_C_EVENT signal,
+   * not just the service processes.
    */
   windowsCtrlCShutdown?: boolean
 
