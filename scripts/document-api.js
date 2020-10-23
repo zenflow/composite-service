@@ -18,15 +18,18 @@ async function main() {
     .filter(file => file.endsWith('.md'))
     .map(file => join(dir, file))
 
+  console.log(`Processing Markdown files...`)
   await Promise.all(
     mdFiles.map(async file => {
       try {
         await processMdFile(file)
       } catch (error) {
         console.error(`Could not process ${file}: ${error}`)
+        throw error
       }
     }),
   )
+  console.log('Processed Markdown files')
 }
 
 async function processMdFile(file) {
