@@ -1,5 +1,5 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { redactStackTraces } from './helpers/redact'
+import { redactStackTraces, redactConfigDump } from './helpers/redact'
 import { fetchStatusAndText, fetchText } from './helpers/fetch'
 
 // TODO: `const delay = promisify(setTimeout)` doesn't work here for some reason
@@ -10,6 +10,7 @@ function getScript(customCode = '') {
   return `
     const { onceOutputLineIs, configureHttpGateway, startCompositeService } = require('.');
     const config = {
+      logLevel: 'debug',
       gracefulShutdown: true,
       serviceDefaults: {
         ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
@@ -64,6 +65,7 @@ describe('crashing', () => {
     const script = `
       const { startCompositeService } = require('.');
       startCompositeService({
+        logLevel: 'debug',
         services: {},
       });
     `
@@ -89,18 +91,20 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    expect(output).toMatchInlineSnapshot(`
       Array [
-        "info: Starting composite service...",
-        "info: Starting service 'api'...",
-        "api     | Started 🚀",
-        "info: Started service 'api'",
-        "info: Starting service 'web'...",
-        "error: Error in 'web': Error starting process: Error: spawn this_command_does_not_exist ENOENT",
-        "info: Stopping composite service...",
-        "info: Stopping service 'api'...",
-        "info: Stopped service 'api'",
-        "info: Stopped composite service",
+        "<config dump>",
+        " (debug) Starting composite service...",
+        " (debug) Starting service 'api'...",
+        "api | Started 🚀",
+        " (debug) Started service 'api'",
+        " (debug) Starting service 'web'...",
+        " (error) Fatal error: Spawning process for service 'web': Error: spawn this_command_does_not_exist ENOENT",
+        " (debug) Stopping composite service...",
+        " (debug) Stopping service 'api'...",
+        " (debug) Stopped service 'api'",
+        " (debug) Stopped composite service",
         "",
         "",
       ]
@@ -112,21 +116,23 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    expect(output).toMatchInlineSnapshot(`
       Array [
-        "info: Starting composite service...",
-        "info: Starting service 'api'...",
-        "api     | Started 🚀",
-        "info: Started service 'api'",
-        "info: Starting service 'web'...",
-        "error: Error in 'web': Error from ready function: TypeError: Cannot read property 'bar' of undefined",
+        "<config dump>",
+        " (debug) Starting composite service...",
+        " (debug) Starting service 'api'...",
+        "api | Started 🚀",
+        " (debug) Started service 'api'",
+        " (debug) Starting service 'web'...",
+        " (error) Fatal error: In \`ready\` function for service 'web': TypeError: Cannot read property 'bar' of undefined",
         "<stack trace>",
-        "info: Stopping composite service...",
-        "info: Stopping service 'web'...",
-        "info: Stopped service 'web'",
-        "info: Stopping service 'api'...",
-        "info: Stopped service 'api'",
-        "info: Stopped composite service",
+        " (debug) Stopping composite service...",
+        " (debug) Stopping service 'web'...",
+        " (debug) Stopped service 'web'",
+        " (debug) Stopping service 'api'...",
+        " (debug) Stopped service 'api'",
+        " (debug) Stopped composite service",
         "",
         "",
       ]
@@ -141,21 +147,23 @@ describe('crashing', () => {
     `)
     proc = new CompositeProcess(script)
     await proc.ended
-    expect(redactStackTraces(proc.flushOutput())).toMatchInlineSnapshot(`
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    expect(output).toMatchInlineSnapshot(`
       Array [
-        "info: Starting composite service...",
-        "info: Starting service 'api'...",
-        "api     | Started 🚀",
-        "info: Started service 'api'",
-        "info: Starting service 'web'...",
-        "web     | Crashing",
-        "info: Service 'web' crashed",
-        "error: Error in 'web': Error from onCrash function: Error: Crash",
+        "<config dump>",
+        " (debug) Starting composite service...",
+        " (debug) Starting service 'api'...",
+        "api | Started 🚀",
+        " (debug) Started service 'api'",
+        " (debug) Starting service 'web'...",
+        "web | Crashing",
+        " (info) Service 'web' crashed",
+        " (error) Fatal error: In \`onCrash\` function for service web: Error: Crash",
         "<stack trace>",
-        "info: Stopping composite service...",
-        "info: Stopping service 'api'...",
-        "info: Stopped service 'api'",
-        "info: Stopped composite service",
+        " (debug) Stopping composite service...",
+        " (debug) Stopping service 'api'...",
+        " (debug) Stopped service 'api'",
+        " (debug) Stopped composite service",
         "",
         "",
       ]
@@ -178,16 +186,16 @@ describe('crashing', () => {
     output = filterGatewayErrorLines(output)
     expect(output).toMatchInlineSnapshot(`
       Array [
-        "web     | Crashing",
-        "info: Service 'web' crashed",
-        "error: Error in 'web': Error from onCrash function: Error: Crash",
+        "web | Crashing",
+        " (info) Service 'web' crashed",
+        " (error) Fatal error: In \`onCrash\` function for service web: Error: Crash",
         "<stack trace>",
-        "info: Stopping composite service...",
-        "info: Stopping service 'gateway'...",
-        "info: Stopped service 'gateway'",
-        "info: Stopping service 'api'...",
-        "info: Stopped service 'api'",
-        "info: Stopped composite service",
+        " (debug) Stopping composite service...",
+        " (debug) Stopping service 'gateway'...",
+        " (debug) Stopped service 'gateway'",
+        " (debug) Stopping service 'api'...",
+        " (debug) Stopped service 'api'",
+        " (debug) Stopped composite service",
         "",
         "",
       ]
@@ -232,14 +240,14 @@ describe('crashing', () => {
     // correct output for 1st crash
     expect(filterGatewayErrorLines(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
-        "web     | Crashing",
-        "info: Service 'web' crashed",
+        "web | Crashing",
+        " (info) Service 'web' crashed",
         "number of crashes: 1",
         "crash logTail: [\\"Crashing\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
-        "info: Restarting service 'web'",
-        "web     | Started 🚀",
+        " (info) Restarting service 'web'",
+        "web | Started 🚀",
       ]
     `)
 
@@ -252,14 +260,14 @@ describe('crashing', () => {
     // correct output for 2nd crash
     expect(filterGatewayErrorLines(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
-        "web     | Crashing",
-        "info: Service 'web' crashed",
+        "web | Crashing",
+        " (info) Service 'web' crashed",
         "number of crashes: 2",
         "crash logTail: [\\"Crashing\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
-        "info: Restarting service 'web'",
-        "web     | Started 🚀",
+        " (info) Restarting service 'web'",
+        "web | Started 🚀",
       ]
     `)
   })

@@ -1,6 +1,7 @@
 import { Service } from './Service'
-import serializeJavascript from 'serialize-javascript'
+import serializeJs from 'serialize-javascript'
 import mergeStream from 'merge-stream'
+import chalk from 'chalk'
 import {
   NormalizedCompositeServiceConfig,
   validateAndNormalizeConfig,
@@ -28,52 +29,41 @@ export class CompositeService {
 
     this.logger = new Logger(this.config.logLevel)
     outputStream.add(this.logger.output)
-    this.logger.debug(
-      'Config: ' +
-        serializeJavascript(config, {
-          space: 2,
-          unsafe: true,
-        }),
-    )
 
-    process.on('SIGINT', () => this.die(130, "Received 'SIGINT' signal"))
-    process.on('SIGTERM', () => this.die(143, "Received 'SIGTERM' signal"))
+    const configText = serializeJs(config, { space: 2, unsafe: true })
+    this.logger.log('debug', `Config: ${configText}`)
+
+    process.on('SIGINT', () => this.handleShutdownSignal(130, 'SIGINT'))
+    process.on('SIGTERM', () => this.handleShutdownSignal(143, 'SIGTERM'))
     if (process.stdin.isTTY) {
       process.stdin.setRawMode(true)
       process.stdin.on('data', buffer => {
         if (buffer.toString('utf8') === '\u0003') {
-          this.die(130, 'Received ctrl+c')
+          this.handleShutdownSignal(130, 'ctrl+c')
         }
       })
     }
 
     this.services = Object.entries(this.config.services).map(
       ([id, config]) =>
-        new Service(id, config, this.logger, message =>
-          this.handleError(`Error in '${id}': ${message}`),
-        ),
+        new Service(id, config, this.logger, this.handleFatalError.bind(this)),
     )
     this.serviceMap = new Map(
       this.services.map(service => [service.id, service]),
     )
 
-    const maxLabelLength = Math.max(
-      ...Object.keys(this.config.services).map(({ length }) => length),
-    )
     outputStream.add(
-      this.services.map(({ output, id }) =>
-        output.pipe(
-          mapStreamLines(
-            line => `${`${rightPad(id, maxLabelLength)} | `}${line}`,
-          ),
-        ),
-      ),
+      this.services.map(({ output, id }, i) => {
+        // luminosity of 20 because at 256 colors, luminosity from 16 to 24 yields the most colors (12 colors) while keeping high contrast with text
+        const label = chalk.bgHsl((i / this.services.length) * 360, 100, 20)(id)
+        return output.pipe(mapStreamLines(line => `${label} | ${line}`))
+      }),
     )
 
-    this.logger.info('Starting composite service...')
+    this.logger.log('debug', 'Starting composite service...')
     Promise.all(
       this.services.map(service => this.startService(service)),
-    ).then(() => this.logger.info('Started composite service'))
+    ).then(() => this.logger.log('debug', 'Started composite service'))
   }
 
   private async startService(service: Service) {
@@ -90,29 +80,35 @@ export class CompositeService {
     }
   }
 
-  private handleError(message: string) {
-    return this.die(1, message)
+  private handleFatalError(message: string): void {
+    this.logger.log('error', `Fatal error: ${message}`)
+    if (!this.stopping) {
+      this.stop(1)
+    }
   }
 
-  private async die(exitCode: number, message: string): Promise<never> {
+  private handleShutdownSignal(exitCode: number, description: string): void {
     if (!this.stopping) {
-      this.stopping = true
-      const isSignalExit = exitCode > 128 // we have either a signal exit or an error exit
-      this.logger[isSignalExit ? 'info' : 'error'](message)
-      this.logger.info('Stopping composite service...')
-      if (this.config.windowsCtrlCShutdown) {
-        require('generate-ctrl-c-event')
-          .generateCtrlCAsync()
-          .catch((error: Error) => this.logger.error(String(error)))
-      }
-      await Promise.all(this.services.map(service => this.stopService(service)))
-      this.logger.info('Stopped composite service')
-      await Promise.resolve() // Wait one micro tick for output to flush
-      process.exit(exitCode)
+      this.logger.log('info', `Received shutdown signal (${description})`)
+      this.stop(exitCode)
     }
-    // simply return a promise that never resolves, since we can't do anything after exiting anyways
-    return never()
   }
+
+  private stop(exitCode: number): void {
+    if (this.stopping) return
+    this.stopping = true
+    this.logger.log('debug', 'Stopping composite service...')
+    if (this.config.windowsCtrlCShutdown) {
+      require('generate-ctrl-c-event')
+        .generateCtrlCAsync()
+        .catch((error: Error) => this.logger.log('error', String(error)))
+    }
+    Promise.all(this.services.map(service => this.stopService(service)))
+      .then(() => this.logger.log('debug', 'Stopped composite service'))
+      // Wait one micro tick for output to flush
+      .then(() => process.exit(exitCode))
+  }
+
   private async stopService(service: Service) {
     if (this.config.gracefulShutdown) {
       const dependents = this.services.filter(({ config }) =>
@@ -122,11 +118,6 @@ export class CompositeService {
     }
     await service.stop(this.config.windowsCtrlCShutdown)
   }
-}
-
-function rightPad(string: string, length: number): string {
-  // we assume length >= string.length
-  return string + ' '.repeat(length - string.length)
 }
 
 function never(): Promise<never> {

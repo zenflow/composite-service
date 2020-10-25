@@ -35,7 +35,7 @@ export class CompositeProcess {
   }
 
   /**
-   * Warning: Requires logLevel 'info' or higher
+   * Important: If this method is used, the given `script` *must* call startCompositeService *with logLevel 'debug'*
    */
   async start(): Promise<CompositeProcess> {
     await Promise.race([

@@ -31,7 +31,7 @@ describe('process', () => {
       `)
       await proc.ended
       const output = proc.flushOutput()
-      expect(output.find(line => line.startsWith('only | shx '))).toBe(
+      expect(output.find(line => line.startsWith('only | '))).toBe(
         'only | shx v0.3.2 (using ShellJS v0.8.4)',
       )
     })
@@ -51,7 +51,7 @@ describe('process', () => {
       `)
       await proc.ended
       const output = proc.flushOutput()
-      expect(output.find(line => line.startsWith('only | shx '))).toBe(
+      expect(output.find(line => line.startsWith('only | '))).toBe(
         'only | shx v0.3.1 (using ShellJS v0.8.4)',
       )
     })
@@ -71,7 +71,7 @@ describe('process', () => {
       `)
       await proc.ended
       const output = proc.flushOutput()
-      expect(output.find(line => line.startsWith('only | shx '))).toBe(
+      expect(output.find(line => line.startsWith('only | '))).toBe(
         'only | shx v0.3.1 (using ShellJS v0.8.4)',
       )
     })
@@ -82,6 +82,7 @@ describe('process', () => {
       proc = new CompositeProcess(`
         const { startCompositeService, onceOutputLineIs } = require('.');
         startCompositeService({
+          logLevel: 'debug',
           services: {
             only: {
               command: [
@@ -102,13 +103,13 @@ describe('process', () => {
       await proc.end()
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
-          "info: Received 'SIGINT' signal",
-          "info: Stopping composite service...",
-          "info: Stopping service 'only'...",
+          " (info) Received shutdown signal (SIGINT)",
+          " (debug) Stopping composite service...",
+          " (debug) Stopping service 'only'...",
           "only | got SIGINT",
-          "info: Force killing service 'only'",
-          "info: Stopped service 'only'",
-          "info: Stopped composite service",
+          " (info) Force killing service 'only'",
+          " (debug) Stopped service 'only'",
+          " (debug) Stopped composite service",
           "",
           "",
         ]

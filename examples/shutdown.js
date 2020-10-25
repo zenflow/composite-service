@@ -1,5 +1,8 @@
 const { startCompositeService } = require('..')
 
+const logLevel = process.argv.includes('--log-level')
+  ? process.argv[process.argv.indexOf('--log-level') + 1]
+  : undefined
 const hang = process.argv.includes('--hang')
 
 const command = [
@@ -19,6 +22,7 @@ process.on('SIGINT', () => {
 ]
 
 startCompositeService({
+  logLevel,
   gracefulShutdown: true,
   windowsCtrlCShutdown: true,
   serviceDefaults: {
@@ -26,7 +30,9 @@ startCompositeService({
     forceKillTimeout: 2000,
   },
   services: {
-    foo: {},
-    bar: { dependencies: ['foo'] },
+    one: {},
+    two: { dependencies: ['one'] },
+    three: { dependencies: ['one'] },
+    four: { dependencies: ['two', 'three'] },
   },
 })

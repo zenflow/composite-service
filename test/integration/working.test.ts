@@ -1,10 +1,12 @@
 import { CompositeProcess } from './helpers/composite-process'
 import { fetchText } from './helpers/fetch'
+import { redactConfigDump } from './helpers/redact'
 
 function getScript() {
   return `
     const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
     const config = {
+      logLevel: 'debug',
       gracefulShutdown: true,
       services: {
         api: {
@@ -40,21 +42,22 @@ describe('working', () => {
   })
   it('works', async () => {
     proc = await new CompositeProcess(getScript()).start()
-    expect(proc.flushOutput()).toMatchInlineSnapshot(`
+    expect(redactConfigDump(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
-        "info: Starting composite service...",
-        "info: Starting service 'api'...",
-        "info: Starting service 'web'...",
-        "web     | Started 🚀",
-        "info: Started service 'web'",
-        "api     | Started 🚀",
-        "info: Started service 'api'",
-        "info: Starting service 'gateway'...",
+        "<config dump>",
+        " (debug) Starting composite service...",
+        " (debug) Starting service 'api'...",
+        " (debug) Starting service 'web'...",
+        "web | Started 🚀",
+        " (debug) Started service 'web'",
+        "api | Started 🚀",
+        " (debug) Started service 'api'",
+        " (debug) Starting service 'gateway'...",
         "gateway | [HPM] Proxy created: /api  -> http://localhost:8000",
         "gateway | [HPM] Proxy created: /  -> http://localhost:8001",
         "gateway | Listening @ http://0.0.0.0:8080",
-        "info: Started service 'gateway'",
-        "info: Started composite service",
+        " (debug) Started service 'gateway'",
+        " (debug) Started composite service",
       ]
     `)
     expect(await fetchText('http://localhost:8080/api')).toBe('api')
@@ -64,20 +67,20 @@ describe('working', () => {
     expect(proc.flushOutput()).toStrictEqual([])
     await proc.end()
     if (process.platform === 'win32') {
-      // Windows doesn't support gracefully terminating processes :(
+      // Windows doesn't really support gracefully terminating processes :(
       expect(proc.flushOutput()).toStrictEqual(['', ''])
     } else {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
-          "info: Received 'SIGINT' signal",
-          "info: Stopping composite service...",
-          "info: Stopping service 'gateway'...",
-          "info: Stopped service 'gateway'",
-          "info: Stopping service 'api'...",
-          "info: Stopping service 'web'...",
-          "info: Stopped service 'web'",
-          "info: Stopped service 'api'",
-          "info: Stopped composite service",
+          " (info) Received shutdown signal (SIGINT)",
+          " (debug) Stopping composite service...",
+          " (debug) Stopping service 'gateway'...",
+          " (debug) Stopped service 'gateway'",
+          " (debug) Stopping service 'api'...",
+          " (debug) Stopping service 'web'...",
+          " (debug) Stopped service 'web'",
+          " (debug) Stopped service 'api'",
+          " (debug) Stopped composite service",
           "",
           "",
         ]

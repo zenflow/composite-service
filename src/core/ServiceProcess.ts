@@ -71,11 +71,10 @@ export class ServiceProcess {
       this.wasEndCalled = true
       if (this.isRunning()) {
         if (windowsCtrlCShutdown) {
-          // Don't call this.process.kill(); ctrl+c was already sent to all services
+          // ctrl+c signal was already sent to all service processes
           this.forceKillAfterTimeout()
         } else if (process.platform === 'win32') {
           this.process.kill()
-          // Don't call this.forceKillAfterTimeout(); On Windows we don't have SIGINT vs SIGKILL
         } else {
           this.process.kill('SIGINT')
           this.forceKillAfterTimeout()
@@ -90,7 +89,7 @@ export class ServiceProcess {
     }
     setTimeout(() => {
       if (this.isRunning()) {
-        this.logger.info(`Force killing service '${this.serviceId}'`)
+        this.logger.log('info', `Force killing service '${this.serviceId}'`)
         this.process.kill('SIGKILL')
       }
     }, this.serviceConfig.forceKillTimeout)

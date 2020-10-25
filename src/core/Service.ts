@@ -17,7 +17,7 @@ export class Service {
   public readonly output = cloneable(new PassThrough({ objectMode: true }))
   private readonly outputClone = this.output.clone()
   private readonly logger: Logger
-  private readonly handleError: (message: string) => Promise<never>
+  private readonly handleFatalError: (message: string) => void
   private ready: Promise<void> | undefined
   private process: ServiceProcess | undefined
   private startResult: Promise<void> | undefined
@@ -28,26 +28,29 @@ export class Service {
     id: string,
     config: NormalizedServiceConfig,
     logger: Logger,
-    handleError: (message: string) => Promise<never>,
+    handleFatalError: (message: string) => void,
   ) {
     this.id = id
     this.config = config
     this.logger = logger
-    this.handleError = handleError
+    this.handleFatalError = handleFatalError
   }
 
   public start() {
     if (this.stopResult) {
-      this.logger.error(new InternalError('Cannot start after stopping').stack!)
+      this.logger.log(
+        'error',
+        new InternalError('Cannot start after stopping').stack!,
+      )
       return this.startResult
     }
     if (!this.startResult) {
-      this.logger.info(`Starting service '${this.id}'...`)
+      this.logger.log('debug', `Starting service '${this.id}'...`)
       this.defineReady()
       this.startResult = this.startProcess()
         .then(() => this.ready)
         .then(() => {
-          this.logger.info(`Started service '${this.id}'`)
+          this.logger.log('debug', `Started service '${this.id}'`)
         })
     }
     return this.startResult
@@ -58,11 +61,11 @@ export class Service {
       output: this.outputClone,
     }
     this.ready = promiseTry(() => this.config.ready(ctx))
-      .catch(error =>
-        this.handleError(`Error from ready function: ${maybeErrorText(error)}`),
-      )
-      .then(() => {
-        this.outputClone.destroy()
+      .finally(() => this.outputClone.destroy())
+      .catch(error => {
+        const prefix = `In \`ready\` function for service '${this.id}'`
+        this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`)
+        return never()
       })
   }
 
@@ -78,12 +81,14 @@ export class Service {
     try {
       await this.process.started
     } catch (error) {
-      await this.handleError(`Error starting process: ${error}`)
+      const prefix = `Spawning process for service '${this.id}'`
+      this.handleFatalError(`${prefix}: ${error}`)
+      await never()
     }
   }
 
   private async handleCrash(proc: ServiceProcess) {
-    this.logger.info(`Service '${this.id}' crashed`)
+    this.logger.log('info', `Service '${this.id}' crashed`)
     const delayPromise = delay(this.config.minimumRestartDelay)
     const crash: ServiceCrash = {
       date: new Date(),
@@ -99,9 +104,9 @@ export class Service {
     try {
       await this.config.onCrash(ctx)
     } catch (error) {
-      await this.handleError(
-        `Error from onCrash function: ${maybeErrorText(error)}`,
-      )
+      const prefix = `In \`onCrash\` function for service ${this.id}`
+      this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`)
+      await never()
     }
     if (this.stopResult) {
       return
@@ -110,7 +115,7 @@ export class Service {
     if (this.stopResult) {
       return
     }
-    this.logger.info(`Restarting service '${this.id}'`)
+    this.logger.log('info', `Restarting service '${this.id}'`)
     await this.startProcess()
   }
 
@@ -119,9 +124,9 @@ export class Service {
       if (!this.process || !this.process.isRunning()) {
         this.stopResult = Promise.resolve()
       } else {
-        this.logger.info(`Stopping service '${this.id}'...`)
+        this.logger.log('debug', `Stopping service '${this.id}'...`)
         this.stopResult = this.process.end(windowsCtrlCShutdown).then(() => {
-          this.logger.info(`Stopped service '${this.id}'`)
+          this.logger.log('debug', `Stopped service '${this.id}'`)
         })
       }
     }
@@ -149,4 +154,8 @@ function isResolved(promise: Promise<any>): Promise<boolean> {
     ),
     Promise.resolve().then(() => false),
   ])
+}
+
+function never(): Promise<never> {
+  return new Promise<never>(() => {})
 }

@@ -1,18 +1,10 @@
 # TODO
 
-- Create Github issues for everything in this document
-    - use labels for features/bugs/tests/docs/website/community/upstream
-- logger
-	- remove the one logger.debug() call
-	- replace starting/stopping calls to logger.info() with logger.debug()
-	- use logger.info() when
-		- restarting crashed service
-		- received shutdown signal
 - improve formatting of output; introduce "$composite" stream prefix
 - ready helpers should be included as 2nd argument in call to `ready` config (adding the imports is annoying)
-- default `ready` should be `(ctx, helpers) => helpers.onceTimeout(1000)` ?
-- default `onCrash` should be `(ctx, helpers) => !ctx.isServiceReady && helpers.propagateCrash()`
+- default `onCrash` should be like `(ctx, helpers) => !ctx.isServiceReady && helpers.propagateCrash()`
 
+`gracefulShutdown` option should be `sequentialShutdown` instead
 ---
 
 - bugs

@@ -2,30 +2,32 @@
     so that we have something consistent that we can snapshot. */
 
 export function redactStackTraces(lines: string[]) {
+  type StackTrace = {
+    start: number
+    length: number
+  }
+
   const output = [...lines]
   let stackTrace: StackTrace | false = false
   while ((stackTrace = findStackTrace(output))) {
     output.splice(stackTrace.start, stackTrace.length, '<stack trace>')
   }
   return output
-}
 
-type StackTrace = {
-  start: number
-  length: number
-}
-const isStackTraceLine = (line: string) =>
-  line.startsWith('error:     at ') || line.startsWith('    at ')
-function findStackTrace(lines: string[]): StackTrace | false {
-  const start = lines.findIndex(isStackTraceLine)
-  if (start === -1) {
-    return false
+  function findStackTrace(lines: string[]): StackTrace | false {
+    const start = lines.findIndex(isStackTraceLine)
+    if (start === -1) {
+      return false
+    }
+    let length = lines
+      .slice(start)
+      .findIndex((line: string) => !isStackTraceLine(line))
+    length = length === -1 ? lines.length - start : length
+    return { start, length }
   }
-  let length = lines
-    .slice(start)
-    .findIndex((line: string) => !isStackTraceLine(line))
-  length = length === -1 ? lines.length - start : length
-  return { start, length }
+  function isStackTraceLine(line: string) {
+    return line.startsWith(' (error)     at ') || line.startsWith('    at ')
+  }
 }
 
 export function redactCwd(lines: string[]) {
@@ -37,4 +39,16 @@ export function redactCwd(lines: string[]) {
     }
     return result
   })
+}
+
+export function redactConfigDump(lines: string[]) {
+  const start = lines.findIndex(line => line === ' (debug) Config: {')
+  if (start === -1) {
+    return lines
+  }
+  const end = lines.findIndex(line => line === ' (debug) }')
+  if (end === -1) {
+    return lines
+  }
+  return [...lines.slice(0, start), '<config dump>', ...lines.slice(end + 1)]
 }

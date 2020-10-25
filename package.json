@@ -45,6 +45,7 @@
     "document-api": "node scripts/document-api.js"
   },
   "dependencies": {
+    "chalk": "^4.1.0",
     "cloneable-readable": "^2.0.1",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.5",
