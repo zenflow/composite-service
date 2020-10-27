@@ -2,6 +2,13 @@
 title: Changelog
 ---
 
+# [0.8.0](https://github.com/zenflow/composite-service/compare/v0.7.0...v0.8.0) (2020-10-27)
+
+
+### Features
+
+* **core:** Improve logging: messages, levels, & formatting. Closes [#9](https://github.com/zenflow/composite-service/issues/9) ([3b4bec6](https://github.com/zenflow/composite-service/commit/3b4bec66117b460b794bcc5bd920d4e2eabbc864))
+
 # [0.7.0](https://github.com/zenflow/composite-service/compare/v0.6.0...v0.7.0) (2020-09-21)
 
 
