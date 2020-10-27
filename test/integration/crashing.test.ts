@@ -141,7 +141,8 @@ describe('crashing', () => {
   it('crashes gracefully on error from onCrash *while* starting up', async () => {
     const script = getScript(`
       config.services.web.command = ['node', '-e', 'console.log("Crashing")'];
-      config.services.web.onCrash = () => {
+      config.services.web.onCrash = ctx => {
+        console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
     `)
@@ -158,6 +159,7 @@ describe('crashing', () => {
         " (debug) Starting service 'web'...",
         "web | Crashing",
         " (info) Service 'web' crashed",
+        "isServiceReady: false",
         " (error) Fatal error: In \`onCrash\` function for service web: Error: Crash",
         "<stack trace>",
         " (debug) Stopping composite service...",
@@ -172,7 +174,8 @@ describe('crashing', () => {
   it('crashes gracefully on error from onCrash *after* starting up', async () => {
     const script = getScript(`
       config.services.web.dependencies = []
-      config.services.web.onCrash = () => {
+      config.services.web.onCrash = ctx => {
+        console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
       // stop after gateway stops, for consistent output we can snapshot
@@ -188,6 +191,7 @@ describe('crashing', () => {
       Array [
         "web | Crashing",
         " (info) Service 'web' crashed",
+        "isServiceReady: true",
         " (error) Fatal error: In \`onCrash\` function for service web: Error: Crash",
         "<stack trace>",
         " (debug) Stopping composite service...",
