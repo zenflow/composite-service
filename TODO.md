@@ -1,21 +1,16 @@
 # TODO
 
-- improve formatting of output; introduce "$composite" stream prefix
-- ready helpers should be included as 2nd argument in call to `ready` config (adding the imports is annoying)
-- default `onCrash` should be like `(ctx, helpers) => !ctx.isServiceReady && helpers.propagateCrash()`
-
-`gracefulShutdown` option should be `sequentialShutdown` instead
----
-
+- api
+    - `gracefulShutdown` option should be `sequentialShutdown` instead
+    - onCrash error handling should restart, onCrash should signal to crash by returning a Symbol
+    - default `onCrash` should be like `(ctx) => ctx.isServiceReady ? kRestartService : kRaiseFatalError`
 - bugs
     - http gateway: not intuitive or desirable that `/fooz` matches `/foo` context
     - packages `require`d in HttpProxyOptions.onOpen, HttpProxyOptions.onClose, etc. may be wrong version due to cwd
     - without windowsCtrlCShutdown=true, composed service programs like `nodemon` (which have their own child process) cannot be stopped on Windows
-        - should windowsCtrlCShutdown default to `true`?
-- tests
-    - check for memory leaks after many service crashes
-    - crashing.test.ts: check value of OnCrashContext.isServiceReady
 - docs
+    - move details from `startCompositeService` doc comment to docs/intro.md, & replace with "See intro for more detailed specs"
+        - within that documentation, improve stuff on shutting down & fatal errors
     - ServiceConfig "Environment variables to pass to the service" -> "Environment variables to pass to the child process"
     - http gateway
         - warnings about using http gateway for production:

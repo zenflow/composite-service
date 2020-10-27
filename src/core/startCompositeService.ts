@@ -11,12 +11,8 @@ let started = false
  * Each service defined in {@link CompositeServiceConfig.services}
  * is started and managed according to its {@link ServiceConfig}.
  *
- * TODO: Move everything below to `docs/` & replace with "See Intro for more detailed specs".
- *
  * The stdout & stderr from each service is piped to stdout,
  * each line prepended with the service ID.
- *
- * TODO: Improve documentation below regarding shutting down & fatal errors
  *
  * Each service is told to shut down
  * when the composite service is itself told to shut down
