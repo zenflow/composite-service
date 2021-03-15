@@ -1,5 +1,17 @@
 # Changelog
 
+# [0.9.0](https://github.com/zenflow/composite-service/compare/v0.8.0...v0.9.0) (2021-03-15)
+
+
+### Bug Fixes
+
+* Remove terminal colors, closes [#28](https://github.com/zenflow/composite-service/issues/28) ([90e98bb](https://github.com/zenflow/composite-service/commit/90e98bb8239ae67d4d349b24263cad51a3b78609))
+
+
+### Features
+
+* **http-gateway:** Remove http gateway, closes [#23](https://github.com/zenflow/composite-service/issues/23) ([62b147f](https://github.com/zenflow/composite-service/commit/62b147f5e6ed9ab5d86243bf7813d718ac42b482))
+
 # [0.8.0](https://github.com/zenflow/composite-service/compare/v0.7.0...v0.8.0) (2020-10-27)
 
 
