@@ -217,7 +217,7 @@ describe('crashing', () => {
     // crash once
     expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
     // allow time for restart
-    await delay(250)
+    await delay(500)
     // make sure it restarted
     expect(await fetchText('http://localhost:8002/')).toBe('second')
     // correct output for 1st crash
@@ -237,7 +237,7 @@ describe('crashing', () => {
     // crash again
     expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
     // allow time for restart again
-    await delay(250)
+    await delay(500)
     // make sure it restarted again
     expect(await fetchText('http://localhost:8002/')).toBe('second')
     // correct output for 2nd crash
