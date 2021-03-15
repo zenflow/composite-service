@@ -1,6 +1,4 @@
----
-title: Changelog
----
+# Changelog
 
 # [0.8.0](https://github.com/zenflow/composite-service/compare/v0.7.0...v0.8.0) (2020-10-27)
 
