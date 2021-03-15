@@ -30,18 +30,15 @@
     "src"
   ],
   "scripts": {
-    "lint": "tsdx lint scripts src test website",
+    "lint": "tsdx lint src test website",
     "lint-fix": "yarn lint --fix",
     "_tsdx_build": "tsdx --target node --format cjs --entry src/index.ts",
     "build": "yarn _tsdx_build build",
     "build-watch": "yarn _tsdx_build watch",
-    "extract-api": "api-extractor run --local",
-    "check-api": "api-extractor run",
     "_tsdx_test": "tsdx test --runInBand",
     "test-only": "yarn _tsdx_test --ci",
     "test-watch": "yarn _tsdx_test --watch",
-    "test": "yarn lint && yarn build && yarn check-api && yarn test-only",
-    "document-api": "node scripts/document-api.js"
+    "test": "yarn lint && yarn build && yarn test-only"
   },
   "dependencies": {
     "chalk": "^4.1.0",
@@ -56,8 +53,6 @@
     "generate-ctrl-c-event": "^1.0.0"
   },
   "devDependencies": {
-    "@microsoft/api-documenter": "^7.8.21",
-    "@microsoft/api-extractor": "^7.9.2",
     "@semantic-release/changelog": "^5.0.1",
     "@semantic-release/git": "^9.0.0",
     "@types/cloneable-readable": "^2.0.0",

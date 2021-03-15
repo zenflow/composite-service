@@ -1,36 +1,8 @@
 name: CI
 on: [push, pull_request]
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      jsOrTs: ${{ steps.filter.outputs.jsOrTs }}
-      package: ${{ steps.filter.outputs.package }}
-      test: ${{ steps.filter.outputs.test }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2.2.0
-        id: filter
-        with:
-          filters: |
-            jsOrTs:
-              - '**/*.js'
-              - '**/*.ts'
-            package:
-              - 'api-extractor.json'
-              - 'composite-service.api.md'
-              - 'package.json'
-              - 'tsdx.config.js'
-              - 'tsconfig.json'
-              - 'yarn.lock'
-              - 'src/**/*'
-            test:
-              - 'test/**/*'
-      - run: echo Changes - jsOrTs=${{ steps.filter.outputs.jsOrTs }} package=${{ steps.filter.outputs.package }} test=${{ steps.filter.outputs.test }}
   lint:
-    needs: [changes]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || needs.changes.outputs.jsOrTs == 'true'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -43,9 +15,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn lint
   build:
-    needs: [changes]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -61,28 +31,9 @@ jobs:
         with:
           name: dist
           path: dist/
-  check-api:
-    needs: [changes, build]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || needs.changes.outputs.package == 'true'
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: nodeModules-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            nodeModules-
-      - uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist/
-      - run: yarn check-api
   test:
-    needs: [changes, build]
+    needs: [build]
     runs-on: ${{ matrix.os }}
-    if: github.ref == 'refs/heads/master' || needs.changes.outputs.package == 'true' || needs.changes.outputs.test == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -103,7 +54,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn test-only
   release:
-    needs: [lint, build, check-api, test]
+    needs: [lint, build, test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
