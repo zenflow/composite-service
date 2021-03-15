@@ -1,6 +1,6 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { redactStackTraces, redactConfigDump } from './helpers/redact'
-import { fetchStatusAndText, fetchText } from './helpers/fetch'
+import { redactConfigDump, redactStackTraces } from './helpers/redact'
+import { fetchText } from './helpers/fetch'
 
 // TODO: `const delay = promisify(setTimeout)` doesn't work here for some reason
 const delay = (time: number) =>
@@ -8,51 +8,31 @@ const delay = (time: number) =>
 
 function getScript(customCode = '') {
   return `
-    const { onceOutputLineIs, configureHttpGateway, startCompositeService } = require('.');
+    const { startCompositeService, onceOutputLineIs } = require('.');
     const config = {
       logLevel: 'debug',
       gracefulShutdown: true,
       serviceDefaults: {
+        command: 'node test/integration/fixtures/http-service.js',
         ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
       },
       services: {
-        api: {
-          command: 'node test/integration/fixtures/http-service.js',
-          env: { PORT: 8000, RESPONSE_TEXT: 'api' },
+        first: {
+          env: { PORT: 8001, RESPONSE_TEXT: 'first' },
         },
-        web: {
-          dependencies: ['api'],
-          command: ['node', 'test/integration/fixtures/http-service.js'],
-          env: { PORT: 8001, RESPONSE_TEXT: 'web' },
+        second: {
+          dependencies: ['first'],
+          env: { PORT: 8002, RESPONSE_TEXT: 'second' },
         },
-        gateway: configureHttpGateway({
-          dependencies: ['api', 'web'],
-          port: 8080,
-          proxies: [
-            ['/api', { target: 'http://localhost:8000' }],
-            ['/', { target: 'http://localhost:8001' }],
-          ],
-        }),
+        third: {
+          dependencies: ['first', 'second'],
+          env: { PORT: 8003, RESPONSE_TEXT: 'third' },
+        },
       },
     };
     ${customCode};
     startCompositeService(config);
   `
-}
-
-async function fetchCrash() {
-  expect(
-    await fetchStatusAndText('http://localhost:8080/?crash'),
-  ).toStrictEqual({
-    status: 504,
-    text: 'Error occured while trying to proxy to: localhost:8080/?crash',
-  })
-}
-
-function filterGatewayErrorLines(lines: string[]) {
-  const isGatewayErrorLine = (line: string) =>
-    line.startsWith('gateway | [HPM] Error ')
-  return lines.filter(line => !isGatewayErrorLine(line))
 }
 
 describe('crashing', () => {
@@ -87,7 +67,7 @@ describe('crashing', () => {
   })
   it('crashes gracefully on error starting process', async () => {
     const script = getScript(`
-      config.services.web.command = 'this_command_does_not_exist';
+      config.services.second.command = 'this_command_does_not_exist';
     `)
     proc = new CompositeProcess(script)
     await proc.ended
@@ -96,14 +76,14 @@ describe('crashing', () => {
       Array [
         "<config dump>",
         " (debug) Starting composite service...",
-        " (debug) Starting service 'api'...",
-        "api | Started 🚀",
-        " (debug) Started service 'api'",
-        " (debug) Starting service 'web'...",
-        " (error) Fatal error: Spawning process for service 'web': Error: spawn this_command_does_not_exist ENOENT",
+        " (debug) Starting service 'first'...",
+        "first | Started 🚀",
+        " (debug) Started service 'first'",
+        " (debug) Starting service 'second'...",
+        " (error) Fatal error: Spawning process for service 'second': Error: spawn this_command_does_not_exist ENOENT",
         " (debug) Stopping composite service...",
-        " (debug) Stopping service 'api'...",
-        " (debug) Stopped service 'api'",
+        " (debug) Stopping service 'first'...",
+        " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
         "",
         "",
@@ -112,7 +92,7 @@ describe('crashing', () => {
   })
   it('crashes gracefully on error from ready', async () => {
     const script = getScript(`
-      config.services.web.ready = () => global.foo.bar();
+      config.services.second.ready = () => global.foo.bar();
     `)
     proc = new CompositeProcess(script)
     await proc.ended
@@ -121,17 +101,17 @@ describe('crashing', () => {
       Array [
         "<config dump>",
         " (debug) Starting composite service...",
-        " (debug) Starting service 'api'...",
-        "api | Started 🚀",
-        " (debug) Started service 'api'",
-        " (debug) Starting service 'web'...",
-        " (error) Fatal error: In \`ready\` function for service 'web': TypeError: Cannot read property 'bar' of undefined",
+        " (debug) Starting service 'first'...",
+        "first | Started 🚀",
+        " (debug) Started service 'first'",
+        " (debug) Starting service 'second'...",
+        " (error) Fatal error: In \`ready\` function for service 'second': TypeError: Cannot read property 'bar' of undefined",
         "<stack trace>",
         " (debug) Stopping composite service...",
-        " (debug) Stopping service 'web'...",
-        " (debug) Stopped service 'web'",
-        " (debug) Stopping service 'api'...",
-        " (debug) Stopped service 'api'",
+        " (debug) Stopping service 'second'...",
+        " (debug) Stopped service 'second'",
+        " (debug) Stopping service 'first'...",
+        " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
         "",
         "",
@@ -140,8 +120,8 @@ describe('crashing', () => {
   })
   it('crashes gracefully on error from onCrash *while* starting up', async () => {
     const script = getScript(`
-      config.services.web.command = ['node', '-e', 'console.log("Crashing")'];
-      config.services.web.onCrash = ctx => {
+      config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
+      config.services.second.onCrash = ctx => {
         console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
@@ -153,18 +133,18 @@ describe('crashing', () => {
       Array [
         "<config dump>",
         " (debug) Starting composite service...",
-        " (debug) Starting service 'api'...",
-        "api | Started 🚀",
-        " (debug) Started service 'api'",
-        " (debug) Starting service 'web'...",
-        "web | Crashing",
-        " (info) Service 'web' crashed",
+        " (debug) Starting service 'first'...",
+        "first | Started 🚀",
+        " (debug) Started service 'first'",
+        " (debug) Starting service 'second'...",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
         "isServiceReady: false",
-        " (error) Fatal error: In \`onCrash\` function for service web: Error: Crash",
+        " (error) Fatal error: In \`onCrash\` function for service second: Error: Crash",
         "<stack trace>",
         " (debug) Stopping composite service...",
-        " (debug) Stopping service 'api'...",
-        " (debug) Stopped service 'api'",
+        " (debug) Stopping service 'first'...",
+        " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
         "",
         "",
@@ -173,44 +153,43 @@ describe('crashing', () => {
   })
   it('crashes gracefully on error from onCrash *after* starting up', async () => {
     const script = getScript(`
-      config.services.web.dependencies = []
-      config.services.web.onCrash = ctx => {
+      config.services.second.dependencies = []
+      config.services.second.onCrash = ctx => {
         console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
-      // stop after gateway stops, for consistent output we can snapshot
-      config.services.api.env.STOP_DELAY = 250;
+      // stop after third stops, for consistent output we can snapshot
+      config.services.first.env.STOP_DELAY = 250;
     `)
     proc = await new CompositeProcess(script).start()
     proc.flushOutput()
-    await fetchCrash()
+    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
     await proc.ended
     let output = redactStackTraces(proc.flushOutput())
-    output = filterGatewayErrorLines(output)
     expect(output).toMatchInlineSnapshot(`
       Array [
-        "web | Crashing",
-        " (info) Service 'web' crashed",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
         "isServiceReady: true",
-        " (error) Fatal error: In \`onCrash\` function for service web: Error: Crash",
+        " (error) Fatal error: In \`onCrash\` function for service second: Error: Crash",
         "<stack trace>",
         " (debug) Stopping composite service...",
-        " (debug) Stopping service 'gateway'...",
-        " (debug) Stopped service 'gateway'",
-        " (debug) Stopping service 'api'...",
-        " (debug) Stopped service 'api'",
+        " (debug) Stopping service 'third'...",
+        " (debug) Stopped service 'third'",
+        " (debug) Stopping service 'first'...",
+        " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
         "",
         "",
       ]
     `)
   })
-  it('restarts after calling onCrash successfully', async () => {
+  it('restarts after calling onCrash without error', async () => {
     const script = getScript(`
-      config.services.web.dependencies = [];
-      config.services.web.logTailLength = 1;
-      config.services.web.minimumRestartDelay = 0;
-      config.services.web.onCrash = async ctx => {
+      config.services.second.dependencies = [];
+      config.services.second.logTailLength = 1;
+      config.services.second.minimumRestartDelay = 0;
+      config.services.second.onCrash = async ctx => {
         const tests = [
           'ctx.isServiceReady === true',
           'typeof ctx.crash === "object"',
@@ -236,42 +215,42 @@ describe('crashing', () => {
     proc.flushOutput()
 
     // crash once
-    await fetchCrash()
+    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
     // allow time for restart
     await delay(250)
     // make sure it restarted
-    expect(await fetchText('http://localhost:8080/')).toBe('web')
+    expect(await fetchText('http://localhost:8002/')).toBe('second')
     // correct output for 1st crash
-    expect(filterGatewayErrorLines(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
-        "web | Crashing",
-        " (info) Service 'web' crashed",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
         "number of crashes: 1",
         "crash logTail: [\\"Crashing\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
-        " (info) Restarting service 'web'",
-        "web | Started 🚀",
+        " (info) Restarting service 'second'",
+        "second | Started 🚀",
       ]
     `)
 
     // crash again
-    await fetchCrash()
+    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
     // allow time for restart again
     await delay(250)
     // make sure it restarted again
-    expect(await fetchText('http://localhost:8080/')).toBe('web')
+    expect(await fetchText('http://localhost:8002/')).toBe('second')
     // correct output for 2nd crash
-    expect(filterGatewayErrorLines(proc.flushOutput())).toMatchInlineSnapshot(`
+    expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
-        "web | Crashing",
-        " (info) Service 'web' crashed",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
         "number of crashes: 2",
         "crash logTail: [\\"Crashing\\\\n\\"]",
         "Handling crash...",
         "Done handling crash",
-        " (info) Restarting service 'web'",
-        "web | Started 🚀",
+        " (info) Restarting service 'second'",
+        "second | Started 🚀",
       ]
     `)
   })

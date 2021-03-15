@@ -1,33 +1,30 @@
 import { CompositeProcess } from './helpers/composite-process'
-import { fetchText } from './helpers/fetch'
 import { redactConfigDump } from './helpers/redact'
 
 function getScript() {
   return `
-    const { onceOutputLineIs, onceTcpPortUsed, configureHttpGateway, startCompositeService } = require('.');
+    const { startCompositeService, onceOutputLineIs, onceOutputLine, onceTcpPortUsed } = require('.');
     const config = {
       logLevel: 'debug',
       gracefulShutdown: true,
       services: {
-        api: {
-          command: 'node test/integration/fixtures/http-service.js',
-          env: { PORT: 8000, RESPONSE_TEXT: 'api', START_DELAY: 500, STOP_DELAY: 500 },
-          ready: ctx => onceTcpPortUsed(8000),
-        },
-        web: {
+        first: {
           cwd: 'test/integration/fixtures',
           command: ['node', 'http-service.js'],
-          env: { PORT: 8001, RESPONSE_TEXT: 'web' },
+          env: { PORT: 8001, RESPONSE_TEXT: 'first', START_DELAY: 500, STOP_DELAY: 500 },
+          ready: ctx => onceTcpPortUsed(8001),
+        },
+        second: {
+          command: 'node test/integration/fixtures/http-service.js',
+          env: { PORT: 8002, RESPONSE_TEXT: 'second' },
           ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
         },
-        gateway: configureHttpGateway({
-          dependencies: ['api', 'web'],
-          port: 8080,
-          proxies: [
-            ['/api', { target: 'http://localhost:8000' }],
-            ['/', { target: 'http://localhost:8001' }],
-          ],
-        }),
+        third: {
+          dependencies: ['first', 'second'],
+          command: 'node test/integration/fixtures/http-service.js',
+          env: { PORT: 8003, RESPONSE_TEXT: 'third' },
+          ready: ctx => onceOutputLine(ctx.output, line => line === 'Started 🚀\\n'),
+        },
       },
     };
     startCompositeService(config);
@@ -46,24 +43,18 @@ describe('working', () => {
       Array [
         "<config dump>",
         " (debug) Starting composite service...",
-        " (debug) Starting service 'api'...",
-        " (debug) Starting service 'web'...",
-        "web | Started 🚀",
-        " (debug) Started service 'web'",
-        "api | Started 🚀",
-        " (debug) Started service 'api'",
-        " (debug) Starting service 'gateway'...",
-        "gateway | [HPM] Proxy created: /api  -> http://localhost:8000",
-        "gateway | [HPM] Proxy created: /  -> http://localhost:8001",
-        "gateway | Listening @ http://0.0.0.0:8080",
-        " (debug) Started service 'gateway'",
+        " (debug) Starting service 'first'...",
+        " (debug) Starting service 'second'...",
+        "second | Started 🚀",
+        " (debug) Started service 'second'",
+        "first | Started 🚀",
+        " (debug) Started service 'first'",
+        " (debug) Starting service 'third'...",
+        "third | Started 🚀",
+        " (debug) Started service 'third'",
         " (debug) Started composite service",
       ]
     `)
-    expect(await fetchText('http://localhost:8080/api')).toBe('api')
-    expect(await fetchText('http://localhost:8080/api/foo')).toBe('api')
-    expect(await fetchText('http://localhost:8080/')).toBe('web')
-    expect(await fetchText('http://localhost:8080/foo')).toBe('web')
     expect(proc.flushOutput()).toStrictEqual([])
     await proc.end()
     if (process.platform === 'win32') {
@@ -74,12 +65,12 @@ describe('working', () => {
         Array [
           " (info) Received shutdown signal (SIGINT)",
           " (debug) Stopping composite service...",
-          " (debug) Stopping service 'gateway'...",
-          " (debug) Stopped service 'gateway'",
-          " (debug) Stopping service 'api'...",
-          " (debug) Stopping service 'web'...",
-          " (debug) Stopped service 'web'",
-          " (debug) Stopped service 'api'",
+          " (debug) Stopping service 'third'...",
+          " (debug) Stopped service 'third'",
+          " (debug) Stopping service 'first'...",
+          " (debug) Stopping service 'second'...",
+          " (debug) Stopped service 'second'",
+          " (debug) Stopped service 'first'",
           " (debug) Stopped composite service",
           "",
           "",

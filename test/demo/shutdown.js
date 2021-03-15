@@ -1,4 +1,4 @@
-const { startCompositeService } = require('..')
+const { startCompositeService } = require('../../dist')
 
 const logLevel = process.argv.includes('--log-level')
   ? process.argv[process.argv.indexOf('--log-level') + 1]

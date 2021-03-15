@@ -14,6 +14,8 @@ delay(getEnvAsInt('START_DELAY'))
     const server = createServer((req, res) => {
       if (req.url.endsWith('?crash')) {
         console.log('Crashing')
+        res.write('crashing')
+        res.end()
         process.exit(1)
       } else {
         res.write(process.env.RESPONSE_TEXT || '')

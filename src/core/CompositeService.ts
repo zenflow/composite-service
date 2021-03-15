@@ -1,5 +1,5 @@
+import { formatWithOptions } from 'util'
 import { Service } from './Service'
-import serializeJs from 'serialize-javascript'
 import mergeStream from 'merge-stream'
 import chalk from 'chalk'
 import {
@@ -30,8 +30,10 @@ export class CompositeService {
     this.logger = new Logger(this.config.logLevel)
     outputStream.add(this.logger.output)
 
-    const configText = serializeJs(config, { space: 2, unsafe: true })
-    this.logger.log('debug', `Config: ${configText}`)
+    this.logger.log(
+      'debug',
+      formatWithOptions({ depth: null }, 'Config: %O', config),
+    )
 
     process.on('SIGINT', () => this.handleShutdownSignal(130, 'SIGINT'))
     process.on('SIGTERM', () => this.handleShutdownSignal(143, 'SIGTERM'))
