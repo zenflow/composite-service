@@ -1,7 +1,6 @@
 import { formatWithOptions } from 'util'
-import { Service } from './Service'
 import mergeStream from 'merge-stream'
-import chalk from 'chalk'
+import { Service } from './Service'
 import {
   NormalizedCompositeServiceConfig,
   validateAndNormalizeConfig,
@@ -55,11 +54,9 @@ export class CompositeService {
     )
 
     outputStream.add(
-      this.services.map(({ output, id }, i) => {
-        // luminosity of 20 because at 256 colors, luminosity from 16 to 24 yields the most colors (12 colors) while keeping high contrast with text
-        const label = chalk.bgHsl((i / this.services.length) * 360, 100, 20)(id)
-        return output.pipe(mapStreamLines(line => `${label} | ${line}`))
-      }),
+      this.services.map(({ output, id }) =>
+        output.pipe(mapStreamLines(line => `${id} | ${line}`)),
+      ),
     )
 
     this.logger.log('debug', 'Starting composite service...')

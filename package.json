@@ -41,7 +41,6 @@
     "test": "yarn lint && yarn build && yarn test-only"
   },
   "dependencies": {
-    "chalk": "^4.1.0",
     "cloneable-readable": "^2.0.1",
     "merge-stream": "^2.0.0",
     "npm-run-path": "^4.0.1",
