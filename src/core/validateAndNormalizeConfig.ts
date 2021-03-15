@@ -1,4 +1,4 @@
-import { getTypeSuite } from '@zen_flow/ts-interface-builder/macro'
+import { getTypeSuite } from 'ts-interface-builder/macro'
 import { createCheckers, IErrorDetail } from 'ts-interface-checker'
 import { CompositeServiceConfig } from './CompositeServiceConfig'
 import { ServiceConfig } from './ServiceConfig'
