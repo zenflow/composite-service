@@ -30,7 +30,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "tsdx lint src test website",
+    "lint": "tsdx lint src test",
     "lint-fix": "yarn lint --fix",
     "_tsdx_build": "tsdx --target node --format cjs --entry src/index.ts",
     "build": "yarn _tsdx_build build",

@@ -74,28 +74,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-  website:
-    needs: [release]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: 'refs/heads/master'
-      - uses: actions/setup-node@v1
-      - uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: nodeModules-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            nodeModules-
-      - uses: actions/download-artifact@v2
-        with:
-          name: dist
-          path: dist/
-      - run: yarn document-api
-      - run: cd website && yarn && yarn build
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./website/build

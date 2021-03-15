@@ -1,8 +1,6 @@
 module.exports = {
   "ignorePatterns": [
-    "**/node_modules",
-    "website/.docusaurus",
-    "website/build"
+    "**/node_modules"
   ],
   "extends": [
     "react-app",
