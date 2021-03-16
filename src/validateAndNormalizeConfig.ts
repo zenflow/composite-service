@@ -1,10 +1,10 @@
 import { getTypeSuite } from 'ts-interface-builder/macro'
 import { createCheckers, IErrorDetail } from 'ts-interface-checker'
-import { CompositeServiceConfig } from './CompositeServiceConfig'
-import { ServiceConfig } from './ServiceConfig'
+import { CompositeServiceConfig } from './interfaces/CompositeServiceConfig'
+import { ServiceConfig } from './interfaces/ServiceConfig'
 import { LogLevel } from './Logger'
-import { ReadyContext } from './ReadyContext'
-import { OnCrashContext } from './OnCrashContext'
+import { ReadyContext } from './interfaces/ReadyContext'
+import { OnCrashContext } from './interfaces/OnCrashContext'
 
 export interface NormalizedCompositeServiceConfig {
   logLevel: LogLevel
@@ -172,8 +172,11 @@ ConfigValidationError.prototype.name = ConfigValidationError.name
 
 const tsInterfaceBuilderOptions = { ignoreIndexSignature: true }
 const checkers = createCheckers({
-  ...getTypeSuite('./CompositeServiceConfig.ts', tsInterfaceBuilderOptions),
-  ...getTypeSuite('./ServiceConfig.ts', tsInterfaceBuilderOptions),
+  ...getTypeSuite(
+    './interfaces/CompositeServiceConfig.ts',
+    tsInterfaceBuilderOptions,
+  ),
+  ...getTypeSuite('./interfaces/ServiceConfig.ts', tsInterfaceBuilderOptions),
 })
 
 function validateType(typeName: string, reportedPath: string, value: any) {

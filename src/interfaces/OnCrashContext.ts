@@ -2,13 +2,10 @@ import { ServiceCrash } from './ServiceCrash'
 
 /**
  * Context object given as argument to each {@link ServiceConfig.onCrash} function
- *
- * @public
  */
 export interface OnCrashContext {
   /**
-   * Whether the service became ready
-   * (as determined by its {@link ServiceConfig.ready | ready config})
+   * Whether the service became ready according to its {@link ServiceConfig.ready} function
    */
   isServiceReady: boolean
 

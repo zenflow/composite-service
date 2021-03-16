@@ -1,5 +1,5 @@
-import { CompositeServiceConfig } from '../../../src/core/CompositeServiceConfig'
-import { validateAndNormalizeConfig } from '../../../src/core/validateAndNormalizeConfig'
+import { CompositeServiceConfig } from '../../../src/interfaces/CompositeServiceConfig'
+import { validateAndNormalizeConfig } from '../../../src/validateAndNormalizeConfig'
 
 const _v = (config: any): string | undefined => {
   let result: string | undefined

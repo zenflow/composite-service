@@ -1,7 +1,5 @@
 /**
  * Represents the event of a composed service crashing
- *
- * @public
  */
 export interface ServiceCrash {
   /**
@@ -10,8 +8,6 @@ export interface ServiceCrash {
   date: Date
   /**
    * Tail of the service's log output
-   *
-   * @remarks
    *
    * Maximum length is determined by {@link ServiceConfig.logTailLength}.
    */

@@ -3,15 +3,11 @@ import { OnCrashContext } from './OnCrashContext'
 
 /**
  * Configuration for a service to be composed
- *
- * @public
  */
 export interface ServiceConfig {
   /**
    * IDs of other composed services that this service depends on.
    * Defaults to `[]`.
-   *
-   * @remarks
    *
    * The service will not be started until all its dependencies have started and become ready
    * (as determined by their {@link ServiceConfig.ready} functions),
@@ -25,17 +21,13 @@ export interface ServiceConfig {
    * Current working directory of the service.
    * Defaults to `'.'`.
    *
-   * @remarks
-   *
    * This can be an absolute path or a path relative to the composite service's cwd.
    */
   cwd?: string
 
   /**
    * Command used to run the service.
-   * No default.
-   *
-   * @remarks
+   * Required.
    *
    * If it's an array of strings, the first element is the binary, and the remaining elements are the arguments.
    * If it's a single string, it will be parsed into the format described above
@@ -49,14 +41,11 @@ export interface ServiceConfig {
    * Environment variables to pass to the service.
    * Defaults to `process.env`.
    *
-   * @remarks
-   *
    * The composed service does *not* inherit environment variables from the composite service,
    * unless passed explicitly through this value.
    * This applies even to the `PATH` variable.
    *
-   * Entries with value `undefined` are ignored, so it's safe to include entries conditionally,
-   * e.g. `env: { DEBUG: isDev ? 'true' : undefined }`.
+   * Entries with value `undefined` are ignored.
    */
   env?: { [key: string]: string | number | undefined }
 
@@ -64,15 +53,14 @@ export interface ServiceConfig {
    * A function to determine when the service is ready.
    * Defaults to `() => Promise.resolve()`.
    *
-   * @remarks
-   *
    * This function takes a {@link ReadyContext} as its only argument
    * and should return a `Promise` that resolves when the service has started up and is ready to do its job.
    *
+   * If any error is encountered in its execution,
+   * the composite service will shut down any running services and exit.
+   *
    * This library includes a collection of [Ready Helpers](./composite-service.oncetcpportused.md)
    * to help you define this property.
-   *
-   * @param ctx - Context
    */
   ready?: (ctx: ReadyContext) => Promise<any>
 
@@ -86,8 +74,6 @@ export interface ServiceConfig {
    * A function to be executed each time the service crashes.
    * Defaults to `() => {}`.
    *
-   * @remarks
-   *
    * This function is called with an {@link OnCrashContext} object as its only argument.
    *
    * It can execute synchronously or asynchronously (i.e. return a promise that will be awaited on).
@@ -95,16 +81,12 @@ export interface ServiceConfig {
    * If any error is encountered in its execution,
    * the composite service will shut down any running services and exit,
    * otherwise, the composed service will be restarted.
-   *
-   * @param ctx - Context
    */
   onCrash?: (ctx: OnCrashContext) => any
 
   /**
    * Maximum number of lines to keep from the tail of each child process's log output.
    * Defaults to `0`.
-   *
-   * @remarks
    *
    * The log lines for each crashed process can be accessed in your {@link ServiceConfig.onCrash} function,
    * as `ctx.crash.logTail` or `ctx.crashes[i].logTail`.

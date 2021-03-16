@@ -1,12 +1,10 @@
-import { CompositeServiceConfig } from './CompositeServiceConfig'
+import { CompositeServiceConfig } from './interfaces/CompositeServiceConfig'
 import { CompositeService } from './CompositeService'
 
 let started = false
 
 /**
  * Starts a composite service in the current Node.js process
- *
- * @remarks
  *
  * Each service defined in {@link CompositeServiceConfig.services}
  * is started and managed according to its {@link ServiceConfig}.
@@ -25,10 +23,6 @@ let started = false
  * (3) Error spawning process, e.g. `EPERM`, `ENOENT`, etc.
  * (4) Error from user-provided configuration function,
  * {@link ServiceConfig.ready} or {@link ServiceConfig.onCrash}
- *
- * @param config - Configuration for the composite service
- *
- * @public
  */
 export function startCompositeService(config: CompositeServiceConfig) {
   if (started) {

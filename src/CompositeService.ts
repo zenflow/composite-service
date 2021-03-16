@@ -5,7 +5,7 @@ import {
   NormalizedCompositeServiceConfig,
   validateAndNormalizeConfig,
 } from './validateAndNormalizeConfig'
-import { CompositeServiceConfig } from './CompositeServiceConfig'
+import { CompositeServiceConfig } from './interfaces/CompositeServiceConfig'
 import { Logger } from './Logger'
 import { mapStreamLines } from './util/stream'
 
@@ -19,7 +19,7 @@ export class CompositeService {
   constructor(config: CompositeServiceConfig) {
     this.config = validateAndNormalizeConfig(config)
 
-    if (process.platform === 'win32' && this.config.windowsCtrlCShutdown) {
+    if (this.config.windowsCtrlCShutdown) {
       require('generate-ctrl-c-event') // make sure this module loads before we even start
     }
 

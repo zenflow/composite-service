@@ -3,9 +3,9 @@ import { PassThrough } from 'stream'
 import cloneable from 'cloneable-readable'
 import { ServiceProcess } from './ServiceProcess'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
-import { ReadyContext } from './ReadyContext'
-import { OnCrashContext } from './OnCrashContext'
-import { ServiceCrash } from './ServiceCrash'
+import { ReadyContext } from './interfaces/ReadyContext'
+import { OnCrashContext } from './interfaces/OnCrashContext'
+import { ServiceCrash } from './interfaces/ServiceCrash'
 import { InternalError } from './InternalError'
 import { Logger } from './Logger'
 
@@ -107,9 +107,6 @@ export class Service {
       const prefix = `In \`onCrash\` function for service ${this.id}`
       this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`)
       await never()
-    }
-    if (this.stopResult) {
-      return
     }
     await delayPromise
     if (this.stopResult) {
