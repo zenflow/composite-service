@@ -1,4 +1,3 @@
-import { promisify } from 'util'
 import { once } from 'events'
 import { Readable, pipeline } from 'stream'
 import { ChildProcessWithoutNullStreams } from 'child_process'
@@ -8,8 +7,7 @@ import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
 import { spawnProcess } from './spawnProcess'
 import { Logger } from './Logger'
 import { filterBlankLastLine, tapStreamLines } from './util/stream'
-
-const delay = promisify(setTimeout)
+import { processSpawned } from './util/processSpawned'
 
 export class ServiceProcess {
   public readonly output: Readable
@@ -33,14 +31,10 @@ export class ServiceProcess {
     this.serviceConfig = serviceConfig
     this.logger = logger
     this.process = spawnProcess(this.serviceConfig)
-    this.started = Promise.race([once(this.process, 'error'), delay(100)]).then(
-      result => {
-        if (result && result[0]) {
-          this.didError = true
-          throw result[0]
-        }
-      },
-    )
+    this.started = processSpawned(this.process).catch((error: Error) => {
+      this.didError = true
+      throw error
+    })
     this.output = getProcessOutput(this.process)
     if (this.serviceConfig.logTailLength > 0) {
       this.output = this.output.pipe(
@@ -52,12 +46,10 @@ export class ServiceProcess {
         }),
       )
     }
-    this.ended = Promise.all([
-      this.started.catch(() => {}),
-      once(this.output, 'end').then(() => {
-        this.didEnd = true
-      }),
-    ]).then(() => {
+    this.ended = once(this.output, 'end').then(() => {
+      this.didEnd = true
+    })
+    Promise.all([this.started.catch(() => {}), this.ended]).then(() => {
       if (!this.didError && !this.wasEndCalled) {
         onCrash()
       }
