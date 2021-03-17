@@ -3,7 +3,7 @@ import { redactConfigDump } from './helpers/redact'
 
 function getScript() {
   return `
-    const { startCompositeService, onceOutputLineIs, onceOutputLine, onceTcpPortUsed } = require('.');
+    const { startCompositeService } = require('.');
     const config = {
       logLevel: 'debug',
       gracefulShutdown: true,
@@ -12,18 +12,18 @@ function getScript() {
           cwd: 'test/integration/fixtures',
           command: ['node', 'http-service.js'],
           env: { PORT: 8001, RESPONSE_TEXT: 'first', START_DELAY: 500, STOP_DELAY: 500 },
-          ready: ctx => onceTcpPortUsed(8001),
+          ready: ctx => ctx.onceTcpPortUsed(8001),
         },
         second: {
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8002, RESPONSE_TEXT: 'second' },
-          ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
+          ready: ctx => ctx.onceOutputLineIs('Started 🚀\\n'),
         },
         third: {
           dependencies: ['first', 'second'],
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8003, RESPONSE_TEXT: 'third' },
-          ready: ctx => onceOutputLine(ctx.output, line => line === 'Started 🚀\\n'),
+          ready: ctx => ctx.onceOutputLine(line => line === 'Started 🚀\\n'),
         },
       },
     };

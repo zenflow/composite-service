@@ -58,9 +58,6 @@ export interface ServiceConfig {
    *
    * If any error is encountered in its execution,
    * the composite service will shut down any running services and exit.
-   *
-   * This library includes a collection of [Ready Helpers](./composite-service.oncetcpportused.md)
-   * to help you define this property.
    */
   ready?: (ctx: ReadyContext) => Promise<any>
 

@@ -1,5 +1,3 @@
-export * from './ready-helpers'
-
 export { startCompositeService } from './startCompositeService'
 
 export { CompositeServiceConfig } from './interfaces/CompositeServiceConfig'

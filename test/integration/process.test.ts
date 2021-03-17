@@ -80,7 +80,7 @@ describe('process', () => {
     'force kills service after forceKillTimeout',
     async () => {
       proc = new CompositeProcess(`
-        const { startCompositeService, onceOutputLineIs } = require('.');
+        const { startCompositeService } = require('.');
         startCompositeService({
           logLevel: 'debug',
           services: {
@@ -92,7 +92,7 @@ describe('process', () => {
                   + 'process.on("SIGINT", () => console.log("got SIGINT"));'
                   + 'console.log("started");'
               ],
-              ready: ctx => onceOutputLineIs(ctx.output, 'started\\n'),
+              ready: ctx => ctx.onceOutputLineIs('started\\n'),
               forceKillTimeout: 500,
             },
           },

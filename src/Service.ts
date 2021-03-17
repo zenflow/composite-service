@@ -3,11 +3,11 @@ import { PassThrough } from 'stream'
 import cloneable from 'cloneable-readable'
 import { ServiceProcess } from './ServiceProcess'
 import { NormalizedServiceConfig } from './validateAndNormalizeConfig'
-import { ReadyContext } from './interfaces/ReadyContext'
 import { OnCrashContext } from './interfaces/OnCrashContext'
 import { ServiceCrash } from './interfaces/ServiceCrash'
 import { InternalError } from './InternalError'
 import { Logger } from './Logger'
+import { createReadyContext } from './createReadyContext'
 
 const delay = promisify(setTimeout)
 
@@ -57,9 +57,7 @@ export class Service {
   }
 
   private defineReady() {
-    const ctx: ReadyContext = {
-      output: this.outputClone,
-    }
+    const ctx = createReadyContext(this.outputClone)
     this.ready = promiseTry(() => this.config.ready(ctx))
       .finally(() => this.outputClone.destroy())
       .catch(error => {

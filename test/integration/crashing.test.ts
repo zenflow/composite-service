@@ -8,13 +8,13 @@ const delay = (time: number) =>
 
 function getScript(customCode = '') {
   return `
-    const { startCompositeService, onceOutputLineIs } = require('.');
+    const { startCompositeService } = require('.');
     const config = {
       logLevel: 'debug',
       gracefulShutdown: true,
       serviceDefaults: {
         command: 'node test/integration/fixtures/http-service.js',
-        ready: ctx => onceOutputLineIs(ctx.output, 'Started 🚀\\n'),
+        ready: ctx => ctx.onceOutputLineIs('Started 🚀\\n'),
       },
       services: {
         first: {
