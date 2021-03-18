@@ -1,7 +1,7 @@
 module.exports = {
   globals: {
-    'ts-jest': {
-      babelConfig: '.babelrc',
+    "ts-jest": {
+      babelConfig: ".babelrc",
     },
   },
-}
+};

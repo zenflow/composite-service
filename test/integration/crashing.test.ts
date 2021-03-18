@@ -1,12 +1,11 @@
-import { CompositeProcess } from './helpers/composite-process'
-import { redactConfigDump, redactStackTraces } from './helpers/redact'
-import { fetchText } from './helpers/fetch'
+import { CompositeProcess } from "./helpers/composite-process";
+import { redactConfigDump, redactStackTraces } from "./helpers/redact";
+import { fetchText } from "./helpers/fetch";
 
 // TODO: `const delay = promisify(setTimeout)` doesn't work here for some reason
-const delay = (time: number) =>
-  new Promise(resolve => setTimeout(() => resolve(), time))
+const delay = (time: number) => new Promise(resolve => setTimeout(() => resolve(), time));
 
-function getScript(customCode = '') {
+function getScript(customCode = "") {
   return `
     const { startCompositeService } = require('.');
     const config = {
@@ -32,30 +31,30 @@ function getScript(customCode = '') {
     };
     ${customCode};
     startCompositeService(config);
-  `
+  `;
 }
 
-describe('crashing', () => {
-  jest.setTimeout(process.platform === 'win32' ? 45000 : 15000)
-  let proc: CompositeProcess | undefined
+describe("crashing", () => {
+  jest.setTimeout(process.platform === "win32" ? 45000 : 15000);
+  let proc: CompositeProcess | undefined;
   afterEach(async () => {
-    if (proc) await proc.end()
-  })
-  it('crashes before starting on error validating configuration', async () => {
+    if (proc) await proc.end();
+  });
+  it("crashes before starting on error validating configuration", async () => {
     const script = `
       const { startCompositeService } = require('.');
       startCompositeService({
         logLevel: 'debug',
         services: {},
       });
-    `
-    proc = new CompositeProcess(script)
-    await proc.ended
-    const output = redactStackTraces(proc.flushOutput())
-    output.shift() // ignore first line like "<file path>:<line number>"
+    `;
+    proc = new CompositeProcess(script);
+    await proc.ended;
+    const output = redactStackTraces(proc.flushOutput());
+    output.shift(); // ignore first line like "<file path>:<line number>"
     expect(output).toMatchInlineSnapshot(`
       Array [
-        "    throw new ConfigValidationError('\`config.services\` has no entries');",
+        "    throw new ConfigValidationError(\\"\`config.services\` has no entries\\");",
         "    ^",
         "",
         "ConfigValidationError: \`config.services\` has no entries",
@@ -63,15 +62,15 @@ describe('crashing', () => {
         "",
         "",
       ]
-    `)
-  })
-  it('crashes gracefully on error spawning process', async () => {
+    `);
+  });
+  it("crashes gracefully on error spawning process", async () => {
     const script = getScript(`
       config.services.second.command = 'this_command_does_not_exist';
-    `)
-    proc = new CompositeProcess(script)
-    await proc.ended
-    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    `);
+    proc = new CompositeProcess(script);
+    await proc.ended;
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
       Array [
         "<config dump>",
@@ -88,15 +87,15 @@ describe('crashing', () => {
         "",
         "",
       ]
-    `)
-  })
-  it('crashes gracefully on error from ready', async () => {
+    `);
+  });
+  it("crashes gracefully on error from ready", async () => {
     const script = getScript(`
       config.services.second.ready = () => global.foo.bar();
-    `)
-    proc = new CompositeProcess(script)
-    await proc.ended
-    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    `);
+    proc = new CompositeProcess(script);
+    await proc.ended;
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
       Array [
         "<config dump>",
@@ -116,19 +115,19 @@ describe('crashing', () => {
         "",
         "",
       ]
-    `)
-  })
-  it('crashes gracefully on error from pre-ready onCrash', async () => {
+    `);
+  });
+  it("crashes gracefully on error from pre-ready onCrash", async () => {
     const script = getScript(`
       config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
       config.services.second.onCrash = ctx => {
         console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
-    `)
-    proc = new CompositeProcess(script)
-    await proc.ended
-    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    `);
+    proc = new CompositeProcess(script);
+    await proc.ended;
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
       Array [
         "<config dump>",
@@ -149,20 +148,20 @@ describe('crashing', () => {
         "",
         "",
       ]
-    `)
-  })
-  it('crashes gracefully on error from post-ready onCrash', async () => {
+    `);
+  });
+  it("crashes gracefully on error from post-ready onCrash", async () => {
     const script = getScript(`
       config.services.second.onCrash = ctx => {
         console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
-    `)
-    proc = await new CompositeProcess(script).start()
-    proc.flushOutput()
-    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
-    await proc.ended
-    let output = redactStackTraces(proc.flushOutput())
+    `);
+    proc = await new CompositeProcess(script).start();
+    proc.flushOutput();
+    expect(await fetchText("http://localhost:8002/?crash")).toBe("crashing");
+    await proc.ended;
+    let output = redactStackTraces(proc.flushOutput());
     expect(output).toMatchInlineSnapshot(`
       Array [
         "second | Crashing",
@@ -179,19 +178,19 @@ describe('crashing', () => {
         "",
         "",
       ]
-    `)
-  })
-  it('restarts service on successful pre-ready onCrash', async () => {
+    `);
+  });
+  it("restarts service on successful pre-ready onCrash", async () => {
     const script = getScript(`
       config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
       config.services.second.crashesLength = 3;
       config.services.second.onCrash = ctx => {
         if (ctx.crashes.length === 3) throw new Error('Crashed three times');
       };
-    `)
-    proc = new CompositeProcess(script)
-    await proc.ended
-    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    `);
+    proc = new CompositeProcess(script);
+    await proc.ended;
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
       Array [
         "<config dump>",
@@ -217,9 +216,9 @@ describe('crashing', () => {
         "",
         "",
       ]
-    `)
-  })
-  it('restarts service on successful post-ready onCrash', async () => {
+    `);
+  });
+  it("restarts service on successful post-ready onCrash", async () => {
     const script = getScript(`
       config.services.second.crashesLength = 2;
       config.services.second.logTailLength = 1;
@@ -241,16 +240,16 @@ describe('crashing', () => {
         await new Promise(resolve => setTimeout(resolve, 100));
         console.log('Done handling crash');
       };
-    `)
-    proc = await new CompositeProcess(script).start()
-    proc.flushOutput()
+    `);
+    proc = await new CompositeProcess(script).start();
+    proc.flushOutput();
 
     // crash once
-    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
+    expect(await fetchText("http://localhost:8002/?crash")).toBe("crashing");
     // allow time for restart
-    await delay(500)
+    await delay(500);
     // make sure it restarted
-    expect(await fetchText('http://localhost:8002/')).toBe('second')
+    expect(await fetchText("http://localhost:8002/")).toBe("second");
     // correct output for 1st crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
@@ -263,14 +262,14 @@ describe('crashing', () => {
         " (info) Restarting service 'second'",
         "second | Started 🚀",
       ]
-    `)
+    `);
 
     // crash again
-    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
+    expect(await fetchText("http://localhost:8002/?crash")).toBe("crashing");
     // allow time for restart again
-    await delay(500)
+    await delay(500);
     // make sure it restarted again
-    expect(await fetchText('http://localhost:8002/')).toBe('second')
+    expect(await fetchText("http://localhost:8002/")).toBe("second");
     // correct output for 2nd crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
@@ -283,14 +282,14 @@ describe('crashing', () => {
         " (info) Restarting service 'second'",
         "second | Started 🚀",
       ]
-    `)
+    `);
 
     // crash again
-    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
+    expect(await fetchText("http://localhost:8002/?crash")).toBe("crashing");
     // allow time for restart again
-    await delay(500)
+    await delay(500);
     // make sure it restarted again
-    expect(await fetchText('http://localhost:8002/')).toBe('second')
+    expect(await fetchText("http://localhost:8002/")).toBe("second");
     // correct output for 3rd crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
@@ -303,6 +302,6 @@ describe('crashing', () => {
         " (info) Restarting service 'second'",
         "second | Started 🚀",
       ]
-    `)
-  })
-})
+    `);
+  });
+});

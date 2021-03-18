@@ -1,22 +1,22 @@
 module.exports = {
   debug: true,
   plugins: [
-    '@semantic-release/commit-analyzer',
-    '@semantic-release/release-notes-generator',
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
     [
-      '@semantic-release/changelog',
+      "@semantic-release/changelog",
       {
-        changelogFile: 'CHANGELOG.md',
-        changelogTitle: '# Changelog',
+        changelogFile: "CHANGELOG.md",
+        changelogTitle: "# Changelog",
       },
     ],
-    '@semantic-release/npm',
+    "@semantic-release/npm",
     [
-      '@semantic-release/git',
+      "@semantic-release/git",
       {
-        assets: ['package.json', 'CHANGELOG.md'],
+        assets: ["package.json", "CHANGELOG.md"],
       },
     ],
-    '@semantic-release/github',
+    "@semantic-release/github",
   ],
-}
+};

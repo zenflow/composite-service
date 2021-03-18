@@ -1,41 +1,41 @@
-import { Transform } from 'stream'
+import { Transform } from "stream";
 
 export function mapStreamLines(callback: (line: string) => string): Transform {
   return new Transform({
     objectMode: true,
     transform(line: string, _, cb) {
-      this.push(callback(line))
-      cb()
+      this.push(callback(line));
+      cb();
     },
-  })
+  });
 }
 
 export function tapStreamLines(callback: (line: string) => void): Transform {
   return new Transform({
     objectMode: true,
     transform(line: string, _, cb) {
-      callback(line)
-      this.push(line)
-      cb()
+      callback(line);
+      this.push(line);
+      cb();
     },
-  })
+  });
 }
 
 export function filterBlankLastLine(blankLine: string): Transform {
-  let bufferedBlankChunk = false
+  let bufferedBlankChunk = false;
   return new Transform({
     objectMode: true,
     transform(line: string, _, callback) {
       if (bufferedBlankChunk) {
-        this.push(blankLine)
-        bufferedBlankChunk = false
+        this.push(blankLine);
+        bufferedBlankChunk = false;
       }
       if (line === blankLine) {
-        bufferedBlankChunk = true
+        bufferedBlankChunk = true;
       } else {
-        this.push(line)
+        this.push(line);
       }
-      callback()
+      callback();
     },
-  })
+  });
 }

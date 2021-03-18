@@ -1,22 +1,22 @@
-import { spawnSync } from 'child_process'
-import { join } from 'path'
-import { CompositeProcess } from './helpers/composite-process'
+import { spawnSync } from "child_process";
+import { join } from "path";
+import { CompositeProcess } from "./helpers/composite-process";
 
-describe('process', () => {
+describe("process", () => {
   beforeAll(() => {
-    spawnSync('yarn', {
-      cwd: join(__dirname, 'fixtures/package'),
-      stdio: 'ignore',
+    spawnSync("yarn", {
+      cwd: join(__dirname, "fixtures/package"),
+      stdio: "ignore",
       shell: true,
-    })
-  })
-  jest.setTimeout(process.platform === 'win32' ? 15000 : 5000)
-  let proc: CompositeProcess | undefined
+    });
+  });
+  jest.setTimeout(process.platform === "win32" ? 15000 : 5000);
+  let proc: CompositeProcess | undefined;
   afterEach(async () => {
-    if (proc) await proc.end()
-  })
-  describe('uses binaries of locally installed packages', () => {
-    it('with default cwd', async () => {
+    if (proc) await proc.end();
+  });
+  describe("uses binaries of locally installed packages", () => {
+    it("with default cwd", async () => {
       proc = new CompositeProcess(`
         const { startCompositeService } = require('.');
         startCompositeService({
@@ -28,14 +28,14 @@ describe('process', () => {
             },
           },
         });
-      `)
-      await proc.ended
-      const output = proc.flushOutput()
-      expect(output.find(line => line.startsWith('only | '))).toBe(
-        'only | shx v0.3.3 (using ShellJS v0.8.4)',
-      )
-    })
-    it('with relative cwd', async () => {
+      `);
+      await proc.ended;
+      const output = proc.flushOutput();
+      expect(output.find(line => line.startsWith("only | "))).toBe(
+        "only | shx v0.3.3 (using ShellJS v0.8.4)",
+      );
+    });
+    it("with relative cwd", async () => {
       proc = new CompositeProcess(`
         const { startCompositeService } = require('.');
         startCompositeService({
@@ -48,14 +48,14 @@ describe('process', () => {
             },
           },
         });
-      `)
-      await proc.ended
-      const output = proc.flushOutput()
-      expect(output.find(line => line.startsWith('only | '))).toBe(
-        'only | shx v0.3.1 (using ShellJS v0.8.4)',
-      )
-    })
-    it('with absolute cwd', async () => {
+      `);
+      await proc.ended;
+      const output = proc.flushOutput();
+      expect(output.find(line => line.startsWith("only | "))).toBe(
+        "only | shx v0.3.1 (using ShellJS v0.8.4)",
+      );
+    });
+    it("with absolute cwd", async () => {
       proc = new CompositeProcess(`
         const { startCompositeService } = require('.');
         startCompositeService({
@@ -68,16 +68,16 @@ describe('process', () => {
             },
           },
         });
-      `)
-      await proc.ended
-      const output = proc.flushOutput()
-      expect(output.find(line => line.startsWith('only | '))).toBe(
-        'only | shx v0.3.1 (using ShellJS v0.8.4)',
-      )
-    })
-  })
-  ;(process.platform === 'win32' ? it.skip : it)(
-    'force kills service after forceKillTimeout',
+      `);
+      await proc.ended;
+      const output = proc.flushOutput();
+      expect(output.find(line => line.startsWith("only | "))).toBe(
+        "only | shx v0.3.1 (using ShellJS v0.8.4)",
+      );
+    });
+  });
+  (process.platform === "win32" ? it.skip : it)(
+    "force kills service after forceKillTimeout",
     async () => {
       proc = new CompositeProcess(`
         const { startCompositeService } = require('.');
@@ -97,10 +97,10 @@ describe('process', () => {
             },
           },
         });
-      `)
-      await proc.start()
-      proc.flushOutput()
-      await proc.end()
+      `);
+      await proc.start();
+      proc.flushOutput();
+      await proc.end();
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
           " (info) Received shutdown signal (SIGINT)",
@@ -113,7 +113,7 @@ describe('process', () => {
           "",
           "",
         ]
-      `)
+      `);
     },
-  )
-})
+  );
+});

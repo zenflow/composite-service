@@ -1,5 +1,5 @@
-import { ReadyContext } from './ReadyContext'
-import { OnCrashContext } from './OnCrashContext'
+import { ReadyContext } from "./ReadyContext";
+import { OnCrashContext } from "./OnCrashContext";
 
 /**
  * Configuration for a service to be composed
@@ -15,7 +15,7 @@ export interface ServiceConfig {
    * If {@link CompositeServiceConfig.gracefulShutdown} is enabled,
    * the service's dependencies will not be stopped until the service has been stopped.
    */
-  dependencies?: string[]
+  dependencies?: string[];
 
   /**
    * Current working directory of the service.
@@ -23,7 +23,7 @@ export interface ServiceConfig {
    *
    * This can be an absolute path or a path relative to the composite service's cwd.
    */
-  cwd?: string
+  cwd?: string;
 
   /**
    * Command used to run the service.
@@ -35,7 +35,7 @@ export interface ServiceConfig {
    *
    * The binary part can be the name (path & extension not required) of a Node.js CLI program.
    */
-  command?: string | string[]
+  command?: string | string[];
 
   /**
    * Environment variables to pass to the service.
@@ -47,7 +47,7 @@ export interface ServiceConfig {
    *
    * Entries with value `undefined` are ignored.
    */
-  env?: { [key: string]: string | number | undefined }
+  env?: { [key: string]: string | number | undefined };
 
   /**
    * A function to determine when the service is ready.
@@ -59,13 +59,13 @@ export interface ServiceConfig {
    * If any error is encountered in its execution,
    * the composite service will shut down any running services and exit.
    */
-  ready?: (ctx: ReadyContext) => Promise<void>
+  ready?: (ctx: ReadyContext) => Promise<void>;
 
   /**
    * Amount of time in milliseconds to wait for the service to exit before force killing it.
    * Defaults to `5000`.
    */
-  forceKillTimeout?: number
+  forceKillTimeout?: number;
 
   /**
    * A function to be executed each time the service crashes.
@@ -79,7 +79,7 @@ export interface ServiceConfig {
    * the composite service will shut down any running services and exit,
    * otherwise, the composed service will be restarted.
    */
-  onCrash?: (ctx: OnCrashContext) => void | Promise<void>
+  onCrash?: (ctx: OnCrashContext) => void | Promise<void>;
 
   /**
    * Maximum number of latest crashes to keep record of.
@@ -88,7 +88,7 @@ export interface ServiceConfig {
    * The recorded crashes can be accessed in your {@link ServiceConfig.onCrash} function,
    * as `ctx.crashes`.
    */
-  crashesLength?: number
+  crashesLength?: number;
 
   /**
    * Maximum number of lines to keep from the tail of the child process's console output.
@@ -97,11 +97,11 @@ export interface ServiceConfig {
    * The log lines for can be accessed in your {@link ServiceConfig.onCrash} function,
    * as `ctx.crash.logTail` or `ctx.crashes[i].logTail`.
    */
-  logTailLength?: number
+  logTailLength?: number;
 
   /**
    * Minimum amount of time in milliseconds between the service crashing and being restarted.
    * Defaults to `0`.
    */
-  minimumRestartDelay?: number
+  minimumRestartDelay?: number;
 }

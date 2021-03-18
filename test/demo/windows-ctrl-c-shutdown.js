@@ -1,13 +1,13 @@
-const { startCompositeService } = require('../../dist')
+const { startCompositeService } = require("../../dist");
 
-const logLevel = process.argv.includes('--log-level')
-  ? process.argv[process.argv.indexOf('--log-level') + 1]
-  : undefined
-const hang = process.argv.includes('--hang')
+const logLevel = process.argv.includes("--log-level")
+  ? process.argv[process.argv.indexOf("--log-level") + 1]
+  : undefined;
+const hang = process.argv.includes("--hang");
 
 const command = [
-  'node',
-  '-e',
+  "node",
+  "-e",
   `\
 console.log('hi');
 setInterval(() => {});
@@ -19,7 +19,7 @@ process.on('SIGINT', () => {
     process.exit(130);
   }, 1000);
 });`,
-]
+];
 
 startCompositeService({
   logLevel,
@@ -31,8 +31,8 @@ startCompositeService({
   },
   services: {
     one: {},
-    two: { dependencies: ['one'] },
-    three: { dependencies: ['one'] },
-    four: { dependencies: ['two', 'three'] },
+    two: { dependencies: ["one"] },
+    three: { dependencies: ["one"] },
+    four: { dependencies: ["two", "three"] },
   },
-})
+});

@@ -80,9 +80,7 @@
   },
   "homepage": "https://github.com/zenflow/composite-service#readme",
   "prettier": {
-    "printWidth": 80,
-    "semi": false,
-    "singleQuote": true,
+    "printWidth": 100,
     "trailingComma": "all"
   }
 }

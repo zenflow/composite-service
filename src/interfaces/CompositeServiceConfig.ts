@@ -1,4 +1,4 @@
-import { ServiceConfig } from './ServiceConfig'
+import { ServiceConfig } from "./ServiceConfig";
 
 /**
  * Configuration for a composite service
@@ -8,7 +8,7 @@ export interface CompositeServiceConfig {
    * Level of detail in logging.
    * Defaults to `'info'`.
    */
-  logLevel?: 'debug' | 'info' | 'error'
+  logLevel?: "debug" | "info" | "error";
 
   /**
    * If `true` then when shutting down,
@@ -17,7 +17,7 @@ export interface CompositeServiceConfig {
    *
    * This option will be ignored when running on Windows and {@link CompositeServiceConfig.windowsCtrlCShutdown} is `true`.
    */
-  gracefulShutdown?: boolean
+  gracefulShutdown?: boolean;
 
   /**
    * If `true` then when shutting down *on Windows*,
@@ -40,13 +40,13 @@ export interface CompositeServiceConfig {
    * attached to the same console will receive the CTRL_C_EVENT signal,
    * not just the service processes.
    */
-  windowsCtrlCShutdown?: boolean
+  windowsCtrlCShutdown?: boolean;
 
   /**
    * Configuration to use as defaults for every service.
    * Defaults to `{}`.
    */
-  serviceDefaults?: ServiceConfig
+  serviceDefaults?: ServiceConfig;
 
   /**
    * Configuration for each specific service.
@@ -57,6 +57,6 @@ export interface CompositeServiceConfig {
    * Entries with falsy values are ignored.
    */
   services: {
-    [id: string]: ServiceConfig | false | null | undefined | 0 | ''
-  }
+    [id: string]: ServiceConfig | false | null | undefined | 0 | "";
+  };
 }

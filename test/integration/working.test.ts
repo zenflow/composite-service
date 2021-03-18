@@ -1,5 +1,5 @@
-import { CompositeProcess } from './helpers/composite-process'
-import { redactConfigDump } from './helpers/redact'
+import { CompositeProcess } from "./helpers/composite-process";
+import { redactConfigDump } from "./helpers/redact";
 
 function getScript() {
   return `
@@ -28,17 +28,17 @@ function getScript() {
       },
     };
     startCompositeService(config);
-  `
+  `;
 }
 
-describe('working', () => {
-  jest.setTimeout(process.platform === 'win32' ? 30000 : 10000)
-  let proc: CompositeProcess | undefined
+describe("working", () => {
+  jest.setTimeout(process.platform === "win32" ? 30000 : 10000);
+  let proc: CompositeProcess | undefined;
   afterEach(async () => {
-    if (proc) await proc.end()
-  })
-  it('works', async () => {
-    proc = await new CompositeProcess(getScript()).start()
+    if (proc) await proc.end();
+  });
+  it("works", async () => {
+    proc = await new CompositeProcess(getScript()).start();
     expect(redactConfigDump(proc.flushOutput())).toMatchInlineSnapshot(`
       Array [
         "<config dump>",
@@ -54,12 +54,12 @@ describe('working', () => {
         " (debug) Started service 'third'",
         " (debug) Started composite service",
       ]
-    `)
-    expect(proc.flushOutput()).toStrictEqual([])
-    await proc.end()
-    if (process.platform === 'win32') {
+    `);
+    expect(proc.flushOutput()).toStrictEqual([]);
+    await proc.end();
+    if (process.platform === "win32") {
       // Windows doesn't really support gracefully terminating processes :(
-      expect(proc.flushOutput()).toStrictEqual(['', ''])
+      expect(proc.flushOutput()).toStrictEqual(["", ""]);
     } else {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
@@ -75,7 +75,7 @@ describe('working', () => {
           "",
           "",
         ]
-      `)
+      `);
     }
-  })
-})
+  });
+});

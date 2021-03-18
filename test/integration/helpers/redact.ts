@@ -3,52 +3,50 @@
 
 export function redactStackTraces(lines: string[]) {
   type StackTrace = {
-    start: number
-    length: number
-  }
+    start: number;
+    length: number;
+  };
 
-  const output = [...lines]
-  let stackTrace: StackTrace | false = false
+  const output = [...lines];
+  let stackTrace: StackTrace | false = false;
   while ((stackTrace = findStackTrace(output))) {
-    output.splice(stackTrace.start, stackTrace.length, '<stack trace>')
+    output.splice(stackTrace.start, stackTrace.length, "<stack trace>");
   }
-  return output
+  return output;
 
   function findStackTrace(lines: string[]): StackTrace | false {
-    const start = lines.findIndex(isStackTraceLine)
+    const start = lines.findIndex(isStackTraceLine);
     if (start === -1) {
-      return false
+      return false;
     }
-    let length = lines
-      .slice(start)
-      .findIndex((line: string) => !isStackTraceLine(line))
-    length = length === -1 ? lines.length - start : length
-    return { start, length }
+    let length = lines.slice(start).findIndex((line: string) => !isStackTraceLine(line));
+    length = length === -1 ? lines.length - start : length;
+    return { start, length };
   }
   function isStackTraceLine(line: string) {
-    return line.startsWith(' (error)     at ') || line.startsWith('    at ')
+    return line.startsWith(" (error)     at ") || line.startsWith("    at ");
   }
 }
 
 export function redactCwd(lines: string[]) {
-  const cwd = process.cwd()
+  const cwd = process.cwd();
   return lines.map(line => {
-    let result = line
+    let result = line;
     while (result.includes(cwd)) {
-      result = result.replace(cwd, '<cwd>')
+      result = result.replace(cwd, "<cwd>");
     }
-    return result
-  })
+    return result;
+  });
 }
 
 export function redactConfigDump(lines: string[]) {
-  const start = lines.findIndex(line => line === ' (debug) Config: {')
+  const start = lines.findIndex(line => line === " (debug) Config: {");
   if (start === -1) {
-    return lines
+    return lines;
   }
-  const end = lines.findIndex(line => line === ' (debug) }')
+  const end = lines.findIndex(line => line === " (debug) }");
   if (end === -1) {
-    return lines
+    return lines;
   }
-  return [...lines.slice(0, start), '<config dump>', ...lines.slice(end + 1)]
+  return [...lines.slice(0, start), "<config dump>", ...lines.slice(end + 1)];
 }
