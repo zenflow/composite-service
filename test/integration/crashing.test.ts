@@ -181,7 +181,7 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('restarts service after successful pre-ready onCrash', async () => {
+  it('restarts service on successful pre-ready onCrash', async () => {
     const script = getScript(`
       config.services.second.minimumRestartDelay = 0;
       config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
@@ -219,12 +219,13 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('restarts service after successful post-ready onCrash', async () => {
+  it('restarts service on successful post-ready onCrash', async () => {
     const script = getScript(`
       config.services.second.minimumRestartDelay = 0;
       config.services.second.logTailLength = 1;
       config.services.second.onCrash = async ctx => {
         const tests = [
+          'ctx.serviceId === "second"',
           'ctx.isServiceReady === true',
           'typeof ctx.crash === "object"',
           'Array.isArray(ctx.crashes)',
@@ -233,7 +234,7 @@ describe('crashing', () => {
           'ctx.crashes.every(crash => crash.date instanceof Date)',
           'ctx.crashes.every(crash => Array.isArray(crash.logTail))',
         ];
-        tests.forEach(test => require('assert')(eval(test), test));
+        tests.forEach(test => !eval(test) && console.log('Failed', test));
         console.log('number of crashes:', ctx.crashes.length);
         console.log('crash logTail:', JSON.stringify(ctx.crash.logTail));
         console.log('Handling crash...');

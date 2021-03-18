@@ -5,6 +5,11 @@ import { ServiceCrash } from './ServiceCrash'
  */
 export interface OnCrashContext {
   /**
+   * ID of the service that crashed
+   */
+  serviceId: string
+
+  /**
    * Whether the service became ready according to its {@link ServiceConfig.ready} function
    */
   isServiceReady: boolean

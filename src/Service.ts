@@ -95,6 +95,7 @@ export class Service {
     this.crashes.push(crash)
     const isServiceReady = await isResolved(this.ready!)
     const ctx: OnCrashContext = {
+      serviceId: this.id,
       isServiceReady,
       crash,
       crashes: this.crashes,
