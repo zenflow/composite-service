@@ -88,7 +88,7 @@ function processServiceConfig(
       if (!ctx.isServiceReady) throw new Error('Crashed before becoming ready')
     },
     logTailLength: 0,
-    minimumRestartDelay: 1000,
+    minimumRestartDelay: 0,
     ...removeUndefinedProperties(defaults),
     ...removeUndefinedProperties(config),
   }

@@ -92,7 +92,7 @@ export interface ServiceConfig {
 
   /**
    * Minimum amount of time in milliseconds between the service crashing and being restarted.
-   * Defaults to `1000`.
+   * Defaults to `0`.
    */
   minimumRestartDelay?: number
 }

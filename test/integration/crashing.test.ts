@@ -183,7 +183,6 @@ describe('crashing', () => {
   })
   it('restarts service on successful pre-ready onCrash', async () => {
     const script = getScript(`
-      config.services.second.minimumRestartDelay = 0;
       config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
       config.services.second.onCrash = ctx => {
         if (ctx.crashes.length === 3) throw new Error('Crashed three times');
@@ -221,7 +220,6 @@ describe('crashing', () => {
   })
   it('restarts service on successful post-ready onCrash', async () => {
     const script = getScript(`
-      config.services.second.minimumRestartDelay = 0;
       config.services.second.logTailLength = 1;
       config.services.second.onCrash = async ctx => {
         const tests = [
