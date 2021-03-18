@@ -1,11 +1,7 @@
 import { formatWithOptions } from 'util'
 import mergeStream from 'merge-stream'
 import { Service } from './Service'
-import {
-  NormalizedCompositeServiceConfig,
-  validateAndNormalizeConfig,
-} from './validateAndNormalizeConfig'
-import { CompositeServiceConfig } from './interfaces/CompositeServiceConfig'
+import { NormalizedCompositeServiceConfig } from './validateAndNormalizeConfig'
 import { Logger } from './Logger'
 import { mapStreamLines } from './util/stream'
 
@@ -16,8 +12,8 @@ export class CompositeService {
   private stopping = false
   private logger: Logger
 
-  constructor(config: CompositeServiceConfig) {
-    this.config = validateAndNormalizeConfig(config)
+  constructor(config: NormalizedCompositeServiceConfig) {
+    this.config = config
 
     if (this.config.windowsCtrlCShutdown) {
       require('generate-ctrl-c-event') // make sure this module loads before we even start

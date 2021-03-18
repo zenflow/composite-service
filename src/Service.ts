@@ -61,7 +61,7 @@ export class Service {
     this.ready = promiseTry(() => this.config.ready(ctx))
       .finally(() => this.outputClone.destroy())
       .catch(error => {
-        const prefix = `In \`ready\` function for service '${this.id}'`
+        const prefix = `In \`service.${this.id}.ready\``
         this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`)
         return never()
       })
@@ -103,7 +103,7 @@ export class Service {
     try {
       await this.config.onCrash(ctx)
     } catch (error) {
-      const prefix = `In \`onCrash\` function for service ${this.id}`
+      const prefix = `In \`service.${this.id}.onCrash\``
       this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`)
       await never()
     }
