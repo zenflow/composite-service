@@ -59,7 +59,7 @@ export interface ServiceConfig {
    * If any error is encountered in its execution,
    * the composite service will shut down any running services and exit.
    */
-  ready?: (ctx: ReadyContext) => Promise<any>
+  ready?: (ctx: ReadyContext) => Promise<void>
 
   /**
    * Amount of time in milliseconds to wait for the service to exit before force killing it.
@@ -79,7 +79,7 @@ export interface ServiceConfig {
    * the composite service will shut down any running services and exit,
    * otherwise, the composed service will be restarted.
    */
-  onCrash?: (ctx: OnCrashContext) => any
+  onCrash?: (ctx: OnCrashContext) => void | Promise<void>
 
   /**
    * Maximum number of lines to keep from the tail of each child process's log output.

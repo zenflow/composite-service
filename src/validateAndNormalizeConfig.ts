@@ -18,9 +18,9 @@ export interface NormalizedServiceConfig {
   cwd: string
   command: string[]
   env: { [key: string]: string }
-  ready: (ctx: ReadyContext) => Promise<any>
+  ready: (ctx: ReadyContext) => Promise<void>
   forceKillTimeout: number
-  onCrash: (ctx: OnCrashContext) => any
+  onCrash: (ctx: OnCrashContext) => void
   logTailLength: number
   minimumRestartDelay: number
 }
