@@ -1,6 +1,6 @@
 import { PassThrough } from 'stream'
 import { once } from 'events'
-import { filterBlankLastLine } from '../../../../src/util/stream'
+import { filterBlankLastLine } from '../../../src/util/stream'
 
 describe('core/util/stream', () => {
   it('filterBlankLastChunk', async () => {
