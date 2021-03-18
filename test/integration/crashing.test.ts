@@ -65,7 +65,7 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('crashes gracefully on error starting process', async () => {
+  it('crashes gracefully on error spawning process', async () => {
     const script = getScript(`
       config.services.second.command = 'this_command_does_not_exist';
     `)
@@ -118,7 +118,7 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('crashes gracefully on error from onCrash *while* starting up', async () => {
+  it('crashes gracefully on error from pre-ready onCrash', async () => {
     const script = getScript(`
       config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
       config.services.second.onCrash = ctx => {
@@ -151,15 +151,12 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('crashes gracefully on error from onCrash *after* starting up', async () => {
+  it('crashes gracefully on error from post-ready onCrash', async () => {
     const script = getScript(`
-      config.services.second.dependencies = []
       config.services.second.onCrash = ctx => {
         console.log('isServiceReady:', ctx.isServiceReady)
         throw new Error('Crash')
       };
-      // stop after third stops, for consistent output we can snapshot
-      config.services.first.env.STOP_DELAY = 250;
     `)
     proc = await new CompositeProcess(script).start()
     proc.flushOutput()
@@ -184,11 +181,48 @@ describe('crashing', () => {
       ]
     `)
   })
-  it('restarts after calling onCrash without error', async () => {
+  it('restarts service after successful pre-ready onCrash', async () => {
     const script = getScript(`
-      config.services.second.dependencies = [];
-      config.services.second.logTailLength = 1;
       config.services.second.minimumRestartDelay = 0;
+      config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
+      config.services.second.onCrash = ctx => {
+        if (ctx.crashes.length === 3) throw new Error('Crashed three times');
+      };
+    `)
+    proc = new CompositeProcess(script)
+    await proc.ended
+    const output = redactStackTraces(redactConfigDump(proc.flushOutput()))
+    expect(output).toMatchInlineSnapshot(`
+      Array [
+        "<config dump>",
+        " (debug) Starting composite service...",
+        " (debug) Starting service 'first'...",
+        "first | Started 🚀",
+        " (debug) Started service 'first'",
+        " (debug) Starting service 'second'...",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
+        " (info) Restarting service 'second'",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
+        " (info) Restarting service 'second'",
+        "second | Crashing",
+        " (info) Service 'second' crashed",
+        " (error) Fatal error: In \`onCrash\` function for service second: Error: Crashed three times",
+        "<stack trace>",
+        " (debug) Stopping composite service...",
+        " (debug) Stopping service 'first'...",
+        " (debug) Stopped service 'first'",
+        " (debug) Stopped composite service",
+        "",
+        "",
+      ]
+    `)
+  })
+  it('restarts service after successful post-ready onCrash', async () => {
+    const script = getScript(`
+      config.services.second.minimumRestartDelay = 0;
+      config.services.second.logTailLength = 1;
       config.services.second.onCrash = async ctx => {
         const tests = [
           'ctx.isServiceReady === true',
@@ -199,11 +233,7 @@ describe('crashing', () => {
           'ctx.crashes.every(crash => crash.date instanceof Date)',
           'ctx.crashes.every(crash => Array.isArray(crash.logTail))',
         ];
-        for (const test of tests) {
-          let ok;
-          try { ok = eval(test) } catch (e) {}
-          if (!ok) console.log('Failed test:', test);
-        }
+        tests.forEach(test => require('assert')(eval(test), test));
         console.log('number of crashes:', ctx.crashes.length);
         console.log('crash logTail:', JSON.stringify(ctx.crash.logTail));
         console.log('Handling crash...');
