@@ -20,7 +20,9 @@ export interface OnCrashContext {
   crash: ServiceCrash
 
   /**
-   * Array of objects representing all crashes, past and present
+   * Objects representing latest crashes, ordered from oldest to newest
+   *
+   * Maximum length is determined by {@link ServiceConfig.crashesLength}.
    */
   crashes: ServiceCrash[]
 }

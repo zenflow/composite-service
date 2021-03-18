@@ -82,10 +82,19 @@ export interface ServiceConfig {
   onCrash?: (ctx: OnCrashContext) => void | Promise<void>
 
   /**
-   * Maximum number of lines to keep from the tail of each child process's log output.
+   * Maximum number of latest crashes to keep record of.
    * Defaults to `0`.
    *
-   * The log lines for each crashed process can be accessed in your {@link ServiceConfig.onCrash} function,
+   * The recorded crashes can be accessed in your {@link ServiceConfig.onCrash} function,
+   * as `ctx.crashes`.
+   */
+  crashesLength?: number
+
+  /**
+   * Maximum number of lines to keep from the tail of the child process's console output.
+   * Defaults to `0`.
+   *
+   * The log lines for can be accessed in your {@link ServiceConfig.onCrash} function,
    * as `ctx.crash.logTail` or `ctx.crashes[i].logTail`.
    */
   logTailLength?: number

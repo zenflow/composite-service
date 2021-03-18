@@ -168,6 +168,8 @@ startCompositeService({
       // Do "something async" before restarting the service
       await doSomethingAsync()
     },
+    // Set max length of `ctx.crash.logTail` used above (default is 0)
+    logTailLength: 5,
   },
 })
 ```

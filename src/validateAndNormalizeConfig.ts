@@ -21,6 +21,7 @@ export interface NormalizedServiceConfig {
   ready: (ctx: ReadyContext) => Promise<void>
   forceKillTimeout: number
   onCrash: (ctx: OnCrashContext) => void
+  crashesLength: number
   logTailLength: number
   minimumRestartDelay: number
 }
@@ -87,6 +88,7 @@ function processServiceConfig(
     onCrash: (ctx: OnCrashContext) => {
       if (!ctx.isServiceReady) throw new Error('Crashed before becoming ready')
     },
+    crashesLength: 0,
     logTailLength: 0,
     minimumRestartDelay: 0,
     ...removeUndefinedProperties(defaults),

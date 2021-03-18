@@ -7,7 +7,7 @@ export interface ServiceCrash {
    */
   date: Date
   /**
-   * Tail of the service's log output
+   * Tail of the process's log output
    *
    * Maximum length is determined by {@link ServiceConfig.logTailLength}.
    */

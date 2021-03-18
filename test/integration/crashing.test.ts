@@ -184,6 +184,7 @@ describe('crashing', () => {
   it('restarts service on successful pre-ready onCrash', async () => {
     const script = getScript(`
       config.services.second.command = ['node', '-e', 'console.log("Crashing")'];
+      config.services.second.crashesLength = 3;
       config.services.second.onCrash = ctx => {
         if (ctx.crashes.length === 3) throw new Error('Crashed three times');
       };
@@ -220,6 +221,7 @@ describe('crashing', () => {
   })
   it('restarts service on successful post-ready onCrash', async () => {
     const script = getScript(`
+      config.services.second.crashesLength = 2;
       config.services.second.logTailLength = 1;
       config.services.second.onCrash = async ctx => {
         const tests = [
@@ -270,6 +272,26 @@ describe('crashing', () => {
     // make sure it restarted again
     expect(await fetchText('http://localhost:8002/')).toBe('second')
     // correct output for 2nd crash
+    expect(proc.flushOutput()).toMatchInlineSnapshot(`
+      Array [
+        "second | Crashing",
+        " (info) Service 'second' crashed",
+        "number of crashes: 2",
+        "crash logTail: [\\"Crashing\\\\n\\"]",
+        "Handling crash...",
+        "Done handling crash",
+        " (info) Restarting service 'second'",
+        "second | Started 🚀",
+      ]
+    `)
+
+    // crash again
+    expect(await fetchText('http://localhost:8002/?crash')).toBe('crashing')
+    // allow time for restart again
+    await delay(500)
+    // make sure it restarted again
+    expect(await fetchText('http://localhost:8002/')).toBe('second')
+    // correct output for 3rd crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
       Array [
         "second | Crashing",

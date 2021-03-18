@@ -92,7 +92,12 @@ export class Service {
       date: new Date(),
       logTail: proc.logTail,
     }
-    this.crashes.push(crash)
+    if (this.config.crashesLength > 0) {
+      this.crashes.push(crash)
+      if (this.crashes.length > this.config.crashesLength) {
+        this.crashes.shift()
+      }
+    }
     const isServiceReady = await isResolved(this.ready!)
     const ctx: OnCrashContext = {
       serviceId: this.id,
