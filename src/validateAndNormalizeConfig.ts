@@ -80,11 +80,13 @@ function processServiceConfig(
   const merged = {
     dependencies: [],
     cwd: '.',
-    // no default command
+    command: undefined, // no default command
     env: process.env,
     ready: () => Promise.resolve(),
     forceKillTimeout: 5000,
-    onCrash: () => {},
+    onCrash: (ctx: OnCrashContext) => {
+      if (!ctx.isServiceReady) throw new Error('Crashed before becoming ready')
+    },
     logTailLength: 0,
     minimumRestartDelay: 1000,
     ...removeUndefinedProperties(defaults),

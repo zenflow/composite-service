@@ -69,7 +69,7 @@ export interface ServiceConfig {
 
   /**
    * A function to be executed each time the service crashes.
-   * Defaults to `() => {}`.
+   * Defaults to `ctx => { if (!ctx.isServiceReady) throw new Error('Crashed before becoming ready') }`.
    *
    * This function is called with an {@link OnCrashContext} object as its only argument.
    *
