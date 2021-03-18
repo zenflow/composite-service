@@ -24,8 +24,8 @@ export interface CompositeServiceConfig {
    * all services will be signalled to stop with a single CTRL_C_EVENT.
    * Defaults to `false`.
    *
-   * This is useful for giving services a chance to clean up & exit gracefully *on Windows*,
-   * instead of terminated them abruptly.
+   * This allows each service to clean up & exit gracefully,
+   * as they would an a UNIX-based system, instead of terminated them abruptly.
    *
    * The main limitation of Windows's CTRL_C_EVENT
    * is that it can only target the current console (& every process attached),

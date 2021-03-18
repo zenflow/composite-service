@@ -1,9 +1,5 @@
 # TODO
 
-readme: shutdown options in Features section: link to src docs
-readme: Fatal Errors section (moved out of startCompositeService.ts)
-readme: section for http gateway?
-
 remove minimumRestartDelay
 default logTailLength = 5
 default crashesLength = 3

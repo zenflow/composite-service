@@ -21,8 +21,7 @@ That is, if you have multiple services that make up your overall application, yo
 - Includes TypeScript types, which means autocompletion and code intelligence in your IDE even if you're writing JavaScript
 - Configurable [Crash Handling](#crash-handling) with smart default
 - [Graceful Startup](#graceful-startup), to ensure a service is only started after it's declared dependencies (other composed services) are ready
-- Option to do "graceful shutdown", similar to "graceful startup"
-- Option to terminate all service processes with a single CTRL_C_EVENT on Windows, allowing each process to clean up and exit gracefully as it would on a UNIX-based system
+- Options for [Shutting Down](#shutting-down)
 - Supports executing Node.js CLI programs by name
 - **[Companion `composite-service-http-gateway` package](https://github.com/zenflow/composite-service-http-gateway)**
 
@@ -34,6 +33,7 @@ That is, if you have multiple services that make up your overall application, yo
   - [Default Behavior](#default-behavior)
   - [Configuring Behavior](#configuring-behavior)
 - [Graceful Startup](#graceful-startup)
+- [Shutting Down](#shutting-down)
 
 ## Install
 
@@ -210,3 +210,24 @@ startCompositeService({
   },
 })
 ```
+
+## Shutting Down
+
+The composite service will shut down when it encounters a fatal error
+(error spawning process, or error from `ready` or `onCrash` config functions)
+or when it receives a signal to shut down (ctrl+c, `SIGINT`, or `SIGTERM`).
+
+The default procedure for shutting down is to immediately signal all composed services to shut down,
+and wait for them to exit before exiting itself.
+Where supported (i.e. on non-Windows systems), a `SIGINT` signal is issued first,
+and if the process does not exit within a period of time (see [`ServiceConfig`](./src/interfaces/ServiceConfig.ts)`.forceKillTimeout`),
+a `SIGKILL` signal is issued to forcibly kill the process.
+On Windows, where such signal types don't exist, a single signal is issued, which forcibly kills the process.
+
+Some optional behaviors can be enabled.
+See `gracefulShutdown` & `windowsCtrlCShutdown` properties in [`CompositeServiceConfig`](src/interfaces/CompositeServiceConfig.ts).
+
+**Hint:** If a composed service needs to do any cleanup before exiting,
+you should enable `windowsCtrlCShutdown` to allow for that when on Windows.
+This option however comes with some caveats.
+See `windowsCtrlCShutdown` in [`CompositeServiceConfig`](src/interfaces/CompositeServiceConfig.ts).
