@@ -14,7 +14,7 @@ function getScript(customCode = '') {
       gracefulShutdown: true,
       serviceDefaults: {
         command: 'node test/integration/fixtures/http-service.js',
-        ready: ctx => ctx.onceOutputLineIs('Started 🚀\\n'),
+        ready: ctx => ctx.onceOutputLineIs('Started 🚀'),
       },
       services: {
         first: {
@@ -257,7 +257,7 @@ describe('crashing', () => {
         "second | Crashing",
         " (info) Service 'second' crashed",
         "number of crashes: 1",
-        "crash logTail: [\\"Crashing\\\\n\\"]",
+        "crash logTail: [\\"Crashing\\"]",
         "Handling crash...",
         "Done handling crash",
         " (info) Restarting service 'second'",
@@ -277,7 +277,7 @@ describe('crashing', () => {
         "second | Crashing",
         " (info) Service 'second' crashed",
         "number of crashes: 2",
-        "crash logTail: [\\"Crashing\\\\n\\"]",
+        "crash logTail: [\\"Crashing\\"]",
         "Handling crash...",
         "Done handling crash",
         " (info) Restarting service 'second'",
@@ -297,7 +297,7 @@ describe('crashing', () => {
         "second | Crashing",
         " (info) Service 'second' crashed",
         "number of crashes: 2",
-        "crash logTail: [\\"Crashing\\\\n\\"]",
+        "crash logTail: [\\"Crashing\\"]",
         "Handling crash...",
         "Done handling crash",
         " (info) Restarting service 'second'",

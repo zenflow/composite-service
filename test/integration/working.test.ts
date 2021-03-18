@@ -17,13 +17,13 @@ function getScript() {
         second: {
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8002, RESPONSE_TEXT: 'second' },
-          ready: ctx => ctx.onceOutputLineIs('Started 🚀\\n'),
+          ready: ctx => ctx.onceOutputLineIncludes('🚀'),
         },
         third: {
           dependencies: ['first', 'second'],
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8003, RESPONSE_TEXT: 'third' },
-          ready: ctx => ctx.onceOutputLine(line => line === 'Started 🚀\\n'),
+          ready: ctx => ctx.onceOutputLine(line => line === 'Started 🚀'),
         },
       },
     };

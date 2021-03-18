@@ -119,8 +119,8 @@ startCompositeService({
       cwd: `${__dirname}/worker`,
       command: 'node main.js',
       env: { DATABASE_URL },
-+     // ready once a line of console output matches /^Started /
-+     ready: ctx => ctx.onceOutputLine(line => line.match(/^Started /))
++     // ready once a certain line appears in the console output
++     ready: ctx => ctx.onceOutputLine(line => line === 'Started worker'),
     },
     web: {
       cwd: `${__dirname}/web`,

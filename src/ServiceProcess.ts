@@ -93,12 +93,7 @@ function getProcessOutput(proc: ChildProcessWithoutNullStreams) {
     [proc.stdout, proc.stderr]
       .map(stream => stream.setEncoding('utf8'))
       .map(stream =>
-        pipeline(
-          stream,
-          splitStream((line: string) => `${line}\n`),
-          filterBlankLastLine('\n'),
-          () => {},
-        ),
+        pipeline(stream, splitStream(), filterBlankLastLine(''), () => {}),
       ),
   ) as unknown) as Readable
 }

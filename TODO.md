@@ -1,6 +1,10 @@
 # TODO
 
-simplify test utils by using `stream-line-reader` packge
+- test
+  - Simplify test utils by using `stream-line-reader` package.
+    May need option to log each stream line for debugging,
+    for when line isn't matched and stream continues until Jest timeout
+    (not end of stream, which would give us a helpful error)
 
 - community
     - https://github.com/zenflow/composite-service/community

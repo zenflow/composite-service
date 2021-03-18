@@ -92,7 +92,7 @@ describe('process', () => {
                   + 'process.on("SIGINT", () => console.log("got SIGINT"));'
                   + 'console.log("started");'
               ],
-              ready: ctx => ctx.onceOutputLineIs('started\\n'),
+              ready: ctx => ctx.onceOutputLineIs('started'),
               forceKillTimeout: 500,
             },
           },

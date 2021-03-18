@@ -51,7 +51,7 @@ export class CompositeService {
 
     outputStream.add(
       this.services.map(({ output, id }) =>
-        output.pipe(mapStreamLines(line => `${id} | ${line}`)),
+        output.pipe(mapStreamLines(line => `${id} | ${line}\n`)),
       ),
     )
 
