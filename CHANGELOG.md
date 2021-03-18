@@ -1,5 +1,24 @@
 # Changelog
 
+# [0.10.0](https://github.com/zenflow/composite-service/compare/v0.9.0...v0.10.0) (2021-03-18)
+
+
+### Bug Fixes
+
+* Define proper return types for `ready` & `onCrash` ([f0937df](https://github.com/zenflow/composite-service/commit/f0937dfc261cc5013d59ca70b1a0646a56b4416e))
+
+
+### Features
+
+* add OnCrashContext.serviceId ([a3c8857](https://github.com/zenflow/composite-service/commit/a3c8857e901c042b9783e66a1e0b6d602abd00c8))
+* Add ServiceConfig.crashesLength property, default to 0 ([fe7e861](https://github.com/zenflow/composite-service/commit/fe7e86132b37eec73be872dadcebdbef40dfe182))
+* Default `minimumRestartDelay` is 0 ([e449d68](https://github.com/zenflow/composite-service/commit/e449d68f9039308a07f66e512f4704c6412d7e23))
+* Implement smart default onCrash ([5dd2d20](https://github.com/zenflow/composite-service/commit/5dd2d20ccb05ee31ece1351c9c6000794eb6ee2e))
+* Nicer console message reporting error in `ready` or `onCrash` ([5788792](https://github.com/zenflow/composite-service/commit/5788792800a7ebefe39c3402e65a2255342d6f80))
+* Provide "ready helpers" as ReadyContext methods ([cebd1a9](https://github.com/zenflow/composite-service/commit/cebd1a954ae7ae2ca8f8c82a4a274fa2586892cd))
+* Start child processes safely using 'spawn' event where supported ([bc1ad0e](https://github.com/zenflow/composite-service/commit/bc1ad0ee9ccde11aba5d152ab3600be90c0cdced))
+* Strings that are "console output lines" do not need trailing "\n" ([ab92ff8](https://github.com/zenflow/composite-service/commit/ab92ff846ecacb9ed0d456b3b4df205b2704b718))
+
 # [0.9.0](https://github.com/zenflow/composite-service/compare/v0.8.0...v0.9.0) (2021-03-15)
 
 
