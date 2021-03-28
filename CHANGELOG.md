@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.11.0](https://github.com/zenflow/composite-service/compare/v0.10.1...v0.11.0) (2021-03-28)
+
+
+### Features
+
+* add `onceHttpOk` helper to `ReadyContext` ([35494c1](https://github.com/zenflow/composite-service/commit/35494c169b4139224d9f0387907da81bf74224b2))
+* stringify errors for console output using `util.inspect()` ([94640ac](https://github.com/zenflow/composite-service/commit/94640acfef9b8a0f7614f9aa6ff47c55065c3b6d))
+
 ## [0.10.1](https://github.com/zenflow/composite-service/compare/v0.10.0...v0.10.1) (2021-03-20)
 
 
