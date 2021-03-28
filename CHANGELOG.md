@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/zenflow/composite-service/compare/v0.11.0...v0.11.1) (2021-03-28)
+
+
+### Bug Fixes
+
+* onceHttpOk should be a property of ReadyContext, not a method ([cc52499](https://github.com/zenflow/composite-service/commit/cc524992faa6fb1c5d78aa9a14bf028256116220))
+
 # [0.11.0](https://github.com/zenflow/composite-service/compare/v0.10.1...v0.11.0) (2021-03-28)
 
 
