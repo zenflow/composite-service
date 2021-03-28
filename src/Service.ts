@@ -1,4 +1,4 @@
-import { promisify } from "util";
+import { promisify, inspect } from "util";
 import { PassThrough } from "stream";
 import cloneable from "cloneable-readable";
 import { ServiceProcess } from "./ServiceProcess";
@@ -36,6 +36,11 @@ export class Service {
     this.handleFatalError = handleFatalError;
   }
 
+  private die(context: string, error: Error) {
+    this.handleFatalError(`${context}: ${inspect(error)}`);
+    return never();
+  }
+
   public start() {
     if (this.stopResult) {
       this.logger.log("error", new InternalError("Cannot start after stopping").stack!);
@@ -57,11 +62,7 @@ export class Service {
     const ctx = createReadyContext(this.outputClone);
     this.ready = promiseTry(() => this.config.ready(ctx))
       .finally(() => this.outputClone.destroy())
-      .catch(error => {
-        const prefix = `In \`service.${this.id}.ready\``;
-        this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`);
-        return never();
-      });
+      .catch(error => this.die(`In \`service.${this.id}.ready\``, error));
   }
 
   private async startProcess() {
@@ -76,9 +77,7 @@ export class Service {
     try {
       await this.process.started;
     } catch (error) {
-      const prefix = `Spawning process for service '${this.id}'`;
-      this.handleFatalError(`${prefix}: ${error}`);
-      await never();
+      await this.die(`Spawning process for service '${this.id}'`, error);
     }
   }
 
@@ -105,9 +104,7 @@ export class Service {
     try {
       await this.config.onCrash(ctx);
     } catch (error) {
-      const prefix = `In \`service.${this.id}.onCrash\``;
-      this.handleFatalError(`${prefix}: ${maybeErrorText(error)}`);
-      await never();
+      await this.die(`In \`service.${this.id}.onCrash\``, error);
     }
     await delayPromise;
     if (this.stopResult) {
@@ -130,10 +127,6 @@ export class Service {
     }
     return this.stopResult;
   }
-}
-
-export function maybeErrorText(maybeError: any): string {
-  return (maybeError instanceof Error && maybeError.stack) || String(maybeError);
 }
 
 function promiseTry<T>(fn: () => Promise<T>) {

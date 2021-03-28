@@ -12,7 +12,7 @@ export function redactStackTraces(lines: string[]) {
   while ((stackTrace = findStackTrace(output))) {
     output.splice(stackTrace.start, stackTrace.length, "<stack trace>");
   }
-  return output;
+  return output.map(line => (line.startsWith(" (error)   errno: ") ? "<errno field>" : line));
 
   function findStackTrace(lines: string[]): StackTrace | false {
     const start = lines.findIndex(isStackTraceLine);
