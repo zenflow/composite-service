@@ -1,3 +1,5 @@
+import { RequestOptions } from "http";
+
 /**
  * Context object given as argument to each {@link ServiceConfig.ready} function
  */
@@ -7,9 +9,24 @@ export interface ReadyContext {
    * The `port` is required.
    * The `host` defaults to "localhost".
    *
-   * Works by trying establish a TCP connection to the given port every 250 milliseconds.
+   * Works by repeatedly trying establish a TCP connection to the given port.
    */
   onceTcpPortUsed: (port: number | string, host?: string) => Promise<void>;
+
+  /**
+   * Wait until an expected http status is returned for the given request.
+   *
+   * The `requestOptions` requires at minimum a `url` or `port` property.
+   * Default `method` is `"GET"` & default `path` is `"/"`.
+   *
+   * The default `expectedStatus` is `200`.
+   *
+   * Works by trying the http request repeatedly.
+   */
+  onceHttpOk(
+    requestOptions: { url?: string | undefined } & RequestOptions,
+    expectedStatus?: number | undefined,
+  ): Promise<void>;
 
   /**
    * Wait until a line in the console output passes custom `test`

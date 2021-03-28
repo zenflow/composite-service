@@ -17,7 +17,7 @@ function getScript() {
         second: {
           command: 'node test/integration/fixtures/http-service.js',
           env: { PORT: 8002, RESPONSE_TEXT: 'second' },
-          ready: ctx => ctx.onceOutputLineIncludes('🚀'),
+          ready: ctx => ctx.onceHttpOk({ port: 8002 }),
         },
         third: {
           dependencies: ['first', 'second'],

@@ -1,40 +1,25 @@
-import { promisify } from "util";
 import { Socket } from "net";
-
-const delay = promisify(setTimeout);
+import { once } from "events";
+import { onceAsyncTest } from "./onceAsyncTest";
 
 export async function onceTcpPortUsed(port: number | string, host = "localhost"): Promise<void> {
   const portNumber = typeof port === "number" ? port : parseInt(port, 10);
-  while (true) {
-    if (await isTcpPortUsed(portNumber, host)) {
-      return;
-    } else {
-      await delay(250);
-    }
-  }
-}
-
-function isTcpPortUsed(port: number, host: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
+  return onceAsyncTest(250, async () => {
     const socket = new Socket();
-    socket.once("connect", () => {
-      resolve(true);
-      cleanUp();
-    });
-    socket.once("error", error => {
+    socket.connect(portNumber, host);
+    try {
+      await once(socket, "connect");
+      return true;
+    } catch (error) {
+      // TODO: ECONNRESET doesn't apply to raw tcp connection, right?
       if (["ECONNREFUSED", "ETIMEDOUT"].includes((error as any).code)) {
-        resolve(false);
-      } else {
-        reject(error);
+        return false;
       }
-      cleanUp();
-    });
-    function cleanUp() {
-      socket.removeAllListeners();
+      throw error;
+    } finally {
       socket.end();
       socket.destroy();
       socket.unref();
     }
-    socket.connect(port, host);
   });
 }
