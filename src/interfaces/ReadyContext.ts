@@ -23,10 +23,10 @@ export interface ReadyContext {
    *
    * Works by trying the http request repeatedly.
    */
-  onceHttpOk(
+  onceHttpOk: (
     requestOptions: { url?: string | undefined } & RequestOptions,
     expectedStatus?: number | undefined,
-  ): Promise<void>;
+  ) => Promise<void>;
 
   /**
    * Wait until a line in the console output passes custom `test`
