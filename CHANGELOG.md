@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.12.0](https://github.com/zenflow/composite-service/compare/v0.11.1...v0.12.0) (2021-05-04)
+
+
+### Features
+
+* Error when service dependency has no `ready` config, closes [#35](https://github.com/zenflow/composite-service/issues/35) ([2819396](https://github.com/zenflow/composite-service/commit/2819396dc4135ebc6a8156cab28516e541da2f68))
+
 ## [0.11.1](https://github.com/zenflow/composite-service/compare/v0.11.0...v0.11.1) (2021-03-28)
 
 
