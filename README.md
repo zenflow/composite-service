@@ -18,9 +18,9 @@ That is, if you have multiple services that make up your overall application, yo
 ## Features
 
 - Configuration lives in a script, not .json or .yaml file & therefore supports startup tasks and dynamic configurations
-- Includes TypeScript types, which means autocompletion and code intelligence in your IDE even if you're writing JavaScript
+- Includes TypeScript types, meaning autocompletion & code intelligence in your IDE even if you're writing JavaScript
 - Configurable [Crash Handling](#crash-handling) with smart default
-- [Graceful Startup](#graceful-startup), to ensure a service is only started after it's declared dependencies (other composed services) are ready
+- [Graceful Startup](#graceful-startup), to ensure a service is only started after the services it depends on are ready
 - Options for [Shutting Down](#shutting-down)
 - Supports executing Node.js CLI programs by name
 - **[Companion `composite-service-http-gateway` package](https://github.com/zenflow/composite-service-http-gateway)**
