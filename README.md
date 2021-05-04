@@ -100,7 +100,7 @@ The default behavior for handling crashes is to restart the service *if it alrea
 If the service crashes *before* becoming "ready" (i.e. during startup), the composite service itself will bail out and crash (shut down & exit).
 This saves us from burning system resources (continuously crashing & restarting) when a service is completely broken.
 
-To benefit from this behavior, [`ServiceConfig`](./src/interfaces/ServiceConfig.ts)`.ready` must be defined.
+To benefit from this behavior, [`ServiceConfig.ready`](./src/interfaces/ServiceConfig.ts) must be defined.
 Otherwise, the service is considered ready as soon as the process is spawned,
 and therefore the service will always be restarted after a crash, even if it happened during startup.
 
@@ -135,7 +135,7 @@ startCompositeService({
 
 ### Configuring behavior
 
-Crash handling behavior can be configured with [`ServiceConfig`](./src/interfaces/ServiceConfig.ts)`.onCrash`.
+Crash handling behavior can be configured with [`ServiceConfig.onCrash`](./src/interfaces/ServiceConfig.ts).
 This is a function executed each time the service crashes,
 to determine whether to restart the service or to crash the composite service,
 and possibly perform arbitrary tasks such as sending an email or calling a web hook.
@@ -178,11 +178,8 @@ startCompositeService({
 
 If we have a service that depends on another service or services,
 and don't want it to be started until the other "dependency" service or services are "ready",
-we can define [`ServiceConfig`](./src/interfaces/ServiceConfig.ts)`.dependencies`.
-A service will not be started until all its dependencies have started and become ready.
-
-For this to work, [`ServiceConfig`](./src/interfaces/ServiceConfig.ts)`.ready` must be defined for each dependency service.
-Otherwise, the service is considered ready as soon as the process is spawned.
+we can use `dependencies` and `ready` [`ServiceConfig` properties](./src/interfaces/ServiceConfig.ts).
+A service will not be started until all its `dependencies` are ready according to their respective `ready` config.
 
 #### Example
 
@@ -222,7 +219,7 @@ or when it receives a signal to shut down (ctrl+c, `SIGINT`, or `SIGTERM`).
 The default procedure for shutting down is to immediately signal all composed services to shut down,
 and wait for them to exit before exiting itself.
 Where supported (i.e. on non-Windows systems), a `SIGINT` signal is issued first,
-and if the process does not exit within a period of time (see [`ServiceConfig`](./src/interfaces/ServiceConfig.ts)`.forceKillTimeout`),
+and if the process does not exit within a period of time ([`ServiceConfig.forceKillTimeout`](./src/interfaces/ServiceConfig.ts)),
 a `SIGKILL` signal is issued to forcibly kill the process.
 On Windows, where such signal types don't exist, a single signal is issued, which forcibly kills the process.
 

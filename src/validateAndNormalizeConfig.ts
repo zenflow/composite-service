@@ -72,6 +72,21 @@ function doExtraServiceConfigChecks(path: string, config: ServiceConfig) {
   }
 }
 
+const serviceBaseDefaults = {
+  dependencies: [],
+  cwd: ".",
+  command: undefined, // no default command
+  env: process.env,
+  ready: () => Promise.resolve(),
+  forceKillTimeout: 5000,
+  onCrash: (ctx: OnCrashContext) => {
+    if (!ctx.isServiceReady) throw new Error("Crashed before becoming ready");
+  },
+  crashesLength: 0,
+  logTailLength: 0,
+  minimumRestartDelay: 0,
+};
+
 function processServiceConfig(
   id: string,
   config: ServiceConfig,
@@ -81,18 +96,7 @@ function processServiceConfig(
   validateType("ServiceConfig", path, config);
   doExtraServiceConfigChecks(path, config);
   const merged = {
-    dependencies: [],
-    cwd: ".",
-    command: undefined, // no default command
-    env: process.env,
-    ready: () => Promise.resolve(),
-    forceKillTimeout: 5000,
-    onCrash: (ctx: OnCrashContext) => {
-      if (!ctx.isServiceReady) throw new Error("Crashed before becoming ready");
-    },
-    crashesLength: 0,
-    logTailLength: 0,
-    minimumRestartDelay: 0,
+    ...serviceBaseDefaults,
     ...removeUndefinedProperties(defaults),
     ...removeUndefinedProperties(config),
   };
@@ -134,7 +138,12 @@ function validateDependencyTree(services: { [id: string]: NormalizedServiceConfi
     for (const dependency of dependencies) {
       if (!serviceIds.includes(dependency)) {
         throw new ConfigValidationError(
-          `Service "${serviceId}" has dependency on unknown service "${dependency}"`,
+          `Service "${serviceId}" depends on unknown service "${dependency}"`,
+        );
+      }
+      if (services[dependency].ready === serviceBaseDefaults.ready) {
+        throw new ConfigValidationError(
+          `Service "${serviceId}" depends on service "${dependency}" which has no defined \`ready\` config`,
         );
       }
     }

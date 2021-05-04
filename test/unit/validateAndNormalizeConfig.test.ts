@@ -51,7 +51,7 @@ describe("core/validateAndNormalizeConfig", () => {
           },
         }),
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" has dependency on unknown service \\"bar\\""`,
+        `"ConfigValidationError: Service \\"foo\\" depends on unknown service \\"bar\\""`,
       );
       expect(
         _v({
@@ -60,12 +60,22 @@ describe("core/validateAndNormalizeConfig", () => {
             bar: { command: "bar" },
           },
         }),
-      ).toBeUndefined();
+      ).toMatchInlineSnapshot(
+        `"ConfigValidationError: Service \\"foo\\" depends on service \\"bar\\" which has no defined \`ready\` config"`,
+      );
       expect(
         _v({
           services: {
             foo: { command: "foo", dependencies: ["bar"] },
-            bar: { command: "bar", dependencies: ["foo"] },
+            bar: { command: "bar", async ready() {} },
+          },
+        }),
+      ).toBeUndefined();
+      expect(
+        _v({
+          services: {
+            foo: { command: "foo", dependencies: ["bar"], async ready() {} },
+            bar: { command: "bar", dependencies: ["foo"], async ready() {} },
           },
         }),
       ).toMatchInlineSnapshot(
