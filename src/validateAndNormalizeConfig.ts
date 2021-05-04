@@ -58,6 +58,9 @@ export function validateAndNormalizeConfig(
   };
 }
 
+/**
+ * Structural validations for ServerConfig not covered by validateType/ts-interface-checker
+ */
 function doExtraServiceConfigChecks(path: string, config: ServiceConfig) {
   if (
     typeof config.command !== "undefined" &&
@@ -178,7 +181,7 @@ function validateType(typeName: string, reportedPath: string, value: any) {
   checker.setReportedPath(reportedPath);
   const error = checker.validate(value);
   if (error) {
-    throw new ConfigValidationError(getErrorMessage(error));
+    throw new ConfigValidationError(getErrorMessage(error[0]));
   }
 }
 
