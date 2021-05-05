@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.0](https://github.com/zenflow/composite-service/compare/v0.12.0...v1.0.0) (2021-05-04)
+
+*No changes*
+
 # [0.12.0](https://github.com/zenflow/composite-service/compare/v0.11.1...v0.12.0) (2021-05-04)
 
 
