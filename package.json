@@ -61,7 +61,7 @@
     "@types/split": "^1.0.0",
     "@types/which": "^2.0.0",
     "node-fetch": "^2.6.0",
-    "semantic-release": "^17.4.2",
+    "semantic-release": "^19.0.3",
     "shx": "0.3.3",
     "ts-interface-builder": "^0.3.0",
     "tsdx": "^0.14.1",
