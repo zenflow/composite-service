@@ -4,11 +4,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-      - uses: actions/cache@v1
+          node-version: '18'
+      - uses: actions/cache@v3
         with:
           path: node_modules
           key: nodeModules-${{ hashFiles('yarn.lock') }}
@@ -19,11 +19,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-      - uses: actions/cache@v1
+          node-version: '18'
+      - uses: actions/cache@v3
         with:
           path: node_modules
           key: nodeModules-${{ hashFiles('yarn.lock') }}
@@ -31,27 +31,30 @@ jobs:
             nodeModules-
       - run: yarn install --frozen-lockfile
       - run: yarn build
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist/
   test:
     needs: [build]
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04]
-        node: [12, 14, 15, 16]
+        os: [ubuntu-latest, windows-latest]
+        node: [16, 18, 19]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/cache@v3
         with:
           path: node_modules
           key: matrix-nodeModules-${{ matrix.os }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             matrix-nodeModules-
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist/
@@ -64,17 +67,17 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-      - uses: actions/cache@v1
+          node-version: '18'
+      - uses: actions/cache@v3
         with:
           path: node_modules
           key: nodeModules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             nodeModules-
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist/
