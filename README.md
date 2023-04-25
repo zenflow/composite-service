@@ -3,11 +3,8 @@
 > Compose multiple services into one
 
 [![npm version](https://img.shields.io/npm/v/composite-service)](http://npmjs.com/package/composite-service)
-[![CI status](https://img.shields.io/github/workflow/status/zenflow/composite-service/CI?logo=GitHub&label=CI)](https://github.com/zenflow/composite-service/actions?query=branch%3Amaster)
-[![dependencies status](https://img.shields.io/david/zenflow/composite-service)](https://david-dm.org/zenflow/composite-service)
-[![devDependencies status](https://img.shields.io/david/dev/zenflow/composite-service)](https://david-dm.org/zenflow/composite-service?type=dev)
+[![CI status](https://img.shields.io/github/actions/workflow/status/zenflow/composite-service/CI.yml?branch=master&logo=GitHub&label=CI)](https://github.com/zenflow/composite-service/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability-percentage/zenflow/composite-service?logo=Code%20Climate)](https://codeclimate.com/github/zenflow/composite-service)
-[![LGTM alerts](https://img.shields.io/lgtm/alerts/github/zenflow/composite-service?logo=lgtm)](https://lgtm.com/projects/g/zenflow/composite-service/)
 [![Known Vulnerabilities](https://snyk.io/test/github/zenflow/composite-service/badge.svg?targetFile=package.json)](https://snyk.io/test/github/zenflow/composite-service?targetFile=package.json)
 
 In essence, `composite-service` is a Node.js library to use in a script that composes multiple services into one "composite service", by managing a child process for each composed service.
