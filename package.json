@@ -44,7 +44,7 @@
     "cloneable-readable": "^3.0.0",
     "merge-stream": "^2.0.0",
     "npm-run-path": "^4.0.1",
-    "split": "^1.0.1",
+    "split2": "^4.2.0",
     "ts-interface-checker": "^1.0.2",
     "which": "^3.0.0"
   },
@@ -58,7 +58,7 @@
     "@types/generate-ctrl-c-event": "^2.0.1",
     "@types/merge-stream": "^1.1.2",
     "@types/node-fetch": "^2.6.3",
-    "@types/split": "^1.0.2",
+    "@types/split2": "^4.2.0",
     "@types/which": "^3.0.0",
     "node-fetch": "^2.6.9",
     "semantic-release": "^21.0.1",

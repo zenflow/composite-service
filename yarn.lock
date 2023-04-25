@@ -1839,25 +1839,17 @@
   resolved "https://registry.yarnpkg.com/@types/retry/-/retry-0.12.0.tgz#2b35eccfcee7d38cd72ad99232fbd58bffb3c84d"
   integrity sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==
 
-"@types/split@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@types/split/-/split-1.0.2.tgz#a59dae73a89108fc2157581b7afd08629c9fff96"
-  integrity sha512-JNsPY3LO6gsk8kTA5k+ozdJN9M3Tvh/H2V1Q9UhM460yqJ/aEnRV89NaVJj/1YnN7JFRPlFGT4yOp0/ybw6TmQ==
+"@types/split2@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@types/split2/-/split2-4.2.0.tgz#8c2d336676391cf45166f52c56e4fd3ba924644a"
+  integrity sha512-rwV0tC3XGQvQ8zdeYDZ+dLn4CJLKnYPBrSU8dRXvzMVLUPMsYTsy3/ZbE4OlejsT2D7MTGP8ePk05C98xl2seQ==
   dependencies:
     "@types/node" "*"
-    "@types/through" "*"
 
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
-
-"@types/through@*":
-  version "0.0.30"
-  resolved "https://registry.yarnpkg.com/@types/through/-/through-0.0.30.tgz#e0e42ce77e897bd6aead6f6ea62aeb135b8a3895"
-  integrity sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==
-  dependencies:
-    "@types/node" "*"
 
 "@types/which@^3.0.0":
   version "3.0.0"
@@ -8414,6 +8406,11 @@ split2@^3.0.0:
   dependencies:
     readable-stream "^3.0.0"
 
+split2@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/split2/-/split2-4.2.0.tgz#c9c5920904d148bab0b9f67145f245a86aadbfa4"
+  integrity sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==
+
 split2@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/split2/-/split2-1.0.0.tgz#52e2e221d88c75f9a73f90556e263ff96772b314"
@@ -8421,7 +8418,7 @@ split2@~1.0.0:
   dependencies:
     through2 "~2.0.0"
 
-split@^1.0.0, split@^1.0.1:
+split@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/split/-/split-1.0.1.tgz#605bd9be303aa59fb35f9229fbea0ddec9ea07d9"
   integrity sha512-mTyOoPbrivtXnwnIxZRFYRrPNtEFKlpB2fvjSnCQUiAA6qAZzqwna5envK4uk6OIeP17CsdF3rSBGYVBsU0Tkg==
