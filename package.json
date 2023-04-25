@@ -20,7 +20,7 @@
     "programs"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -41,31 +41,28 @@
     "test": "yarn lint && yarn build && yarn test-only"
   },
   "dependencies": {
-    "cloneable-readable": "^2.1.0",
+    "cloneable-readable": "^3.0.0",
     "merge-stream": "^2.0.0",
     "npm-run-path": "^4.0.1",
-    "split": "^1.0.1",
-    "ts-interface-checker": "^1.0.0",
-    "which": "^2.0.2"
+    "split2": "^4.2.0",
+    "ts-interface-checker": "^1.0.2",
+    "which": "^3.0.0"
   },
   "optionalDependencies": {
-    "generate-ctrl-c-event": "^2.0.0"
+    "generate-ctrl-c-event": "^2.0.1"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/git": "^9.0.0",
     "@types/cloneable-readable": "^2.0.0",
-    "@types/generate-ctrl-c-event": "^2.0.0",
+    "@types/generate-ctrl-c-event": "^2.0.1",
     "@types/merge-stream": "^1.1.2",
-    "@types/node-fetch": "^2.5.10",
-    "@types/split": "^1.0.0",
-    "@types/which": "^2.0.0",
-    "node-fetch": "^2.6.0",
-    "semantic-release": "^17.4.2",
-    "shx": "0.3.3",
-    "ts-interface-builder": "^0.3.0",
+    "@types/node-fetch": "^2.6.3",
+    "@types/split2": "^4.2.0",
+    "@types/which": "^3.0.0",
+    "node-fetch": "^2.6.9",
+    "shx": "0.3.4",
+    "ts-interface-builder": "^0.3.3",
     "tsdx": "^0.14.1",
-    "typescript": "^3.9.9"
+    "typescript": "^3.9.10"
   },
   "license": "MIT",
   "author": {
