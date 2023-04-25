@@ -92,7 +92,7 @@ describe("core/validateAndNormalizeConfig", () => {
       expect(_v({ serviceDefaults: { command: false }, services: { foo: {} } }))
         .toMatchInlineSnapshot(`
         "ConfigValidationError: \`config.serviceDefaults\` is not a ServiceConfig
-            \`config.serviceDefaults.command\` is none of string, 1 more"
+            \`config.serviceDefaults.command\` is none of string, string[]"
       `);
       expect(_v({ serviceDefaults: { command: "" }, services: { foo: {} } })).toMatchInlineSnapshot(
         `"ConfigValidationError: \`config.serviceDefaults.command\` has no binary part"`,
@@ -112,7 +112,7 @@ describe("core/validateAndNormalizeConfig", () => {
     });
     it("command property", async () => {
       expect(_vs({ command: true })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is none of string, 1 more"`,
+        `"ConfigValidationError: \`config.services.foo.command\` is none of string, string[]"`,
       );
       expect(_vs({ command: "" })).toMatchInlineSnapshot(
         `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
@@ -126,7 +126,7 @@ describe("core/validateAndNormalizeConfig", () => {
       );
       expect(_vs({ command: ["foo"] })).toBeUndefined();
       expect(_vs({ command: ["foo", false] })).toMatchInlineSnapshot(`
-        "ConfigValidationError: \`config.services.foo.command\` is none of string, 1 more
+        "ConfigValidationError: \`config.services.foo.command\` is none of string, string[]
             \`config.services.foo.command[1]\` is not a string"
       `);
       expect(_vs({ command: ["foo", ""] })).toBeUndefined();

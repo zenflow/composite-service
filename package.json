@@ -52,8 +52,6 @@
     "generate-ctrl-c-event": "^2.0.1"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "@types/cloneable-readable": "^2.0.0",
     "@types/generate-ctrl-c-event": "^2.0.1",
     "@types/merge-stream": "^1.1.2",
@@ -61,7 +59,6 @@
     "@types/split2": "^4.2.0",
     "@types/which": "^3.0.0",
     "node-fetch": "^2.6.9",
-    "semantic-release": "^21.0.1",
     "shx": "0.3.4",
     "ts-interface-builder": "^0.3.3",
     "tsdx": "^0.14.1",

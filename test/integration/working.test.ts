@@ -59,7 +59,7 @@ describe("working", () => {
     await proc.end();
     if (process.platform === "win32") {
       // Windows doesn't really support gracefully terminating processes :(
-      expect(proc.flushOutput()).toStrictEqual(["", ""]);
+      expect(proc.flushOutput()).toStrictEqual([]);
     } else {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
         Array [
@@ -72,8 +72,6 @@ describe("working", () => {
           " (debug) Stopped service 'second'",
           " (debug) Stopped service 'first'",
           " (debug) Stopped composite service",
-          "",
-          "",
         ]
       `);
     }
