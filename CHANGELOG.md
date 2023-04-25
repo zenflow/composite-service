@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0](https://github.com/zenflow/composite-service/compare/v1.0.0...v2.0.0) (2023-04-25)
+
+
+### chore
+
+* **deps:** upgrade dependencies & bump minimum node version ([7ebe59b](https://github.com/zenflow/composite-service/commit/7ebe59b7e844a7d94b2ff1f0cc36fce227f1b74e))
+
+
+### BREAKING CHANGES
+
+* **deps:** The minimum Node.js version required is now 14 due to various dependency updates.
+
 # [1.0.0](https://github.com/zenflow/composite-service/compare/v0.12.0...v1.0.0) (2021-05-04)
 
 *No changes*
