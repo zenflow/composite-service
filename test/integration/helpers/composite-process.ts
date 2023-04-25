@@ -1,7 +1,7 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { once } from "events";
 import mergeStream from "merge-stream";
-import splitStream from "split";
+import splitStream from "split2";
 
 const LOG_OUTPUT_LINES = false;
 

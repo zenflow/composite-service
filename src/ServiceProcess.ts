@@ -2,7 +2,7 @@ import { once } from "events";
 import { Readable, pipeline } from "stream";
 import { ChildProcessWithoutNullStreams } from "child_process";
 import mergeStream from "merge-stream";
-import splitStream from "split";
+import splitStream from "split2";
 import { NormalizedServiceConfig } from "./validateAndNormalizeConfig";
 import { spawnProcess } from "./spawnProcess";
 import { Logger } from "./Logger";

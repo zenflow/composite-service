@@ -50,8 +50,10 @@ describe("crashing", () => {
     `;
     proc = new CompositeProcess(script);
     await proc.ended;
-    const output = redactStackTraces(proc.flushOutput());
+    let output = redactStackTraces(proc.flushOutput());
     output.shift(); // ignore first line like "<file path>:<line number>"
+    output = output.filter(line => line !== `Node.js ${process.version}`); // ignore node version line
+    while (output.slice(-1)[0] === "") output.pop(); // remove trailing blank lines, which vary in number between node versions for some reason
     expect(output).toMatchInlineSnapshot(`
       Array [
         "    throw new ConfigValidationError(\\"\`config.services\` has no entries\\");",
@@ -59,8 +61,6 @@ describe("crashing", () => {
         "",
         "ConfigValidationError: \`config.services\` has no entries",
         "<stack trace>",
-        "",
-        "",
       ]
     `);
   });
@@ -91,8 +91,6 @@ describe("crashing", () => {
         " (debug) Stopping service 'first'...",
         " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
-        "",
-        "",
       ]
     `);
   });
@@ -111,7 +109,7 @@ describe("crashing", () => {
         "first | Started 🚀",
         " (debug) Started service 'first'",
         " (debug) Starting service 'second'...",
-        " (error) Fatal error: In \`service.second.ready\`: TypeError: Cannot read property 'bar' of undefined",
+        " (error) Fatal error: In \`service.second.ready\`: TypeError: Cannot read properties of undefined (reading 'bar')",
         "<stack trace>",
         " (debug) Stopping composite service...",
         " (debug) Stopping service 'second'...",
@@ -119,8 +117,6 @@ describe("crashing", () => {
         " (debug) Stopping service 'first'...",
         " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
-        "",
-        "",
       ]
     `);
   });
@@ -152,8 +148,6 @@ describe("crashing", () => {
         " (debug) Stopping service 'first'...",
         " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
-        "",
-        "",
       ]
     `);
   });
@@ -182,8 +176,6 @@ describe("crashing", () => {
         " (debug) Stopping service 'first'...",
         " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
-        "",
-        "",
       ]
     `);
   });
@@ -220,8 +212,6 @@ describe("crashing", () => {
         " (debug) Stopping service 'first'...",
         " (debug) Stopped service 'first'",
         " (debug) Stopped composite service",
-        "",
-        "",
       ]
     `);
   });
