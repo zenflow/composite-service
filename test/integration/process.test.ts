@@ -31,7 +31,7 @@ describe("process", () => {
       `);
       await proc.ended;
       const output = proc.flushOutput();
-      expect(output.find(line => line.startsWith("only | "))).toBe(
+      expect(output.find((line) => line.startsWith("only | "))).toBe(
         "only | shx v0.3.4 (using ShellJS v0.8.5)",
       );
     });
@@ -51,7 +51,7 @@ describe("process", () => {
       `);
       await proc.ended;
       const output = proc.flushOutput();
-      expect(output.find(line => line.startsWith("only | "))).toBe(
+      expect(output.find((line) => line.startsWith("only | "))).toBe(
         "only | shx v0.3.1 (using ShellJS v0.8.4)",
       );
     });
@@ -71,7 +71,7 @@ describe("process", () => {
       `);
       await proc.ended;
       const output = proc.flushOutput();
-      expect(output.find(line => line.startsWith("only | "))).toBe(
+      expect(output.find((line) => line.startsWith("only | "))).toBe(
         "only | shx v0.3.1 (using ShellJS v0.8.4)",
       );
     });
@@ -102,16 +102,16 @@ describe("process", () => {
       proc.flushOutput();
       await proc.end();
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
-        Array [
-          " (info) Received shutdown signal (SIGINT)",
-          " (debug) Stopping composite service...",
-          " (debug) Stopping service 'only'...",
-          "only | got SIGINT",
-          " (info) Force killing service 'only'",
-          " (debug) Stopped service 'only'",
-          " (debug) Stopped composite service",
-        ]
-      `);
+[
+  " (info) Received shutdown signal (SIGINT)",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'only'...",
+  "only | got SIGINT",
+  " (info) Force killing service 'only'",
+  " (debug) Stopped service 'only'",
+  " (debug) Stopped composite service",
+]
+`);
     },
   );
 });

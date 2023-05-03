@@ -40,40 +40,42 @@ describe("working", () => {
   it("works", async () => {
     proc = await new CompositeProcess(getScript()).start();
     expect(redactConfigDump(proc.flushOutput())).toMatchInlineSnapshot(`
-      Array [
-        "<config dump>",
-        " (debug) Starting composite service...",
-        " (debug) Starting service 'first'...",
-        " (debug) Starting service 'second'...",
-        "second | Started 🚀",
-        " (debug) Started service 'second'",
-        "first | Started 🚀",
-        " (debug) Started service 'first'",
-        " (debug) Starting service 'third'...",
-        "third | Started 🚀",
-        " (debug) Started service 'third'",
-        " (debug) Started composite service",
-      ]
-    `);
+[
+  "<config dump>",
+  " (debug) Starting composite service...",
+  " (debug) Starting service 'first'...",
+  " (debug) Starting service 'second'...",
+  "second | Started 🚀",
+  " (debug) Started service 'second'",
+  "first | Started 🚀",
+  " (debug) Started service 'first'",
+  " (debug) Starting service 'third'...",
+  "third | Started 🚀",
+  " (debug) Started service 'third'",
+  " (debug) Started composite service",
+]
+`);
     expect(proc.flushOutput()).toStrictEqual([]);
     await proc.end();
+    /* eslint-disable jest/no-conditional-expect */
     if (process.platform === "win32") {
       // Windows doesn't really support gracefully terminating processes :(
       expect(proc.flushOutput()).toStrictEqual([]);
     } else {
       expect(proc.flushOutput()).toMatchInlineSnapshot(`
-        Array [
-          " (info) Received shutdown signal (SIGINT)",
-          " (debug) Stopping composite service...",
-          " (debug) Stopping service 'third'...",
-          " (debug) Stopped service 'third'",
-          " (debug) Stopping service 'first'...",
-          " (debug) Stopping service 'second'...",
-          " (debug) Stopped service 'second'",
-          " (debug) Stopped service 'first'",
-          " (debug) Stopped composite service",
-        ]
-      `);
+[
+  " (info) Received shutdown signal (SIGINT)",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'third'...",
+  " (debug) Stopped service 'third'",
+  " (debug) Stopping service 'first'...",
+  " (debug) Stopping service 'second'...",
+  " (debug) Stopped service 'second'",
+  " (debug) Stopped service 'first'",
+  " (debug) Stopped composite service",
+]
+`);
     }
+    /* eslint-enable jest/no-conditional-expect */
   });
 });

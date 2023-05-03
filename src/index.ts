@@ -1,7 +1,7 @@
 export { startCompositeService } from "./startCompositeService";
 
-export { CompositeServiceConfig } from "./interfaces/CompositeServiceConfig";
-export { ServiceConfig } from "./interfaces/ServiceConfig";
-export { ReadyContext } from "./interfaces/ReadyContext";
-export { OnCrashContext } from "./interfaces/OnCrashContext";
-export { ServiceCrash } from "./interfaces/ServiceCrash";
+export type { CompositeServiceConfig } from "./interfaces/CompositeServiceConfig";
+export type { ServiceConfig } from "./interfaces/ServiceConfig";
+export type { ReadyContext } from "./interfaces/ReadyContext";
+export type { OnCrashContext } from "./interfaces/OnCrashContext";
+export type { ServiceCrash } from "./interfaces/ServiceCrash";

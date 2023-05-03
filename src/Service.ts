@@ -36,7 +36,7 @@ export class Service {
     this.handleFatalError = handleFatalError;
   }
 
-  private die(context: string, error: Error) {
+  private die(context: string, error: unknown) {
     this.handleFatalError(`${context}: ${inspect(error)}`);
     return never();
   }
@@ -62,7 +62,7 @@ export class Service {
     const ctx = createReadyContext(this.outputClone);
     this.ready = promiseTry(() => this.config.ready(ctx))
       .finally(() => this.outputClone.destroy())
-      .catch(error => this.die(`In \`service.${this.id}.ready\``, error));
+      .catch((error) => this.die(`In \`service.${this.id}.ready\``, error));
   }
 
   private async startProcess() {

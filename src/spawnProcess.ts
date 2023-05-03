@@ -43,7 +43,7 @@ function readEnvCaseInsensitive(env: { [key: string]: string }, key: string): st
   const upperCaseKey = key.toUpperCase();
   const caseInsensitiveKey = Object.keys(env)
     .reverse()
-    .find(key => key.toUpperCase() === upperCaseKey);
+    .find((key) => key.toUpperCase() === upperCaseKey);
   return caseInsensitiveKey === undefined ? undefined : env[caseInsensitiveKey];
 }
 
@@ -63,10 +63,7 @@ function writeEnvCaseNormalized(
 
 function filterBlankParts(string: string) {
   const colon = isWindows ? ";" : ":";
-  return string
-    .split(colon)
-    .filter(Boolean)
-    .join(colon);
+  return string.split(colon).filter(Boolean).join(colon);
 }
 
 // Version of `which.sync` that adds a `cwd` parameter & doesn't throw

@@ -25,20 +25,19 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist/index.js",
+    "dist/**/*.js",
     "dist/**/*.d.ts",
     "src"
   ],
   "scripts": {
-    "lint": "tsdx lint src test",
+    "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
     "lint-fix": "yarn lint --fix",
-    "_tsdx_build": "tsdx --target node --format cjs --entry src/index.ts",
-    "build": "yarn _tsdx_build build",
-    "build-watch": "yarn _tsdx_build watch",
-    "_tsdx_test": "tsdx test --runInBand",
-    "test-only": "yarn _tsdx_test --ci",
-    "test-watch": "yarn _tsdx_test --watch",
-    "test": "yarn lint && yarn build && yarn test-only"
+    "clean": "shx rm -rf dist",
+    "build:types": "tsc",
+    "build:js": "babel src --source-maps true --extensions .ts --out-dir dist",
+    "build": "yarn build:types && yarn build:js",
+    "test-only": "jest --ci --runInBand",
+    "test": "yarn lint && yarn clean && yarn build && yarn test-only"
   },
   "dependencies": {
     "cloneable-readable": "^3.0.0",
@@ -46,23 +45,32 @@
     "npm-run-path": "^4.0.1",
     "split2": "^4.2.0",
     "ts-interface-checker": "^1.0.2",
-    "which": "^3.0.0"
+    "which": "^3.0.1"
   },
   "optionalDependencies": {
     "generate-ctrl-c-event": "^2.0.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.21.8",
+    "@babel/preset-env": "^7.21.5",
+    "@babel/preset-typescript": "^7.21.5",
     "@types/cloneable-readable": "^2.0.0",
     "@types/generate-ctrl-c-event": "^2.0.1",
+    "@types/jest": "^29.5.1",
     "@types/merge-stream": "^1.1.2",
     "@types/node-fetch": "^2.6.3",
     "@types/split2": "^4.2.0",
     "@types/which": "^3.0.0",
+    "babel-plugin-macros": "^3.1.0",
+    "eslint": "^8.40.0",
+    "eslint-config-zenflow": "^4.0.0",
+    "jest": "^29.5.0",
     "node-fetch": "^2.6.9",
     "shx": "0.3.4",
     "ts-interface-builder": "^0.3.3",
-    "tsdx": "^0.14.1",
-    "typescript": "^3.9.10"
+    "ts-jest": "^29.1.0",
+    "typescript": "^4.9.5"
   },
   "license": "MIT",
   "author": {

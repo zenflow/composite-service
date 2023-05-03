@@ -16,6 +16,6 @@ export async function processSpawned(process: ChildProcessWithoutNullStreams) {
 }
 
 function isSpawnEventSupported() {
-  const [major, minor, patch] = process.versions.node.split(".").map(s => Number(s));
+  const [major, minor, patch] = process.versions.node.split(".").map((s) => Number(s));
   return major > 15 || (major === 15 && minor >= 1 && patch >= 0);
 }

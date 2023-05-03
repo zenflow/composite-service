@@ -19,10 +19,10 @@ export class CompositeProcess {
       this.proc.stderr.setEncoding("utf8").pipe(splitStream()),
     ]);
     if (LOG_OUTPUT_LINES) {
-      outputStream.on("data", line => console.log(line));
+      outputStream.on("data", (line) => console.log(line));
     }
-    outputStream.on("data", line => this.output.push(line));
-    this.ready = new Promise<void>(resolve => {
+    outputStream.on("data", (line) => this.output.push(line));
+    this.ready = new Promise<void>((resolve) => {
       const handler = (line: string) => {
         if (line.includes("Started composite service")) {
           outputStream.off("data", handler);
@@ -57,7 +57,7 @@ export class CompositeProcess {
 
 export class CompositeProcessCrashError extends Error {
   constructor(script: string, output: string[]) {
-    const indent = (lines: string[]) => lines.map(line => `  ${line}`);
+    const indent = (lines: string[]) => lines.map((line) => `  ${line}`);
     super(
       [
         "Composite process crashed:",

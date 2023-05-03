@@ -8,7 +8,7 @@ describe("core/util/stream", () => {
     const outputStream = inputStream.pipe(filterBlankLastLine(""));
 
     const outputChunks: string[] = [];
-    outputStream.on("data", chunk => outputChunks.push(chunk));
+    outputStream.on("data", (chunk) => outputChunks.push(chunk));
 
     inputStream.write("foo");
     expect(outputChunks).toStrictEqual(["foo"]);

@@ -1,5 +1,5 @@
-import { CompositeServiceConfig } from "../../src/interfaces/CompositeServiceConfig";
-import { validateAndNormalizeConfig } from "../../src/validateAndNormalizeConfig";
+import { CompositeServiceConfig } from "../..";
+import { validateAndNormalizeConfig } from "../../dist/validateAndNormalizeConfig";
 
 const _v = (config: any): string | undefined => {
   let result: string | undefined;
@@ -51,7 +51,7 @@ describe("core/validateAndNormalizeConfig", () => {
           },
         }),
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" depends on unknown service \\"bar\\""`,
+        `"ConfigValidationError: Service "foo" depends on unknown service "bar""`,
       );
       expect(
         _v({
@@ -61,7 +61,7 @@ describe("core/validateAndNormalizeConfig", () => {
           },
         }),
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" depends on service \\"bar\\" which has no defined \`ready\` config"`,
+        `"ConfigValidationError: Service "foo" depends on service "bar" which has no defined \`ready\` config"`,
       );
       expect(
         _v({
@@ -79,12 +79,12 @@ describe("core/validateAndNormalizeConfig", () => {
           },
         }),
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" has cyclic dependency foo -> bar -> foo"`,
+        `"ConfigValidationError: Service "foo" has cyclic dependency foo -> bar -> foo"`,
       );
     });
     it("logLevel property", () => {
       expect(_v({ ...minValid, logLevel: "debg" })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.logLevel\` is none of \\"debug\\", \\"info\\", \\"error\\""`,
+        `"ConfigValidationError: \`config.logLevel\` is none of "debug", "info", "error""`,
       );
       expect(_v({ ...minValid, logLevel: "debug" })).toBeUndefined();
     });

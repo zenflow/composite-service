@@ -202,7 +202,7 @@ function getErrorMessageLines(error: IErrorDetail): string[] {
   let result = [`\`${error.path}\` ${error.message}`];
   if (error.nested) {
     for (const nested of error.nested) {
-      result = result.concat(getErrorMessageLines(nested).map(s => `    ${s}`));
+      result = result.concat(getErrorMessageLines(nested).map((s) => `    ${s}`));
     }
   }
   return result;
