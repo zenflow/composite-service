@@ -6,6 +6,7 @@
 [![CI status](https://img.shields.io/github/actions/workflow/status/zenflow/composite-service/CI.yml?branch=master&logo=GitHub&label=CI)](https://github.com/zenflow/composite-service/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability-percentage/zenflow/composite-service?logo=Code%20Climate)](https://codeclimate.com/github/zenflow/composite-service)
 [![Known Vulnerabilities](https://snyk.io/test/github/zenflow/composite-service/badge.svg?targetFile=package.json)](https://snyk.io/test/github/zenflow/composite-service?targetFile=package.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
 In essence, `composite-service` is a Node.js library to use in a script that composes multiple services into one "composite service", by managing a child process for each composed service.
 
