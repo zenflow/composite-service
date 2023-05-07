@@ -25,7 +25,7 @@ export interface ReadyContext {
    */
   onceHttpOk: (
     requestOptions: { url?: string | undefined } & RequestOptions,
-    expectedStatus?: number | undefined,
+    expectedStatus?: number | undefined
   ) => Promise<void>;
 
   /**

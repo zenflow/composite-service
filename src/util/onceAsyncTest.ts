@@ -4,7 +4,7 @@ const delay = promisify(setTimeout);
 
 export async function onceAsyncTest(
   minimumInterval: number,
-  test: () => Promise<boolean>,
+  test: () => Promise<boolean>
 ): Promise<void> {
   while (true) {
     const delayPromise = delay(minimumInterval);

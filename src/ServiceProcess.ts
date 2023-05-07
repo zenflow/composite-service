@@ -25,7 +25,7 @@ export class ServiceProcess {
     serviceId: string,
     serviceConfig: NormalizedServiceConfig,
     logger: Logger,
-    onCrash: () => void,
+    onCrash: () => void
   ) {
     this.serviceId = serviceId;
     this.serviceConfig = serviceConfig;
@@ -38,12 +38,12 @@ export class ServiceProcess {
     this.output = getProcessOutput(this.process);
     if (this.serviceConfig.logTailLength > 0) {
       this.output = this.output.pipe(
-        tapStreamLines(line => {
+        tapStreamLines((line) => {
           this.logTail.push(line);
           if (this.logTail.length > this.serviceConfig.logTailLength) {
             this.logTail.shift();
           }
-        }),
+        })
       );
     }
     this.ended = once(this.output, "end").then(() => {
@@ -89,9 +89,9 @@ export class ServiceProcess {
 }
 
 function getProcessOutput(proc: ChildProcessWithoutNullStreams) {
-  return (mergeStream(
+  return mergeStream(
     [proc.stdout, proc.stderr]
-      .map(stream => stream.setEncoding("utf8"))
-      .map(stream => pipeline(stream, splitStream(), filterBlankLastLine(""), () => {})),
-  ) as unknown) as Readable;
+      .map((stream) => stream.setEncoding("utf8"))
+      .map((stream) => pipeline(stream, splitStream(), filterBlankLastLine(""), () => {}))
+  ) as unknown as Readable;
 }

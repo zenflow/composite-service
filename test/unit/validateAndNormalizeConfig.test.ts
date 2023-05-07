@@ -1,5 +1,5 @@
-import { CompositeServiceConfig } from "../../src/interfaces/CompositeServiceConfig";
-import { validateAndNormalizeConfig } from "../../src/validateAndNormalizeConfig";
+import { CompositeServiceConfig } from "../..";
+import { validateAndNormalizeConfig } from "../../dist/validateAndNormalizeConfig";
 
 const _v = (config: any): string | undefined => {
   let result: string | undefined;
@@ -21,25 +21,25 @@ describe("core/validateAndNormalizeConfig", () => {
   describe("CompositeServiceConfig", () => {
     it("essential", () => {
       expect(_v(undefined)).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config\` is not an object"`,
+        `"ConfigValidationError: \`config\` is not an object"`
       );
       expect(_v({})).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services\` is missing"`,
+        `"ConfigValidationError: \`config.services\` is missing"`
       );
       expect(_v({ services: true })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services\` is not an object"`,
+        `"ConfigValidationError: \`config.services\` is not an object"`
       );
       expect(_v({ services: {} })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services\` has no entries"`,
+        `"ConfigValidationError: \`config.services\` has no entries"`
       );
       expect(_v({ services: { foo: false } })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services\` has no entries"`,
+        `"ConfigValidationError: \`config.services\` has no entries"`
       );
       expect(_v({ services: { foo: true } })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo\` is not an object"`,
+        `"ConfigValidationError: \`config.services.foo\` is not an object"`
       );
       expect(_v({ services: { foo: {} } })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is not defined"`,
+        `"ConfigValidationError: \`config.services.foo.command\` is not defined"`
       );
       expect(_v(minValid)).toBeUndefined();
     });
@@ -49,9 +49,9 @@ describe("core/validateAndNormalizeConfig", () => {
           services: {
             foo: { command: "foo", dependencies: ["bar"] },
           },
-        }),
+        })
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" depends on unknown service \\"bar\\""`,
+        `"ConfigValidationError: Service "foo" depends on unknown service "bar""`
       );
       expect(
         _v({
@@ -59,9 +59,9 @@ describe("core/validateAndNormalizeConfig", () => {
             foo: { command: "foo", dependencies: ["bar"] },
             bar: { command: "bar" },
           },
-        }),
+        })
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" depends on service \\"bar\\" which has no defined \`ready\` config"`,
+        `"ConfigValidationError: Service "foo" depends on service "bar" which has no defined \`ready\` config"`
       );
       expect(
         _v({
@@ -69,7 +69,7 @@ describe("core/validateAndNormalizeConfig", () => {
             foo: { command: "foo", dependencies: ["bar"] },
             bar: { command: "bar", async ready() {} },
           },
-        }),
+        })
       ).toBeUndefined();
       expect(
         _v({
@@ -77,14 +77,14 @@ describe("core/validateAndNormalizeConfig", () => {
             foo: { command: "foo", dependencies: ["bar"], async ready() {} },
             bar: { command: "bar", dependencies: ["foo"], async ready() {} },
           },
-        }),
+        })
       ).toMatchInlineSnapshot(
-        `"ConfigValidationError: Service \\"foo\\" has cyclic dependency foo -> bar -> foo"`,
+        `"ConfigValidationError: Service "foo" has cyclic dependency foo -> bar -> foo"`
       );
     });
     it("logLevel property", () => {
       expect(_v({ ...minValid, logLevel: "debg" })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.logLevel\` is none of \\"debug\\", \\"info\\", \\"error\\""`,
+        `"ConfigValidationError: \`config.logLevel\` is none of "debug", "info", "error""`
       );
       expect(_v({ ...minValid, logLevel: "debug" })).toBeUndefined();
     });
@@ -95,7 +95,7 @@ describe("core/validateAndNormalizeConfig", () => {
             \`config.serviceDefaults.command\` is none of string, string[]"
       `);
       expect(_v({ serviceDefaults: { command: "" }, services: { foo: {} } })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.serviceDefaults.command\` has no binary part"`,
+        `"ConfigValidationError: \`config.serviceDefaults.command\` has no binary part"`
       );
       expect(_v({ serviceDefaults: { command: "foo" }, services: { foo: {} } })).toBeUndefined();
     });
@@ -103,26 +103,26 @@ describe("core/validateAndNormalizeConfig", () => {
   describe("ServiceConfig", () => {
     it("dependencies property", () => {
       expect(_vs({ dependencies: true })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.dependencies\` is not an array"`,
+        `"ConfigValidationError: \`config.services.foo.dependencies\` is not an array"`
       );
       expect(_vs({ dependencies: [] })).toBeUndefined();
       expect(_vs({ dependencies: [false] })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.dependencies[0]\` is not a string"`,
+        `"ConfigValidationError: \`config.services.foo.dependencies[0]\` is not a string"`
       );
     });
     it("command property", async () => {
       expect(_vs({ command: true })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` is none of string, string[]"`,
+        `"ConfigValidationError: \`config.services.foo.command\` is none of string, string[]"`
       );
       expect(_vs({ command: "" })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
+        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`
       );
       expect(_vs({ command: "foo" })).toBeUndefined();
       expect(_vs({ command: [] })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
+        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`
       );
       expect(_vs({ command: [""] })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`,
+        `"ConfigValidationError: \`config.services.foo.command\` has no binary part"`
       );
       expect(_vs({ command: ["foo"] })).toBeUndefined();
       expect(_vs({ command: ["foo", false] })).toMatchInlineSnapshot(`
@@ -133,28 +133,28 @@ describe("core/validateAndNormalizeConfig", () => {
     });
     it("other properties", () => {
       expect(_vs({ cwd: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.cwd\` is not a string"`,
+        `"ConfigValidationError: \`config.services.foo.cwd\` is not a string"`
       );
       expect(_vs({ cwd: "foo" })).toBeUndefined();
       expect(_vs({ env: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.env\` is not an object"`,
+        `"ConfigValidationError: \`config.services.foo.env\` is not an object"`
       );
       expect(_vs({ env: {} })).toBeUndefined();
       expect(_vs({ ready: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.ready\` is not a function"`,
+        `"ConfigValidationError: \`config.services.foo.ready\` is not a function"`
       );
       expect(_vs({ ready: () => {} })).toBeUndefined();
       expect(_vs({ forceKillTimeout: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.forceKillTimeout\` is not a number"`,
+        `"ConfigValidationError: \`config.services.foo.forceKillTimeout\` is not a number"`
       );
       expect(_vs({ forceKillTimeout: 1 })).toBeUndefined();
       expect(_vs({ onCrash: false })).toMatchInlineSnapshot(
-        `"ConfigValidationError: \`config.services.foo.onCrash\` is not a function"`,
+        `"ConfigValidationError: \`config.services.foo.onCrash\` is not a function"`
       );
       expect(
         _vs({
           onCrash: () => {},
-        }),
+        })
       ).toBeUndefined();
     });
   });

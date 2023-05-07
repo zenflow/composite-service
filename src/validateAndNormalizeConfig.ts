@@ -27,7 +27,7 @@ export interface NormalizedServiceConfig {
 }
 
 export function validateAndNormalizeConfig(
-  config: CompositeServiceConfig,
+  config: CompositeServiceConfig
 ): NormalizedCompositeServiceConfig {
   validateType("CompositeServiceConfig", "config", config);
 
@@ -39,7 +39,7 @@ export function validateAndNormalizeConfig(
 
   const truthyServiceEntries = Object.entries(config.services).filter(([, value]) => value) as [
     string,
-    ServiceConfig,
+    ServiceConfig
   ][];
   if (truthyServiceEntries.length === 0) {
     throw new ConfigValidationError("`config.services` has no entries");
@@ -90,7 +90,7 @@ const serviceBaseDefaults = {
 function processServiceConfig(
   id: string,
   config: ServiceConfig,
-  defaults: ServiceConfig,
+  defaults: ServiceConfig
 ): NormalizedServiceConfig {
   const path = `config.services.${id}`;
   validateType("ServiceConfig", path, config);
@@ -128,7 +128,7 @@ function normalizeEnv(env: { [p: string]: string | number | undefined }): { [p: 
   return Object.fromEntries(
     Object.entries(env)
       .filter(([, value]) => value !== undefined)
-      .map(([key, value]) => [key, String(value)]),
+      .map(([key, value]) => [key, String(value)])
   );
 }
 
@@ -138,12 +138,12 @@ function validateDependencyTree(services: { [id: string]: NormalizedServiceConfi
     for (const dependency of dependencies) {
       if (!serviceIds.includes(dependency)) {
         throw new ConfigValidationError(
-          `Service "${serviceId}" depends on unknown service "${dependency}"`,
+          `Service "${serviceId}" depends on unknown service "${dependency}"`
         );
       }
       if (services[dependency].ready === serviceBaseDefaults.ready) {
         throw new ConfigValidationError(
-          `Service "${serviceId}" depends on service "${dependency}" which has no defined \`ready\` config`,
+          `Service "${serviceId}" depends on service "${dependency}" which has no defined \`ready\` config`
         );
       }
     }
@@ -160,7 +160,7 @@ function validateDependencyTree(services: { [id: string]: NormalizedServiceConfi
         `Service "${serviceId}" has cyclic dependency ${path
           .slice(path.indexOf(serviceId))
           .concat(serviceId)
-          .join(" -> ")}`,
+          .join(" -> ")}`
       );
     }
     for (const dep of services[serviceId].dependencies) {
@@ -202,7 +202,7 @@ function getErrorMessageLines(error: IErrorDetail): string[] {
   let result = [`\`${error.path}\` ${error.message}`];
   if (error.nested) {
     for (const nested of error.nested) {
-      result = result.concat(getErrorMessageLines(nested).map(s => `    ${s}`));
+      result = result.concat(getErrorMessageLines(nested).map((s) => `    ${s}`));
     }
   }
   return result;

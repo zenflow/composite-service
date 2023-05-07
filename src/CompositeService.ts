@@ -31,7 +31,7 @@ export class CompositeService {
     process.on("SIGTERM", () => this.handleShutdownSignal(143, "SIGTERM"));
     if (process.stdin.isTTY) {
       process.stdin.setRawMode(true);
-      process.stdin.on("data", buffer => {
+      process.stdin.on("data", (buffer) => {
         if (buffer.toString("utf8") === "\u0003") {
           this.handleShutdownSignal(130, "ctrl+c");
         }
@@ -39,25 +39,25 @@ export class CompositeService {
     }
 
     this.services = Object.entries(this.config.services).map(
-      ([id, config]) => new Service(id, config, this.logger, this.handleFatalError.bind(this)),
+      ([id, config]) => new Service(id, config, this.logger, this.handleFatalError.bind(this))
     );
-    this.serviceMap = new Map(this.services.map(service => [service.id, service]));
+    this.serviceMap = new Map(this.services.map((service) => [service.id, service]));
 
     outputStream.add(
       this.services.map(({ output, id }) =>
-        output.pipe(mapStreamLines(line => `${id} | ${line}\n`)),
-      ),
+        output.pipe(mapStreamLines((line) => `${id} | ${line}\n`))
+      )
     );
 
     this.logger.log("debug", "Starting composite service...");
-    Promise.all(this.services.map(service => this.startService(service))).then(() =>
-      this.logger.log("debug", "Started composite service"),
+    Promise.all(this.services.map((service) => this.startService(service))).then(() =>
+      this.logger.log("debug", "Started composite service")
     );
   }
 
   private async startService(service: Service) {
-    const dependencies = service.config.dependencies.map(id => this.serviceMap.get(id)!);
-    await Promise.all(dependencies.map(service => this.startService(service)));
+    const dependencies = service.config.dependencies.map((id) => this.serviceMap.get(id)!);
+    await Promise.all(dependencies.map((service) => this.startService(service)));
     if (this.stopping) {
       await never();
     }
@@ -90,7 +90,7 @@ export class CompositeService {
         .generateCtrlCAsync()
         .catch((error: Error) => this.logger.log("error", String(error)));
     }
-    Promise.all(this.services.map(service => this.stopService(service)))
+    Promise.all(this.services.map((service) => this.stopService(service)))
       .then(() => this.logger.log("debug", "Stopped composite service"))
       // Wait one micro tick for output to flush
       .then(() => process.exit(exitCode));
@@ -99,9 +99,9 @@ export class CompositeService {
   private async stopService(service: Service) {
     if (this.config.gracefulShutdown) {
       const dependents = this.services.filter(({ config }) =>
-        config.dependencies.includes(service.id),
+        config.dependencies.includes(service.id)
       );
-      await Promise.all(dependents.map(service => this.stopService(service)));
+      await Promise.all(dependents.map((service) => this.stopService(service)));
     }
     await service.stop(this.config.windowsCtrlCShutdown);
   }

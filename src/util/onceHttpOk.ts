@@ -4,7 +4,7 @@ import { onceAsyncTest } from "./onceAsyncTest";
 
 export async function onceHttpOk(
   requestOptions: { url?: string | undefined } & RequestOptions,
-  expectedStatus = 200,
+  expectedStatus = 200
 ): Promise<void> {
   const { url, ...options } = requestOptions;
   return onceAsyncTest(250, async () => {

@@ -12,7 +12,7 @@ export function redactStackTraces(lines: string[]) {
   while ((stackTrace = findStackTrace(output))) {
     output.splice(stackTrace.start, stackTrace.length, "<stack trace>");
   }
-  return output.map(line => (line.startsWith(" (error)   errno: ") ? "<errno field>" : line));
+  return output.map((line) => (line.startsWith(" (error)   errno: ") ? "<errno field>" : line));
 
   function findStackTrace(lines: string[]): StackTrace | false {
     const start = lines.findIndex(isStackTraceLine);
@@ -30,7 +30,7 @@ export function redactStackTraces(lines: string[]) {
 
 export function redactCwd(lines: string[]) {
   const cwd = process.cwd();
-  return lines.map(line => {
+  return lines.map((line) => {
     let result = line;
     while (result.includes(cwd)) {
       result = result.replace(cwd, "<cwd>");
@@ -40,11 +40,11 @@ export function redactCwd(lines: string[]) {
 }
 
 export function redactConfigDump(lines: string[]) {
-  const start = lines.findIndex(line => line === " (debug) Config: {");
+  const start = lines.findIndex((line) => line === " (debug) Config: {");
   if (start === -1) {
     return lines;
   }
-  const end = lines.findIndex(line => line === " (debug) }");
+  const end = lines.findIndex((line) => line === " (debug) }");
   if (end === -1) {
     return lines;
   }

@@ -3,7 +3,7 @@ import { redactConfigDump, redactStackTraces } from "./helpers/redact";
 import { fetchText } from "./helpers/fetch";
 
 // TODO: `const delay = promisify(setTimeout)` doesn't work here for some reason
-const delay = (time: number) => new Promise(resolve => setTimeout(() => resolve(), time));
+const delay = (time: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), time));
 
 function getScript(customCode = "") {
   return `
@@ -52,17 +52,17 @@ describe("crashing", () => {
     await proc.ended;
     let output = redactStackTraces(proc.flushOutput());
     output.shift(); // ignore first line like "<file path>:<line number>"
-    output = output.filter(line => line !== `Node.js ${process.version}`); // ignore node version line
+    output = output.filter((line) => line !== `Node.js ${process.version}`); // ignore node version line
     while (output.slice(-1)[0] === "") output.pop(); // remove trailing blank lines, which vary in number between node versions for some reason
     expect(output).toMatchInlineSnapshot(`
-      Array [
-        "    throw new ConfigValidationError(\\"\`config.services\` has no entries\\");",
-        "    ^",
-        "",
-        "ConfigValidationError: \`config.services\` has no entries",
-        "<stack trace>",
-      ]
-    `);
+[
+  "    throw new ConfigValidationError("\`config.services\` has no entries");",
+  "    ^",
+  "",
+  "ConfigValidationError: \`config.services\` has no entries",
+  "<stack trace>",
+]
+`);
   });
   it("crashes gracefully on error spawning process", async () => {
     const script = getScript(`
@@ -72,27 +72,27 @@ describe("crashing", () => {
     await proc.ended;
     const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
-      Array [
-        "<config dump>",
-        " (debug) Starting composite service...",
-        " (debug) Starting service 'first'...",
-        "first | Started 🚀",
-        " (debug) Started service 'first'",
-        " (debug) Starting service 'second'...",
-        " (error) Fatal error: Spawning process for service 'second': Error: spawn this_command_does_not_exist ENOENT",
-        "<stack trace>",
-        "<errno field>",
-        " (error)   code: 'ENOENT',",
-        " (error)   syscall: 'spawn this_command_does_not_exist',",
-        " (error)   path: 'this_command_does_not_exist',",
-        " (error)   spawnargs: []",
-        " (error) }",
-        " (debug) Stopping composite service...",
-        " (debug) Stopping service 'first'...",
-        " (debug) Stopped service 'first'",
-        " (debug) Stopped composite service",
-      ]
-    `);
+[
+  "<config dump>",
+  " (debug) Starting composite service...",
+  " (debug) Starting service 'first'...",
+  "first | Started 🚀",
+  " (debug) Started service 'first'",
+  " (debug) Starting service 'second'...",
+  " (error) Fatal error: Spawning process for service 'second': Error: spawn this_command_does_not_exist ENOENT",
+  "<stack trace>",
+  "<errno field>",
+  " (error)   code: 'ENOENT',",
+  " (error)   syscall: 'spawn this_command_does_not_exist',",
+  " (error)   path: 'this_command_does_not_exist',",
+  " (error)   spawnargs: []",
+  " (error) }",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'first'...",
+  " (debug) Stopped service 'first'",
+  " (debug) Stopped composite service",
+]
+`);
   });
   it("crashes gracefully on error from ready", async () => {
     const script = getScript(`
@@ -102,23 +102,23 @@ describe("crashing", () => {
     await proc.ended;
     const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
-      Array [
-        "<config dump>",
-        " (debug) Starting composite service...",
-        " (debug) Starting service 'first'...",
-        "first | Started 🚀",
-        " (debug) Started service 'first'",
-        " (debug) Starting service 'second'...",
-        " (error) Fatal error: In \`service.second.ready\`: TypeError: Cannot read properties of undefined (reading 'bar')",
-        "<stack trace>",
-        " (debug) Stopping composite service...",
-        " (debug) Stopping service 'second'...",
-        " (debug) Stopped service 'second'",
-        " (debug) Stopping service 'first'...",
-        " (debug) Stopped service 'first'",
-        " (debug) Stopped composite service",
-      ]
-    `);
+[
+  "<config dump>",
+  " (debug) Starting composite service...",
+  " (debug) Starting service 'first'...",
+  "first | Started 🚀",
+  " (debug) Started service 'first'",
+  " (debug) Starting service 'second'...",
+  " (error) Fatal error: In \`service.second.ready\`: TypeError: Cannot read properties of undefined (reading 'bar')",
+  "<stack trace>",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'second'...",
+  " (debug) Stopped service 'second'",
+  " (debug) Stopping service 'first'...",
+  " (debug) Stopped service 'first'",
+  " (debug) Stopped composite service",
+]
+`);
   });
   it("crashes gracefully on error from pre-ready onCrash", async () => {
     const script = getScript(`
@@ -132,24 +132,24 @@ describe("crashing", () => {
     await proc.ended;
     const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
-      Array [
-        "<config dump>",
-        " (debug) Starting composite service...",
-        " (debug) Starting service 'first'...",
-        "first | Started 🚀",
-        " (debug) Started service 'first'",
-        " (debug) Starting service 'second'...",
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        "isServiceReady: false",
-        " (error) Fatal error: In \`service.second.onCrash\`: Error: Crash",
-        "<stack trace>",
-        " (debug) Stopping composite service...",
-        " (debug) Stopping service 'first'...",
-        " (debug) Stopped service 'first'",
-        " (debug) Stopped composite service",
-      ]
-    `);
+[
+  "<config dump>",
+  " (debug) Starting composite service...",
+  " (debug) Starting service 'first'...",
+  "first | Started 🚀",
+  " (debug) Started service 'first'",
+  " (debug) Starting service 'second'...",
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  "isServiceReady: false",
+  " (error) Fatal error: In \`service.second.onCrash\`: Error: Crash",
+  "<stack trace>",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'first'...",
+  " (debug) Stopped service 'first'",
+  " (debug) Stopped composite service",
+]
+`);
   });
   it("crashes gracefully on error from post-ready onCrash", async () => {
     const script = getScript(`
@@ -164,20 +164,20 @@ describe("crashing", () => {
     await proc.ended;
     let output = redactStackTraces(proc.flushOutput());
     expect(output).toMatchInlineSnapshot(`
-      Array [
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        "isServiceReady: true",
-        " (error) Fatal error: In \`service.second.onCrash\`: Error: Crash",
-        "<stack trace>",
-        " (debug) Stopping composite service...",
-        " (debug) Stopping service 'third'...",
-        " (debug) Stopped service 'third'",
-        " (debug) Stopping service 'first'...",
-        " (debug) Stopped service 'first'",
-        " (debug) Stopped composite service",
-      ]
-    `);
+[
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  "isServiceReady: true",
+  " (error) Fatal error: In \`service.second.onCrash\`: Error: Crash",
+  "<stack trace>",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'third'...",
+  " (debug) Stopped service 'third'",
+  " (debug) Stopping service 'first'...",
+  " (debug) Stopped service 'first'",
+  " (debug) Stopped composite service",
+]
+`);
   });
   it("restarts service on successful pre-ready onCrash", async () => {
     const script = getScript(`
@@ -191,29 +191,29 @@ describe("crashing", () => {
     await proc.ended;
     const output = redactStackTraces(redactConfigDump(proc.flushOutput()));
     expect(output).toMatchInlineSnapshot(`
-      Array [
-        "<config dump>",
-        " (debug) Starting composite service...",
-        " (debug) Starting service 'first'...",
-        "first | Started 🚀",
-        " (debug) Started service 'first'",
-        " (debug) Starting service 'second'...",
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        " (info) Restarting service 'second'",
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        " (info) Restarting service 'second'",
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        " (error) Fatal error: In \`service.second.onCrash\`: Error: Crashed three times",
-        "<stack trace>",
-        " (debug) Stopping composite service...",
-        " (debug) Stopping service 'first'...",
-        " (debug) Stopped service 'first'",
-        " (debug) Stopped composite service",
-      ]
-    `);
+[
+  "<config dump>",
+  " (debug) Starting composite service...",
+  " (debug) Starting service 'first'...",
+  "first | Started 🚀",
+  " (debug) Started service 'first'",
+  " (debug) Starting service 'second'...",
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  " (info) Restarting service 'second'",
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  " (info) Restarting service 'second'",
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  " (error) Fatal error: In \`service.second.onCrash\`: Error: Crashed three times",
+  "<stack trace>",
+  " (debug) Stopping composite service...",
+  " (debug) Stopping service 'first'...",
+  " (debug) Stopped service 'first'",
+  " (debug) Stopped composite service",
+]
+`);
   });
   it("restarts service on successful post-ready onCrash", async () => {
     const script = getScript(`
@@ -249,17 +249,17 @@ describe("crashing", () => {
     expect(await fetchText("http://localhost:8002/")).toBe("second");
     // correct output for 1st crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
-      Array [
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        "number of crashes: 1",
-        "crash logTail: [\\"Crashing\\"]",
-        "Handling crash...",
-        "Done handling crash",
-        " (info) Restarting service 'second'",
-        "second | Started 🚀",
-      ]
-    `);
+[
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  "number of crashes: 1",
+  "crash logTail: ["Crashing"]",
+  "Handling crash...",
+  "Done handling crash",
+  " (info) Restarting service 'second'",
+  "second | Started 🚀",
+]
+`);
 
     // crash again
     expect(await fetchText("http://localhost:8002/?crash")).toBe("crashing");
@@ -269,17 +269,17 @@ describe("crashing", () => {
     expect(await fetchText("http://localhost:8002/")).toBe("second");
     // correct output for 2nd crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
-      Array [
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        "number of crashes: 2",
-        "crash logTail: [\\"Crashing\\"]",
-        "Handling crash...",
-        "Done handling crash",
-        " (info) Restarting service 'second'",
-        "second | Started 🚀",
-      ]
-    `);
+[
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  "number of crashes: 2",
+  "crash logTail: ["Crashing"]",
+  "Handling crash...",
+  "Done handling crash",
+  " (info) Restarting service 'second'",
+  "second | Started 🚀",
+]
+`);
 
     // crash again
     expect(await fetchText("http://localhost:8002/?crash")).toBe("crashing");
@@ -289,16 +289,16 @@ describe("crashing", () => {
     expect(await fetchText("http://localhost:8002/")).toBe("second");
     // correct output for 3rd crash
     expect(proc.flushOutput()).toMatchInlineSnapshot(`
-      Array [
-        "second | Crashing",
-        " (info) Service 'second' crashed",
-        "number of crashes: 2",
-        "crash logTail: [\\"Crashing\\"]",
-        "Handling crash...",
-        "Done handling crash",
-        " (info) Restarting service 'second'",
-        "second | Started 🚀",
-      ]
-    `);
+[
+  "second | Crashing",
+  " (info) Service 'second' crashed",
+  "number of crashes: 2",
+  "crash logTail: ["Crashing"]",
+  "Handling crash...",
+  "Done handling crash",
+  " (info) Restarting service 'second'",
+  "second | Started 🚀",
+]
+`);
   });
 });

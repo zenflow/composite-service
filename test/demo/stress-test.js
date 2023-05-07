@@ -8,6 +8,6 @@ startCompositeService({
     Array.from({ length: numberOfServices }, (_, index) => [
       `service${index}`,
       { command: "echo ok" },
-    ]),
+    ])
   ),
 });

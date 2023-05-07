@@ -4,7 +4,7 @@ const { once } = require("events");
 
 const delay = promisify(setTimeout);
 
-const getEnvAsInt = key => {
+const getEnvAsInt = (key) => {
   const string = process.env[key];
   return string ? Number.parseInt(string, 10) : null;
 };
