@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/zenflow/composite-service/compare/v2.0.0...v2.0.1) (2023-05-07)
+
+
+### Bug Fixes
+
+* **build:** target Node.js v14 (not v10) with Babel ([9889e81](https://github.com/zenflow/composite-service/commit/9889e810d69f2fbb738b0c548d71ff5ced4400e8))
+
 # [2.0.0](https://github.com/zenflow/composite-service/compare/v1.0.0...v2.0.0) (2023-04-25)
 
 
